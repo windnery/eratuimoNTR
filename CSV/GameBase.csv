@@ -1,0 +1,44 @@
+TITLE,EraTaimaCollege_NTR
+AUTHOR,ERA游戏开发军团
+YEAR,2026
+INFO,学院风重度NTR向文字模拟游戏
+VERSION,2026
+
+; 基础系统容量
+MAX_ITEM,200          ; 物品容量（原100）
+MAX_CHARA,50          ; 角色容量（原100，减少以优化性能）
+MAX_ABL,199           ; 能力容量（扩展到199，支持更多堕落相关能力）
+MAX_TALENT,150        ; 天赋容量（原100）
+MAX_PALAM,200         ; 参数容量（原100，增加堕落相关参数）
+MAX_MARK,200          ; 标记容量（原100）
+MAX_STAIN,100         ; 污渍容量
+MAX_EXP,200           ; 经验容量（原100）
+MAX_TRAIN,100         ; 训练容量
+MAX_EQUIP,50          ; 装备容量（原100，减少）
+MAX_JUEL,50           ; 宝石容量
+
+; 标记系统容量（大幅扩展以支持复杂NTR关系）
+MAX_CFLAG,5000        ; 角色标记（原1000）
+MAX_TFLAG,2000        ; 临时标记（原1000）
+MAX_TCVAR,2000        ; 临时数值变量
+MAX_TSTR,1000         ; 临时字符串变量
+MAX_CSTR,1000         ; 角色字符串变量
+
+; 新增系统配置
+MAX_PALAMEX,50        ; 扩展参数（用于身体部位敏感度等）
+MAX_RELATIONSHIP,30   ; 人际关系容量
+MAX_LOCATION,100      ; 地图位置容量
+MAX_EVENT,500         ; 事件标记容量
+MAX_NTR_TARGET,20     ; NTR目标数量
+MAX_BODY_PART,30      ; 身体部位数量（用于详细描写）
+MAX_TATTOO,50         ; 纹身类型容量
+MAX_PIERCING,30       ; 穿孔类型容量
+
+; 堕落系统专用
+MAX_DECLINE_TYPE,10   ; 堕落类型（淫乱、屈从、受虐等）
+MAX_SENSITIVITY,20    ; 敏感度部位
+MAX_CORRUPTION,10     ; 腐化程度类型
+
+; 探索系统
+MAX_EXPLORE_AREA,50   ; 可探索区域
+MAX_DISCOVERED,100    ; 已发现地点/线索
