@@ -1,0 +1,513 @@
+; 摄影社肥宅线NTR事件
+@MEET_PHOTO_CLUB_FAT
+; 遇见摄影社肥宅王小明
+PRINTFORML 【你遇到了摄影社肥宅%CALLNAME:(6)%】
+PRINTL 
+
+; 根据NTR进度触发不同事件
+IF FLAG:81 < 10
+	GOSUB PHOTO_CLUB_INVITATION
+ELSEIF FLAG:81 < 30
+	GOSUB PHOTO_CLUB_PHOTOGRAPHY
+ELSEIF FLAG:81 < 60
+	GOSUB PHOTO_CLUB_BLACKMAIL
+ELSE
+	GOSUB PHOTO_CLUB_ABUSE
+ENDIF
+
+WAIT
+RETURN
+
+@PHOTO_CLUB_INVITATION
+; 摄影社邀请事件
+PRINTL %CALLNAME:(6)%：同、同学...有兴趣加入摄影社吗？
+PRINTL 他推了推厚厚的眼镜，说话有些结巴。
+PRINTFORML %CALLNAME:(1)%：摄、摄影社？
+PRINTL %CALLNAME:(6)%：是的！我们摄影社专门拍摄美丽的事物...
+PRINTL 他眼睛发亮地盯着你。
+PRINTL %CALLNAME:(6)%：像你这样漂亮的女生，一定能成为很好的模特！
+PRINTL 
+PRINTL 【他看起来很热情，但眼神让你不太舒服...】
+WAIT
+
+PRINTL 【选择：】
+PRINTL [1] 礼貌拒绝
+PRINTL [2] 表示考虑
+PRINTL [3] 答应去看看
+
+$PHOTO_INVITE_CHOICE
+INPUT
+
+SELECTCASE RESULT
+	CASE 1
+		PRINTFORML %CALLNAME:(1)%：对不起，我对摄影不感兴趣...
+		PRINTL %CALLNAME:(6)%：这、这样啊...太可惜了...
+		PRINTL 他看起来很失望，但还是递给你一张名片。
+		PRINTL %CALLNAME:(6)%：如、如果改变主意，随时联系我...
+		FLAG:81 += 2
+	CASE 2
+		PRINTFORML %CALLNAME:(1)%：我、我需要考虑一下...
+		PRINTL %CALLNAME:(6)%：好、好的！请一定要考虑！
+		PRINTL 他兴奋地搓着手。
+		PRINTL %CALLNAME:(6)%：我、我们社团有很多福利的...
+		FLAG:81 += 4
+		CALL APPLY_SEX_EVENT_EFFECTS, 6, 3, 1  ; 轻微露出效果
+	CASE 3
+		PRINTFORML %CALLNAME:(1)%：那、那我去看看好了...
+		PRINTL %CALLNAME:(6)%：真、真的吗？太好了！
+		PRINTL 他高兴得跳了起来。
+		PRINTL %CALLNAME:(6)%：明天下午放学后，社团活动室见！
+		FLAG:81 += 6
+		CALL APPLY_SEX_EVENT_EFFECTS, 6, 5, 1
+ENDSELECT
+
+PRINTL 
+PRINTL 【摄影社肥宅对你很感兴趣...】
+WAIT
+RETURN
+
+@PHOTO_CLUB_PHOTOGRAPHY
+; 摄影社拍摄事件
+PRINTL 【你来到了摄影社活动室...】
+WAIT
+
+PRINTL 【活动室里...】
+PRINTL %CALLNAME:(6)%：欢、欢迎！请坐请坐...
+PRINTL 房间里堆满了各种摄影器材和二次元海报。
+PRINTL 空气中有一股奇怪的味道。
+PRINTFORML %CALLNAME:(1)%：那、那个...拍摄要怎么拍...
+PRINTL %CALLNAME:(6)%：很、很简单！先换一下衣服...
+PRINTL 他递给你一件看起来很暴露的cosplay服装。
+PRINTFORML %CALLNAME:(1)%：这、这个太暴露了吧...
+PRINTL %CALLNAME:(6)%：这、这是拍摄需要！艺术！艺术你懂吗？
+PRINTL 他激动地说。
+PRINTL 
+PRINTL 【选择：】
+PRINTL [1] 拒绝换衣服
+PRINTL [2] 要求换一件
+PRINTL [3] 勉强同意（需要堕落度>15）
+
+$PHOTO_SHOOT_CHOICE
+INPUT
+
+SELECTCASE RESULT
+	CASE 1
+		PRINTFORML %CALLNAME:(1)%：对不起，我不能穿这个...
+		PRINTL %CALLNAME:(6)%：怎、怎么能这样...我期待了很久的...
+		PRINTL 他看起来快要哭了。
+		PRINTL %CALLNAME:(6)%：那、那穿你自己的衣服拍可以吗...
+		FLAG:81 += 5
+		CALL APPLY_SEX_EVENT_EFFECTS, 6, 8, 1
+	CASE 2
+		PRINTFORML %CALLNAME:(1)%：能、能不能换一件保守点的...
+		PRINTL %CALLNAME:(6)%：好、好吧...我找找...
+		PRINTL 他翻箱倒柜，找出一件稍微好点的。
+		PRINTL %CALLNAME:(6)%：这、这件可以吗？
+		PRINTL 虽然还是有点暴露，但比刚才那件好多了。
+		FLAG:81 += 8
+		CALL APPLY_SEX_EVENT_EFFECTS, 6, 12, 2
+	CASE 3
+		IF GET_TOTAL_DECLINE_LEVEL() >= 15
+			GOSUB PHOTO_CLUB_COSPLAY_SHOOT
+		ELSE
+			PRINTL 【你的堕落度还不够...】
+			GOTO PHOTO_SHOOT_CHOICE
+		ENDIF
+ENDSELECT
+
+PRINTL 
+PRINTL 【摄影社的拍摄让你感到不安...】
+WAIT
+RETURN
+
+@PHOTO_CLUB_COSPLAY_SHOOT
+; 摄影社cosplay拍摄事件
+PRINTL 【你勉强同意了换衣服...】
+WAIT
+
+PRINTL 【在更衣室里...】
+PRINTL 你换上那件暴露的cosplay服装。
+PRINTL 布料很少，几乎遮不住重要部位。
+PRINTFORML %CALLNAME:(1)%：（看着镜中的自己）这、这个真的能穿出去吗...
+PRINTL %CALLNAME:(6)%：换、换好了吗？我可以进来吗？
+PRINTFORML %CALLNAME:(1)%：还、还没...
+PRINTL 但他已经迫不及待地推门进来了。
+PRINTFORML %CALLNAME:(1)%：啊！请出去！
+PRINTL %CALLNAME:(6)%：对、对不起！我不是故意的...
+PRINTL 但他眼睛一直盯着你看。
+PRINTL 
+PRINTL 【拍摄开始...】
+WAIT
+
+PRINTL %CALLNAME:(6)%：好、好了，开始拍摄...
+PRINTL 他举起相机，不停地按快门。
+PRINTL %CALLNAME:(6)%：笑、笑一个...对，就是这样...
+PRINTFORML %CALLNAME:(1)%：（勉强挤出笑容）
+PRINTL %CALLNAME:(6)%：摆、摆个可爱的姿势...
+PRINTL 他指导你摆出各种羞耻的姿势。
+PRINTFORML %CALLNAME:(1)%：这、这个姿势太...
+PRINTL %CALLNAME:(6)%：艺、艺术！这是艺术！
+PRINTL 
+PRINTL 【拍摄越来越过分...】
+WAIT
+
+PRINTL %CALLNAME:(6)%：能、能不能把裙子再撩高一点...
+PRINTFORML %CALLNAME:(1)%：不、不行...太暴露了...
+PRINTL %CALLNAME:(6)%：就、就一点...求你了...
+PRINTL 他跪下来恳求你。
+PRINTFORML %CALLNAME:(1)%：那、那就一点点...
+PRINTL 你勉强把裙子撩高了一点。
+PRINTL %CALLNAME:(6)%：太好了！就是这个角度！
+PRINTL 他疯狂按快门，相机发出连续的咔嚓声。
+PRINTL 
+PRINTL 【选择：继续还是停止】
+PRINTL [1] 立即停止
+PRINTL [2] 再拍几张就停
+PRINTL [3] 继续拍摄（需要堕落度>25）
+
+$PHOTO_SHOOT_CONTINUE
+INPUT
+
+SELECTCASE RESULT
+	CASE 1
+		PRINTFORML %CALLNAME:(1)%：对不起，我不拍了！
+		PRINTL 你跑回更衣室换回衣服。
+		PRINTL %CALLNAME:(6)%：等、等一下！照片还没拍完...
+		FLAG:81 += 10
+		CALL APPLY_SEX_EVENT_EFFECTS, 6, 15, 2
+	CASE 2
+		PRINTFORML %CALLNAME:(1)%：再、再拍几张我就走了...
+		PRINTL %CALLNAME:(6)%：好、好的！谢谢你！
+		PRINTL 他又拍了几张，然后让你去换衣服。
+		FLAG:81 += 15
+		CALL APPLY_SEX_EVENT_EFFECTS, 6, 20, 3
+	CASE 3
+		IF GET_TOTAL_DECLINE_LEVEL() >= 25
+			GOSUB PHOTO_CLUB_ADVANCED_SHOOT
+		ELSE
+			PRINTL 【你的堕落度还不够...】
+			GOTO PHOTO_SHOOT_CONTINUE
+		ENDIF
+ENDSELECT
+
+PRINTL 
+PRINTL 【你在摄影社拍摄了羞耻的照片...】
+WAIT
+RETURN
+
+@PHOTO_CLUB_ADVANCED_SHOOT
+; 摄影社高级拍摄事件
+PRINTL 【你继续配合%CALLNAME:(6)%拍摄...】
+WAIT
+
+PRINTL %CALLNAME:(6)%：能、能不能躺在地上拍...
+PRINTFORML %CALLNAME:(1)%：地、地上？会很脏的...
+PRINTL %CALLNAME:(6)%：我、我铺了垫子！干净的！
+PRINTL 他确实准备了垫子。
+PRINTFORML %CALLNAME:(1)%：好、好吧...
+PRINTL 你躺在垫子上，姿势更加羞耻了。
+PRINTL %CALLNAME:(6)%：太、太棒了！就是这个角度！
+PRINTL 他跪在你身边，从上方拍摄。
+PRINTL 你能闻到他身上那股奇怪的味道...
+PRINTL 
+PRINTL 【拍摄越来越露骨...】
+WAIT
+
+PRINTL %CALLNAME:(6)%：能、能不能把内裤稍微拉下来一点...
+PRINTFORML %CALLNAME:(1)%：不、不行！这个绝对不行！
+PRINTL %CALLNAME:(6)%：就、就一点点...艺术需要...
+PRINTL 他苦苦哀求。
+PRINTFORML %CALLNAME:(1)%：那、那就一点点...
+PRINTL 你勉强拉下一点点内裤。
+PRINTL %CALLNAME:(6)%：太、太好了！这个角度太棒了！
+PRINTL 他疯狂拍照，相机几乎要贴到你身上。
+PRINTL 
+PRINTL 【他突然伸手调整你的姿势...】
+WAIT
+
+PRINTL %CALLNAME:(6)%：这、这样会更好...
+PRINTL 他的手碰到了你的大腿内侧。
+PRINTFORML %CALLNAME:(1)%：啊！请不要碰我！
+PRINTL %CALLNAME:(6)%：对、对不起！我不是故意的...
+PRINTL 但他没有收回手，反而更加靠近。
+PRINTL %CALLNAME:(6)%：你、你的皮肤好滑...
+PRINTFORML %CALLNAME:(1)%：请、请不要这样...
+PRINTL 但你的反抗很微弱。
+PRINTL 
+PRINTL 【他开始得寸进尺...】
+WAIT
+
+PRINTL %CALLNAME:(6)%：我、我想拍更艺术的照片...
+PRINTL 他的手向上移动，几乎要碰到你的私处。
+PRINTFORML %CALLNAME:(1)%：不、不要...
+PRINTL %CALLNAME:(6)%：就、就拍一张...求你了...
+PRINTL 他已经完全兴奋了，你能看到他裤子的隆起。
+PRINTFORML %CALLNAME:(1)%：（闭上眼睛）快、快点...
+
+; 效果
+FLAG:81 += 25
+CALL APPLY_SEX_EVENT_EFFECTS, 6, 30, 4
+CALL APPLY_SEX_EVENT_EFFECTS, 7, 20, 3
+
+; 拍摄导致大量羞耻照片被拍下
+CALL SET_PALAM, 1, 14, MAX(0, GET_PALAM(1, 14) - 15)  ; 羞耻心下降
+CALL SET_PALAM(1, 33, GET_PALAM(1, 33) + 20  ; 露出经验大幅增加
+
+PRINTL 
+PRINTL 【摄影社肥宅拍下了你大量羞耻的照片...】
+PRINTL 这些照片可能会成为把柄...
+WAIT
+RETURN
+
+@PHOTO_CLUB_BLACKMAIL
+; 摄影社勒索事件
+PRINTL %CALLNAME:(6)%：%CALLNAME:(1)%...我有话跟你说。
+PRINTL 他表情严肃，和平时判若两人。
+PRINTFORML %CALLNAME:(1)%：什、什么事...
+PRINTL %CALLNAME:(6)%：关、关于上次拍摄的照片...
+PRINTL 他拿出手机，上面显示着你羞耻的照片。
+PRINTFORML %CALLNAME:(1)%：那、那些照片不是说要删除的吗！
+PRINTL %CALLNAME:(6)%：我、我忘记删了...
+PRINTL 但他明显在说谎。
+PRINTL %CALLNAME:(6)%：如、如果这些照片流传出去...你会很困扰吧？
+PRINTL 
+PRINTL 【他在勒索你...】
+WAIT
+
+PRINTL 【选择：】
+PRINTL [1] 要求删除照片
+PRINTL [2] 试图抢夺手机
+PRINTL [3] 询问条件（需要堕落度>35）
+
+$PHOTO_BLACKMAIL_CHOICE
+INPUT
+
+SELECTCASE RESULT
+	CASE 1
+		PRINTFORML %CALLNAME:(1)%：请、请你立刻删除！
+		PRINTL %CALLNAME:(6)%：删、删除可以...但要答应我一个条件...
+		PRINTL 他终于露出了真面目。
+		PRINTL %CALLNAME:(6)%：再、再让我拍一次...
+		FLAG:81 += 12
+		CALL APPLY_SEX_EVENT_EFFECTS, 7, 25, 3
+	CASE 2
+		PRINTL 【你试图抢夺他的手机】
+		PRINTFORML %CALLNAME:(1)%：把手机给我！
+		PRINTL %CALLNAME:(6)%：不、不要抢！
+		PRINTL 他比你力气大，反而把你推倒了。
+		PRINTL %CALLNAME:(6)%：你、你弄疼我了...
+		FLAG:81 += 15
+		CALL APPLY_SEX_EVENT_EFFECTS, 7, 30, 3
+	CASE 3
+		IF GET_TOTAL_DECLINE_LEVEL() >= 35
+			GOSUB PHOTO_CLUB_BLACKMAIL_SEX
+		ELSE
+			PRINTL 【你的堕落度还不够...】
+			GOTO PHOTO_BLACKMAIL_CHOICE
+		ENDIF
+ENDSELECT
+
+PRINTL 
+PRINTL 【摄影社肥宅用照片威胁你...】
+WAIT
+RETURN
+
+@PHOTO_CLUB_BLACKMAIL_SEX
+; 摄影社勒索性交事件
+PRINTL 【你屈服于%CALLNAME:(6)%的威胁...】
+WAIT
+
+PRINTFORML %CALLNAME:(1)%：要、要什么条件你才肯删除照片...
+PRINTL %CALLNAME:(6)%：很、很简单...让、让我上一次...
+PRINTL 他直白地说出了要求。
+PRINTFORML %CALLNAME:(1)%：上、上一次？什么意思...
+PRINTL %CALLNAME:(6)%：就、就是做爱啊...还能有什么意思...
+PRINTL 他呼吸变得急促。
+PRINTL %CALLNAME:(6)%：一、一次就好...我保证删除照片...
+PRINTL 
+PRINTL 【你知道他在说谎，但没办法...】
+WAIT
+
+PRINTL 【在摄影社活动室里...】
+PRINTL %CALLNAME:(6)%：躺、躺下...
+PRINTFORML %CALLNAME:(1)%：在、在这里？
+PRINTL %CALLNAME:(6)%：当、当然...我要拍下整个过程...
+PRINTFORML %CALLNAME:(1)%：还、还要拍？
+PRINTL %CALLNAME:(6)%：这、这是纪念...最后一次，我保证...
+PRINTL 他架起了摄像机。
+PRINTL 
+PRINTL 【你躺在垫子上，摄像机对准了你...】
+WAIT
+
+PRINTL %CALLNAME:(6)%：脱、脱衣服...
+PRINTFORML %CALLNAME:(1)%：我、我自己来...
+PRINTL 你颤抖着脱下衣服，暴露在镜头前。
+PRINTL %CALLNAME:(6)%：太、太美了...比二次元角色还美...
+PRINTL 他痴迷地看着你，口水都流出来了。
+PRINTL 
+PRINTL 【他脱下了裤子...】
+WAIT
+
+PRINTL %CALLNAME:(6)%：看、看到了吗？这就是我的...
+PRINTL 他的性器不大，但看起来很恶心。
+PRINTFORML %CALLNAME:(1)%：好、好丑...
+PRINTL %CALLNAME:(6)%：没、没关系...能用就行...
+PRINTL 他压到你身上，开始亲吻你的脖子。
+PRINTFORML %CALLNAME:(1)%：啊...不要...好恶心...
+PRINTL %CALLNAME:(6)%：忍、忍耐一下...很快就好了...
+PRINTL 
+PRINTL 【他进入你的身体...】
+WAIT
+
+PRINTL %CALLNAME:(6)%：好、好紧...比想象中还紧...
+PRINTFORML %CALLNAME:(1)%：痛...好痛...
+PRINTL 他笨拙地抽插，每次都顶得很痛。
+PRINTL %CALLNAME:(6)%：动、动一下啊...像AV里那样...
+PRINTFORML %CALLNAME:(1)%：我、我不会...
+PRINTL %CALLNAME:(6)%：笨、笨蛋...这都不会...
+PRINTL 
+PRINTL 【他加快速度...】
+WAIT
+
+PRINTL %CALLNAME:(6)%：要、要射了...
+PRINTFORML %CALLNAME:(1)%：不、不要射在里面...
+PRINTL %CALLNAME:(6)%：已、已经来不及了...
+PRINTL 他在你体内射出了一股黏糊糊的精液。
+PRINTFORML %CALLNAME:(1)%：啊...里面...好脏...
+PRINTL 
+PRINTL 【事后...】
+WAIT
+
+PRINTL %CALLNAME:(6)%：爽、爽死了...跟做梦一样...
+PRINTFORML %CALLNAME:(1)%：照、照片可以删了吧...
+PRINTL %CALLNAME:(6)%：这、这次是删了...但我又拍了新的...
+PRINTL 他指着还在运行的摄像机。
+PRINTFORML %CALLNAME:(1)%：你！你骗我！
+PRINTL %CALLNAME:(6)%：骗、骗你又怎样？你又能拿我怎么样？
+PRINTL 他露出了得意的笑容。
+
+; 效果
+FLAG:81 += 30
+CALL APPLY_SEX_EVENT_EFFECTS, 2, 40, 4
+CALL APPLY_SEX_EVENT_EFFECTS, 5, 25, 2
+CALL APPLY_SEX_EVENT_EFFECTS, 6, 35, 4
+CALL APPLY_SEX_EVENT_EFFECTS, 7, 30, 3
+
+; 特别效果：被肥宅侵犯导致屈辱感大幅提升
+CALL SET_PALAM, 1, 17, MIN(100, GET_PALAM(1, 17) + 20)  ; 屈辱感
+CALL SET_PALAM, 1, 36, MIN(100, GET_PALAM(1, 36) + 15)  ; 羞辱经验
+CALL SET_PALAM, 1, 18, MIN(100, GET_PALAM(1, 18) + 15)  ; 服从度
+
+PRINTL 
+PRINTL 【你被摄影社肥宅侵犯了，还被拍下了视频...】
+PRINTL 事情变得更糟了...
+WAIT
+RETURN
+
+@PHOTO_CLUB_ABUSE
+; 摄影社虐待事件（高堕落度）
+PRINTL %CALLNAME:(6)%：%CALLNAME:(1)%，过来。
+PRINTL 他现在对你说话的语气完全变了。
+PRINTFORML %CALLNAME:(1)%：又、又有什么事...
+PRINTL %CALLNAME:(6)%：我、我的朋友想见见你。
+PRINTL 他身边站着几个同样猥琐的肥宅。
+PRINTL 肥宅A：哦？这就是你说的那个妞？
+PRINTL 肥宅B：看起来确实不错嘛。
+PRINTL 肥宅C：让我们也爽爽？
+PRINTL 
+PRINTL 【他在叫朋友一起侵犯你...】
+WAIT
+
+IF GET_TOTAL_DECLINE_LEVEL() >= 60
+	GOSUB PHOTO_CLUB_GROUP_ABUSE
+ELSE
+	PRINTL 【你的堕落度还不够...】
+	PRINTL 你转身逃跑，但他们拦住了你。
+	FLAG:81 += 20
+	CALL APPLY_SEX_EVENT_EFFECTS, 7, 40, 4
+ENDIF
+
+RETURN
+
+@PHOTO_CLUB_GROUP_ABUSE
+; 摄影社群体虐待事件
+PRINTL 【你没有反抗...】
+WAIT
+
+PRINTL 【在摄影社活动室里...】
+PRINTL %CALLNAME:(6)%：今、今天我们来玩点特别的...
+PRINTL 他拿出各种奇怪的玩具。
+PRINTFORML %CALLNAME:(1)%：这、这些是什么...
+PRINTL 肥宅A：SM玩具啊，你没见过吗？
+PRINTL 肥宅B：今天我们要好好调教你...
+PRINTL 肥宅C：先从捆绑开始吧。
+PRINTL 
+PRINTL 【他们把你绑了起来...】
+WAIT
+
+PRINTL 肥宅A：这样你就跑不掉了。
+PRINTL 肥宅B：来，戴上这个。
+PRINTL 他给你戴上了口球。
+PRINTFORML %CALLNAME:(1)%：唔...嗯...
+PRINTL 肥宅C：现在让我们好好玩玩...
+PRINTL 
+PRINTL 【三个肥宅开始玩弄你...】
+WAIT
+
+PRINTL 肥宅A：我先来！
+PRINTL 他开始抽打你的臀部，发出啪啪的声音。
+PRINTFORML %CALLNAME:(1)%：唔！唔唔！
+PRINTL 肥宅B：轮到我了！
+PRINTL 他用振动棒刺激你的小穴。
+PRINTFORML %CALLNAME:(1)%：嗯！嗯嗯！
+PRINTL 肥宅C：最后是我！
+PRINTL 他玩弄你的胸部，用力揉捏。
+PRINTFORML %CALLNAME:(1)%：啊！啊啊！
+PRINTL 
+PRINTL 【他们轮流虐待你...】
+WAIT
+
+PRINTL %CALLNAME:(6)%：看、看起来她很享受嘛...
+PRINTL 肥宅A：抖M属性觉醒了？
+PRINTL 肥宅B：那就让她更爽一点...
+PRINTL 他们加大了力度。
+PRINTFORML %CALLNAME:(1)%：唔唔唔！啊啊啊！
+PRINTL 
+PRINTL 【强烈的高潮...】
+WAIT
+
+PRINTFORML %CALLNAME:(1)%：唔！啊啊啊♡♥
+PRINTL 你达到了强烈的高潮，身体剧烈痉挛。
+PRINTL 三个肥宅也在你身上射出了大量精液。
+PRINTFORML %CALLNAME:(1)%：唔...嗯嗯...♡
+PRINTL 精液覆盖了你的全身，像被淋了一身白浊。
+PRINTL 
+PRINTL 【事后...】
+WAIT
+
+PRINTL 肥宅A：爽！太爽了！
+PRINTL 肥宅B：下次还要来玩啊。
+PRINTL 肥宅C：我们会好好"照顾"你的。
+PRINTL %CALLNAME:(6)%：怎、怎么样？喜欢吗？
+PRINTFORML %CALLNAME:(1)%：（无力地点头）嗯...
+
+; 效果
+FLAG:81 += 50
+CALL APPLY_SEX_EVENT_EFFECTS, 4, 60, 8  ; 群交
+CALL APPLY_SEX_EVENT_EFFECTS, 5, 40, 4  ; 内射（间接）
+CALL APPLY_SEX_EVENT_EFFECTS, 7, 50, 6  ; 束缚
+CALL APPLY_SEX_EVENT_EFFECTS, 2, 45, 5  ; 阴道性交（间接）
+CALL APPLY_SEX_EVENT_EFFECTS, 0, 35, 4  ; 乳交
+
+; 特别效果：SM虐待导致被虐欲大幅提升
+CALL SET_PALAM, 1, 23, MIN(100, GET_PALAM(1, 23) + 25)  ; 被虐欲
+CALL SET_PALAM, 1, 34, GET_PALAM(1, 34) + 30  ; 束缚经验
+CALL SET_PALAM, 1, 35, GET_PALAM(1, 35) + 20  ; 羞辱经验
+CALL SET_PALAM, 1, 36, GET_PALAM(1, 36) + 25  ; 服从经验
+CALL SET_PALAM, 1, 18, MIN(100, GET_PALAM(1, 18) + 20)  ; 服从度
+
+PRINTL 
+PRINTL 【你被多个肥宅虐待侵犯...】
+PRINTL 身体已经彻底沉溺于这种屈辱的快感...
+WAIT
+RETURN

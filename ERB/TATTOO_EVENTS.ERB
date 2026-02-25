@@ -1,0 +1,512 @@
+; 纹身相关事件
+@RAPE_TATTOO_EVENT, ARG:1
+; 强奸后纹身事件
+; ARG:1 = 强奸者类型 (0=普通 1=黑人 2=多人 3=SM)
+PRINTL 
+PRINTL 【强奸结束后，侵犯者拿出了纹身工具...】
+WAIT
+
+PRINTL 男人：这么漂亮的身体，不留点纪念太可惜了...
+PRINTFORML %CALLNAME:(1)%：不、不要...纹身...
+PRINTL 男人：别动，很快就好...
+PRINTL 他按住你，开始在你身上纹身。
+PRINTFORML %CALLNAME:(1)%：啊！好痛...不要...
+PRINTL 但你的反抗很微弱，纹身针在你的皮肤上移动。
+PRINTL 
+PRINTL 【纹身完成了...】
+WAIT
+
+SELECTCASE ARG:1
+	CASE 0  ; 普通强奸
+		; 随机选择一个部位纹正字
+		LOCAL = RAND:4
+		SELECTCASE LOCAL
+			CASE 0
+				CALL ADD_TATTOO, 8, 180  ; 大腿内侧正字
+				PRINTL 【他在你的大腿内侧纹了一个"正"字...】
+				PRINTL 男人：这是第一次，以后每次都会加上一笔...
+			CASE 1
+				CALL ADD_TATTOO, 7, 172  ; 臀部正字
+				PRINTL 【他在你的臀部纹了一个"正"字...】
+				PRINTL 男人：每次被操都会在这里加一笔...
+			CASE 2
+				CALL ADD_TATTOO, 0, 100  ; 手背正字
+				PRINTL 【他在你的手背上纹了一个"正"字...】
+				PRINTL 男人：让所有人都知道你被操过...
+			CASE 3
+				CALL ADD_TATTOO, 14, 244  ; 阴部正字
+				PRINTL 【他在你的阴部周围纹了一个"正"字...】
+				PRINTL 男人：每次插入都会看到这个标记...
+		ENDSELECT
+		
+	CASE 1  ; 黑人强奸
+		GOSUB BLACK_TATTOO_EVENT
+		
+	CASE 2  ; 多人轮奸
+		GOSUB GROUP_TATTOO_EVENT
+		
+	CASE 3  ; SM强奸
+		GOSUB SM_TATTOO_EVENT
+ENDSELECT
+
+; 纹身后效果
+PRINTL 
+PRINTL 【纹身带来的疼痛和屈辱让你浑身颤抖...】
+CALL SET_PALAM, 1, 17, MIN(100, GET_PALAM(1, 17) + 15)  ; 屈辱感增加
+CALL SET_PALAM, 1, 35, GET_PALAM(1, 35) + 10  ; 羞辱经验增加
+
+WAIT
+RETURN
+
+@BLACK_TATTOO_EVENT
+; 黑人专属纹身事件
+PRINTL %CALLNAME:(4)%：Black girl needs black marks...
+PRINTL 他拿出黑色的纹身墨水。
+PRINTFORML %CALLNAME:(1)%：不、不要黑色纹身...
+PRINTL %CALLNAME:(4)%：Shut up, you belong to black now...
+PRINTL 
+PRINTL 【选择纹身图案】
+LOCAL = RAND:100
+
+IF LOCAL < 30
+	; 黑桃标记
+	CALL ADD_TATTOO, 7, 171  ; 臀部黑桃
+	PRINTL 【他在你的臀部纹了一个黑桃图案...】
+	PRINTL %CALLNAME:(4)%：Now you're a spade queen...
+	PRINTL 黑桃在色情文化中象征着对黑人的偏好。
+	
+ELSEIF LOCAL < 60
+	; BBC标记
+	CALL ADD_TATTOO, 6, 162  ; 小腹BBC Only
+	PRINTL 【他在你的小腹纹上了"BBC Only"...】
+	PRINTL %CALLNAME:(4)%：Only black cock for you now...
+	PRINTL 这个纹身标志着你的小穴只属于黑人。
+	
+ELSEIF LOCAL < 80
+	; QOS标记
+	CALL ADD_TATTOO, 4, 142  ; 背部BBC Queen
+	PRINTL 【他在你的背部纹上了"BBC Queen"...】
+	PRINTL %CALLNAME:(4)%：Queen of spades, my queen...
+	PRINTL QOS（Queen of Spades）是媚黑女性的标志。
+	
+ELSE
+	; 黑人精子纹身
+	CALL ADD_TATTOO, 12, 221  ; 乳头黑色精子
+	PRINTL 【他在你的乳晕周围纹上了黑色精子图案...】
+	PRINTL %CALLNAME:(4)%：Black sperm forever on your tits...
+	PRINTL 这个纹身象征着你的乳房被黑人精液玷污。
+ENDIF
+
+; 增加媚黑纹身计数
+FLAG:103 += 1
+
+; 黑人专属穿孔
+IF RAND:100 < 50
+	LOCAL = RAND:3
+	IF LOCAL == 0
+		CALL ADD_PIERCING, 0, 9  ; 左乳头黑人专属乳环
+		PRINTL 【他还给你穿上了黑人专属乳环...】
+	ELSEIF LOCAL == 1
+		CALL ADD_PIERCING, 1, 9  ; 右乳头黑人专属乳环
+		PRINTL 【他还给你穿上了黑人专属乳环...】
+	ELSE
+		CALL ADD_PIERCING, 2, 9  ; 阴蒂黑人专属环
+		PRINTL 【他还给你穿上了黑人专属阴蒂环...】
+	ENDIF
+ENDIF
+
+RETURN
+
+@GROUP_TATTOO_EVENT
+; 群体强奸纹身事件
+PRINTL 男人A：我们每个人都在她身上留个标记吧。
+PRINTL 男人B：好啊，让她记住我们所有人。
+PRINTL 男人C：我先来！
+PRINTL 
+PRINTL 【多个男人轮流在你身上纹身...】
+WAIT
+
+; 第一个人纹编号
+CALL ADD_TATTOO, 1, 101  ; 手腕奴隶编号
+PRINTL 【第一个男人在你的手腕纹上了奴隶编号"001"...】
+
+; 第二个人纹正字
+CALL ADD_TATTOO, 8, 180  ; 大腿内侧正字
+PRINTL 【第二个男人在你的大腿内侧纹了一个"正"字...】
+
+; 第三个人纹淫纹
+CALL ADD_TATTOO, 14, 240  ; 阴部淫纹
+PRINTL 【第三个男人在你的阴部周围纹了淫纹...】
+
+; 可能还有更多人
+IF RAND:100 < 30
+	CALL ADD_TATTOO, 16, 261  ; 后颈奴隶编号
+	PRINTL 【还有人在你的后颈纹上了奴隶标记...】
+ENDIF
+
+PRINTL 
+PRINTL 【你身上被纹满了各种标记...】
+PRINTL 这些纹身将永远记录着这次轮奸。
+
+; 增加奴隶纹身计数
+FLAG:104 += 2
+
+RETURN
+
+@SM_TATTOO_EVENT
+; SM强奸纹身事件
+PRINTL SM男：这么完美的SM素材，不留点标记太可惜了。
+PRINTL 他拿出专业的纹身工具。
+PRINTFORML %CALLNAME:(1)%：求、求你不要...
+PRINTL SM男：疼痛也是调教的一部分，忍一下。
+PRINTL 
+PRINTL 【他在你身上纹了SM专用的标记...】
+WAIT
+
+LOCAL = RAND:100
+
+IF LOCAL < 40
+	; 锁链纹身
+	CALL ADD_TATTOO, 1, 111  ; 手腕锁链纹身
+	PRINTL 【他在你的手腕纹上了锁链图案...】
+	PRINTL SM男：这样你就永远被锁住了。
+	
+ELSEIF LOCAL < 70
+	; 项圈纹身
+	CALL ADD_TATTOO, 16, 260  ; 后颈项圈纹身
+	PRINTL 【他在你的后颈纹上了项圈图案...】
+	PRINTL SM男：这样你就永远是我的宠物了。
+	
+ELSE
+	; 奴隶标记
+	CALL ADD_TATTOO, 10, 201  ; 脚踝奴隶标记
+	PRINTL 【他在你的脚踝纹上了奴隶标记...】
+	PRINTL SM男：这样所有人看到都知道你是奴隶。
+ENDIF
+
+; SM专属穿孔
+IF RAND:100 < 60
+	LOCAL = RAND:3
+	IF LOCAL == 0
+		CALL ADD_PIERCING, 0, 6  ; 左乳头锁链乳环
+		PRINTL 【他还给你穿上了锁链乳环...】
+	ELSEIF LOCAL == 1
+		CALL ADD_PIERCING, 1, 6  ; 右乳头锁链乳环
+		PRINTL 【他还给你穿上了锁链乳环...】
+	ELSE
+		CALL ADD_PIERCING, 13, 6  ; 阴部锁链环
+		PRINTL 【他还给你穿上了阴部锁链环...】
+	ENDIF
+ENDIF
+
+RETURN
+
+@BLACK_GROUP_TATTOO_EVENT
+; 黑人群交纹身事件
+PRINTL 
+PRINTL 【黑人群交结束后，他们决定给你纹身...】
+WAIT
+
+PRINTL 黑人A：Let's mark her as black property.
+PRINTL 黑人B：Yeah, so everyone knows she's ours.
+PRINTL 黑人C：I want to leave my mark on her.
+PRINTL 
+PRINTL 【多个黑人轮流在你身上纹媚黑标记...】
+WAIT
+
+; 第一个黑人纹黑桃
+CALL ADD_TATTOO, 7, 171  ; 臀部黑桃
+PRINTL 【第一个黑人在你的臀部纹了黑桃图案...】
+
+; 第二个黑人纹BBC
+CALL ADD_TATTOO, 6, 162  ; 小腹BBC Only
+PRINTL 【第二个黑人在你的小腹纹了"BBC Only"...】
+
+; 第三个黑人纹黑人名字
+CALL ADD_TATTOO, 4, 141  ; 背部黑人名字
+PRINTL 【第三个黑人在你的背部纹了他的名字...】
+
+; 可能还有更多
+IF RAND:100 < 40
+	CALL ADD_TATTOO, 8, 184  ; 大腿内侧黑人名字列表
+	PRINTL 【还有人在你的大腿内侧纹了所有黑人的名字...】
+ENDIF
+
+; 强制穿孔
+IF RAND:100 < 70
+	LOCAL = RAND:4
+	SELECTCASE LOCAL
+		CASE 0
+			CALL ADD_PIERCING, 0, 8  ; 左乳头BBC乳环
+			PRINTL 【他们还给你穿上了BBC乳环...】
+		CASE 1
+			CALL ADD_PIERCING, 1, 8  ; 右乳头BBC乳环
+			PRINTL 【他们还给你穿上了BBC乳环...】
+		CASE 2
+			CALL ADD_PIERCING, 2, 8  ; 阴蒂BBC环
+			PRINTL 【他们还给你穿上了BBC阴蒂环...】
+		CASE 3
+			CALL ADD_PIERCING, 14, 8  ; 肛门BBC环
+			PRINTL 【他们还给你穿上了BBC肛门环...】
+	ENDSELECT
+ENDIF
+
+PRINTL 
+PRINTL 【你全身被纹满了媚黑标记...】
+PRINTL 这些纹身标志着你是黑人的专属财产。
+
+; 大幅增加媚黑纹身计数
+FLAG:103 += 3
+
+; 心理效果
+CALL SET_PALAM, 1, 18, MIN(100, GET_PALAM(1, 18) + 20)  ; 服从度大幅增加
+CALL SET_PALAM, 1, 19, MIN(100, GET_PALAM(1, 19) + 15)  ; 依赖度大幅增加
+CALL SET_PALAM, 1, 20, MIN(100, GET_PALAM(1, 20) + 25)  ; 淫乱度大幅增加
+
+PRINTL 
+PRINTL 【看着身上这些黑色的纹身，你感到一种奇怪的归属感...】
+PRINTL 也许这就是你的命运...
+
+WAIT
+RETURN
+
+@FORCED_PIERCING_EVENT, ARG:1, ARG:2
+; 强制穿孔事件
+; ARG:1 = 穿孔部位
+; ARG:2 = 穿孔类型
+PRINTL 
+PRINTL 【侵犯者拿出了穿孔工具...】
+WAIT
+
+PRINTL 男人：这么漂亮的身体，不戴上点装饰太可惜了。
+PRINTFORML %CALLNAME:(1)%：不、不要穿孔...好痛...
+PRINTL 男人：忍一下，很快就好...
+PRINTL 他按住你，用穿孔针刺穿了你的皮肤。
+PRINTFORML %CALLNAME:(1)%：啊！好痛！
+PRINTL 尖锐的疼痛让你尖叫起来。
+PRINTL 男人：别动，还在穿环...
+PRINTL 
+PRINTL 【穿孔完成了...】
+WAIT
+
+CALL ADD_PIERCING, ARG:1, ARG:2
+
+SELECTCASE ARG:1
+	CASE 0, 1  ; 乳头
+		PRINTL 【你的乳头被穿上了{GET_PIERCING_NAME(ARG:1, ARG:2)}...】
+		PRINTL 乳头传来阵阵刺痛，变得异常敏感。
+	CASE 2  ; 阴蒂
+		PRINTL 【你的阴蒂被穿上了{GET_PIERCING_NAME(ARG:1, ARG:2)}...】
+		PRINTL 阴蒂的疼痛让你浑身颤抖，但同时也有种奇怪的快感。
+	CASE 6  ; 舌头
+		PRINTL 【你的舌头被穿上了{GET_PIERCING_NAME(ARG:1, ARG:2)}...】
+		PRINTL 舌头上的异物感让你说话都有些困难。
+	CASE 14  ; 肛门
+		PRINTL 【你的肛门被穿上了{GET_PIERCING_NAME(ARG:1, ARG:2)}...】
+		PRINTL 肛门传来奇怪的充实感。
+ENDSELECT
+
+; 疼痛效果
+CALL SET_PALAM, 1, 0, MAX(0, GET_PALAM(1, 0) - 20)  ; 体力减少
+CALL SET_PALAM, 1, 40, MIN(100, GET_PALAM(1, 40) + 15)  ; 疼痛耐性下降
+
+; 如果是媚黑穿孔
+IF ARG:2 >= 7 AND ARG:2 <= 9
+	PRINTL 
+	PRINTL 【这种穿孔标志着你对黑人的归属...】
+	PRINTL 看到这个环的人都会知道你的身份。
+	
+	FLAG:103 += 1  ; 媚黑标记计数增加
+	CALL SET_PALAM, 1, 16, MIN(100, GET_PALAM(1, 16) + 10)  ; 背德感增加
+ENDIF
+
+PRINTL 
+PRINTL 【这个穿孔将永远留在你身上，无法去除...】
+WAIT
+RETURN
+
+@TATTOO_COUNTING_EVENT
+; 正字计数纹身事件（每次被轮奸后）
+PRINTL 
+PRINTL 【侵犯者查看了你身上的正字纹身...】
+WAIT
+
+; 检查已有的正字纹身
+LOCAL = 0
+LOCAL:1 = -1  ; 正字纹身部位
+
+IF GET_TATTOO(1, 8) == 180  ; 大腿内侧正字
+	LOCAL += 1
+	LOCAL:1 = 8
+ELSEIF GET_TATTOO(1, 7) == 172  ; 臀部正字
+	LOCAL += 1
+	LOCAL:1 = 7
+ELSEIF GET_TATTOO(1, 0) == 100  ; 手背正字
+	LOCAL += 1
+	LOCAL:1 = 0
+ELSEIF GET_TATTOO(1, 14) == 244  ; 阴部正字
+	LOCAL += 1
+	LOCAL:1 = 14
+ENDIF
+
+IF LOCAL == 0
+	; 还没有正字纹身，添加第一个
+	GOSUB RAPE_TATTOO_EVENT, 0
+ELSE
+	; 已经有正字纹身，考虑增加笔画或添加新的
+	IF RAND:100 < 50
+		; 在同一个部位增加新的正字
+		PRINTL 男人：哦？已经有{GET_TATTOO_LOCATION_NAME(LOCAL:1)}的正字了。
+		PRINTL 男人：那就再加一个吧，让你记住这次。
+		PRINTL 【他在同一个部位纹了第二个正字...】
+		
+		; 增加新的纹身效果
+		CALL SET_PALAM, 1, 17, MIN(100, GET_PALAM(1, 17) + 10)  ; 屈辱感增加
+		CALL SET_PALAM, 1, 35, GET_PALAM(1, 35) + 5  ; 羞辱经验增加
+		
+	ELSE
+		; 在新的部位添加正字
+		GOSUB RAPE_TATTOO_EVENT, 0
+	ENDIF
+ENDIF
+
+; 根据正字数量触发不同事件
+IF FLAG:102 >= 5
+	PRINTL 
+	PRINTL 【你身上的纹身已经多到无法忽视了...】
+	GOSUB HEAVY_TATTOO_EVENT
+ENDIF
+
+WAIT
+RETURN
+
+@HEAVY_TATTOO_EVENT
+; 大量纹身事件
+PRINTL 
+PRINTL 【因为身上大量的纹身，你遇到了特殊的情况...】
+WAIT
+
+LOCAL = RAND:100
+
+IF LOCAL < 40
+	; 被纹身店注意
+	GOSUB TATTOO_SHOP_EVENT
+ELSEIF LOCAL < 70
+	; 被同类人注意
+	GOSUB TATTOO_SISTER_EVENT
+ELSE
+	; 被警察/老师注意
+	GOSUB AUTHORITY_TATTOO_EVENT
+ENDIF
+
+RETURN
+
+@TATTOO_SHOP_EVENT
+; 纹身店事件
+PRINTL 【纹身店的老板叫住了你...】
+WAIT
+
+PRINTL 老板：小姐，你身上的纹身...
+PRINTL 他仔细看着你的纹身。
+PRINTFORML %CALLNAME:(1)%：有、有什么事吗...
+PRINTL 老板：这些纹身...是强制纹上去的吧？
+PRINTL 他看出了纹身的性质。
+PRINTFORML %CALLNAME:(1)%：（低头）嗯...
+PRINTL 老板：需要帮忙吗？我可以帮你遮盖或者去除...
+PRINTL 
+PRINTL 【选择：】
+PRINTL [1] 请求帮忙去除
+PRINTL [2] 拒绝帮助
+PRINTL [3] 询问更多信息
+
+$TATTOO_SHOP_CHOICE
+INPUT
+
+SELECTCASE RESULT
+	CASE 1
+		PRINTFORML %CALLNAME:(1)%：请、请帮帮我...
+		PRINTL 老板：好的，但去除纹身很痛，而且需要多次治疗。
+		PRINTL 老板：另外...费用不低。
+		PRINTL 【你犹豫了，你现在没有那么多钱...】
+		PRINTL 老板：如果你愿意...可以用其他方式支付。
+		PRINTL 他意味深长地看着你。
+		PRINTL 
+		PRINTL 【选择：】
+		PRINTL [1] 同意用身体支付
+		PRINTL [2] 拒绝，离开
+		
+		$PAYMENT_CHOICE
+		INPUT
+		
+		IF RESULT == 1 AND GET_TOTAL_DECLINE_LEVEL() >= 40
+			GOSUB TATTOO_REMOVAL_SEX
+		ELSE
+			PRINTFORML %CALLNAME:(1)%：对不起，我做不到...
+			PRINTL 老板：那就算了，祝你好运。
+		ENDIF
+		
+	CASE 2
+		PRINTFORML %CALLNAME:(1)%：不、不用了...
+		PRINTL 老板：好吧，如果改变主意随时来找我。
+		
+	CASE 3
+		PRINTFORML %CALLNAME:(1)%：去除纹身要多少钱...
+		PRINTL 老板：根据面积，最少也要10万日元。
+		PRINTFORML %CALLNAME:(1)%：那、那么多...
+		PRINTL 老板：是的，而且很痛，需要麻醉。
+		PRINTL 你意识到暂时无法去除这些纹身。
+ENDSELECT
+
+WAIT
+RETURN
+
+@TATTOO_SISTER_EVENT
+; 同类人事件
+PRINTL 【一个同样有大量纹身的女人接近你...】
+WAIT
+
+PRINTL 女人：嘿，你身上的纹身...
+PRINTL 她看着你的纹身，露出理解的表情。
+PRINTFORML %CALLNAME:(1)%：你、你也有...
+PRINTL 女人：嗯，我也是。被强迫纹的吧？
+PRINTFORML %CALLNAME:(1)%：嗯...
+PRINTL 女人：别难过，习惯就好。
+PRINTL 女人：要不要加入我们？我们是一群有同样经历的女人。
+PRINTL 
+PRINTL 【选择：】
+PRINTL [1] 询问更多
+PRINTL [2] 拒绝
+PRINTL [3] 考虑加入
+
+$SISTER_CHOICE
+INPUT
+
+SELECTCASE RESULT
+	CASE 1
+		PRINTFORML %CALLNAME:(1)%：你们是什么组织...
+		PRINTL 女人：我们互相帮助，分享经验。
+		PRINTL 女人：有时候也...一起接客。
+		PRINTL 她直白地说。
+		PRINTFORML %CALLNAME:(1)%：接、接客？
+		PRINTL 女人：反正已经被玷污了，不如利用起来赚钱。
+		PRINTL 女人：有兴趣的话，联系这个号码。
+		PRINTL 她递给你一张纸条。
+		
+		; 记录这个联系
+		CALL SET_PALAM, 1, 20, MIN(100, GET_PALAM(1, 20) + 5)  ; 淫乱度增加
+		
+	CASE 2
+		PRINTFORML %CALLNAME:(1)%：对不起，我没兴趣...
+		PRINTL 女人：好吧，如果你改变主意...
+		
+	CASE 3
+		IF GET_TOTAL_DECLINE_LEVEL() >= 50
+			GOSUB JOIN_SISTER_GROUP
+		ELSE
+			PRINTL 【你的堕落度还不够...】
+			PRINTFORML %CALLNAME:(1)%：我、我还要考虑...
+		ENDIF
+ENDSELECT
+
+WAIT
+RETURN

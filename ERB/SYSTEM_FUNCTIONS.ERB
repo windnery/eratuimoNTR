@@ -1,0 +1,102 @@
+; 系统函数定义文件
+; 提供Emuera游戏所需的基础系统函数
+
+; 参数获取函数 - Emuera标准参数系统
+@GET_PALAM, ARG:1, ARG:2
+#FUNCTION
+; 获取角色参数值
+; ARG:1 = 角色编号 (0=主角)
+; ARG:2 = 参数编号
+; 使用FLAG系统模拟参数
+IF ARG:1 == 0
+	; 主角参数存储在FLAG:1000+范围
+	IF ARG:2 == 0
+		RETURNF FLAG:1000  ; 体力
+	ELSEIF ARG:2 == 2
+		RETURNF FLAG:1001  ; 精力
+	ELSEIF ARG:2 == 20
+		RETURNF FLAG:1020  ; 淫乱度
+	ELSEIF ARG:2 == 12
+		RETURNF FLAG:1012  ; 欲望
+	ENDIF
+ENDIF
+RETURNF 0
+
+@SET_PALAM, ARG:1, ARG:2, ARG:3
+; 设置角色参数值
+; ARG:1 = 角色编号 (0=主角)
+; ARG:2 = 参数编号
+; ARG:3 = 参数值
+; 使用FLAG系统模拟参数
+IF ARG:1 == 0
+	; 主角参数存储在FLAG:1000+范围
+	IF ARG:2 == 0
+		FLAG:1000 = ARG:3  ; 体力
+	ELSEIF ARG:2 == 2
+		FLAG:1001 = ARG:3  ; 精力
+	ELSEIF ARG:2 == 20
+		FLAG:1020 = ARG:3  ; 淫乱度
+	ELSEIF ARG:2 == 12
+		FLAG:1012 = ARG:3  ; 欲望
+	ENDIF
+ENDIF
+RETURN
+
+; 纹身系统函数
+@GET_TATTOO, ARG:1, ARG:2
+#FUNCTION
+; 获取纹身信息
+RETURNF 0
+
+@SET_TATTOO, ARG:1, ARG:2, ARG:3
+#FUNCTION
+; 设置纹身信息
+RETURNF 0
+
+; 穿孔系统函数
+@GET_PIERCING, ARG:1, ARG:2
+#FUNCTION
+RETURNF 0
+
+@SET_PIERCING, ARG:1, ARG:2, ARG:3
+#FUNCTION
+RETURNF 0
+
+; 数值处理函数
+@MIN, ARG:1, ARG:2
+#FUNCTION
+; 返回较小值
+IF ARG:1 < ARG:2
+	RETURNF ARG:1
+ELSE
+	RETURNF ARG:2
+ENDIF
+
+@MAX, ARG:1, ARG:2
+#FUNCTION
+; 返回较大值
+IF ARG:1 > ARG:2
+	RETURNF ARG:1
+ELSE
+	RETURNF ARG:2
+ENDIF
+
+; 随机数函数（兼容性）
+@RAND, ARG:1
+#FUNCTION
+; 返回0到ARG:1-1的随机数
+IF ARG:1 <= 0
+	RETURNF 0
+ELSE
+	RETURNF RAND:ARG:1  ; 使用内置RAND函数
+ENDIF
+
+; 堕落度计算函数
+@GET_TOTAL_DECLINE_LEVEL
+#FUNCTION
+; 计算总堕落度
+LOCAL = GET_PALAM(1, 20)  ; 淫乱度
+LOCAL += GET_PALAM(1, 21)  ; 屈从度
+LOCAL += GET_PALAM(1, 22)  ; 受虐倾向
+LOCAL += GET_PALAM(1, 39)  ; 背德值
+RETURNF MIN(100, LOCAL / 4)

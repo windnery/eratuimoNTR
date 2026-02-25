@@ -1,0 +1,383 @@
+; 男性线 - 15天住院剧情
+@EVENT_MALE_OPENING
+
+PRINTL 【住院第1天】
+PRINTL 
+PRINTL 你躺在医院的病床上，眼睛还缠着绷带。
+PRINTL 昨天战斗时遭遇了强大的魔物，眼睛受到了严重的魔法伤害。
+PRINTL 医生说你必须住院治疗15天，否则可能会有永久性损伤。
+PRINTL 
+PRINTL 你想起明天就是和%CALLNAME:(1)%一起去昙明学院执行任务的日子...
+PRINTL 还有音信全无的%CALLNAME:(2)%前辈...
+PRINTL 
+WAIT
+
+; 15天住院流程
+FOR LOCAL:0, 1, 15
+	GOSUB HOSPITAL_DAY_LOOP, LOCAL:0
+NEXT
+
+PRINTL 【住院第15天】
+PRINTL 
+PRINTL 医生：你的眼睛恢复得不错，可以出院了。
+PRINTL 但你还需要继续使用眼药水，避免剧烈运动。
+IF FLAG:72 == 0  ; 男性
+	PRINTFORML %CALLNAME:(0)%：谢谢医生！我现在必须出发去昙明学院。
+	PRINTL 医生：喂，你才刚出院，不能这么着急！
+	PRINTFORML %CALLNAME:(0)%：对不起医生，我的搭档还在那里等我...
+ENDIF
+PRINTL 
+PRINTL 【你收拾好装备，独自踏上了前往昙明学院的道路...】
+PRINTL 
+WAIT
+
+; 设置游戏天数，女主和吴昊已经先出发15天了
+FLAG:43 = 15
+GOTO MAIN_SYSTEM
+
+@HOSPITAL_DAY_LOOP, ARG:1
+; 住院每一天的事件
+LOCAL = ARG:1
+
+PRINTL 【住院第{LOCAL}天】
+PRINTL 
+
+; 随机事件系统
+LOCAL:1 = RAND:100
+
+; 根据天数触发不同事件
+IF LOCAL <= 3
+	; 前3天：伤情严重期
+	GOSUB HOSPITAL_SEVERE_PERIOD, LOCAL
+ELSEIF LOCAL <= 10
+	; 4-10天：恢复期
+	GOSUB HOSPITAL_RECOVERY_PERIOD, LOCAL
+ELSE
+	; 11-15天：康复期
+	GOSUB HOSPITAL_CONVALESCENT_PERIOD, LOCAL
+ENDIF
+
+; 每日选项
+PRINTL 
+PRINTL 【今天想做什么？】
+PRINTL [1] 联系%CALLNAME:(1)%（需要手机电量）
+PRINTL [2] 联系组织询问情况
+PRINTL [3] 专心休息恢复
+PRINTL [4] 打听昙明学院的情报
+PRINTL [5] 进行康复训练
+PRINTL [6] 查看系统信息
+PRINTL [7] 直接睡觉到明天
+
+$HOSPITAL_CHOICE
+INPUT
+
+IF RESULT == 1
+	GOSUB CONTACT_FEMALE, LOCAL
+ELSEIF RESULT == 2
+	GOSUB CONTACT_ORGANIZATION, LOCAL
+ELSEIF RESULT == 3
+	GOSUB REST_HOSPITAL, LOCAL
+ELSEIF RESULT == 4
+	GOSUB INQUIRE_INFO, LOCAL
+ELSEIF RESULT == 5
+	GOSUB REHAB_TRAINING, LOCAL
+ELSEIF RESULT == 6
+	GOSUB VIEW_HOSPITAL_STATUS, LOCAL
+ELSEIF RESULT == 7
+	; 直接到第二天
+	PRINTL 【你选择直接睡觉...】
+	WAIT
+	RETURN
+ELSE
+	CLEARLINE 1
+	GOTO HOSPITAL_CHOICE
+ENDIF
+
+WAIT
+RETURN
+
+@HOSPITAL_SEVERE_PERIOD, ARG:1
+; 严重期事件
+LOCAL = ARG:1
+
+IF LOCAL == 1
+	PRINTL 你的眼睛还在剧烈疼痛，眼前一片模糊。
+	PRINTL 医生警告你这几天绝对不能乱动。
+ELSEIF LOCAL == 2
+	PRINTL 今天眼睛的疼痛稍微减轻了一些。
+	PRINTL 护士给你换了新的绷带和药水。
+ELSEIF LOCAL == 3
+	PRINTL 你可以勉强睁开一只眼睛了。
+	PRINTL 但医生说你还需要继续卧床休息。
+ENDIF
+
+; 随机事件
+LOCAL:2 = RAND:3
+IF LOCAL:2 == 0
+	PRINTL 【隔壁床的病人和你聊起了天...】
+	PRINTL 他听说昙明学院最近有很多奇怪的事情发生。
+	FLAG:73 += 1  ; 学院情报
+ELSEIF LOCAL:2 == 1
+	PRINTL 【今天有志愿者来医院看望病人】
+	PRINTL 你从她口中了解到了一些学院的情况。
+	FLAG:73 += 2
+ELSE
+	PRINTL 【你今天感觉特别虚弱】
+	PRINTL 医生说要继续观察几天。
+ENDIF
+RETURN
+
+@HOSPITAL_RECOVERY_PERIOD, ARG:1
+; 恢复期事件
+LOCAL = ARG:1
+
+IF LOCAL == 4
+	PRINTL 【你可以下床走动了】
+	PRINTL 视力恢复到了正常的一半左右。
+ELSEIF LOCAL == 7
+	PRINTL 【今天拆掉了部分绷带】
+	PRINTL 你的眼睛已经可以正常看东西了。
+ELSEIF LOCAL == 10
+	PRINTL 【医生说恢复情况良好】
+	PRINTL 再过几天就可以考虑出院了。
+ENDIF
+
+; 随机事件
+LOCAL:2 = RAND:4
+IF LOCAL:2 == 0
+	GOSUB RECEIVE_FEMALE_CALL, LOCAL
+ELSEIF LOCAL:2 == 1
+	GOSUB RECEIVE_ORGANIZATION_REPORT, LOCAL
+ELSEIF LOCAL:2 == 2
+	GOSUB HEAR_RUMORS, LOCAL
+ELSE
+	PRINTL 【今天过得很平静】
+	PRINTL 你一直在思考学院那边的情况...
+ENDIF
+RETURN
+
+@HOSPITAL_CONVALESCENT_PERIOD, ARG:1
+; 康复期事件
+LOCAL = ARG:1
+
+IF LOCAL == 11
+	PRINTL 【你可以进行轻度训练了】
+	PRINTL 你开始做一些基本的退魔师训练。
+ELSEIF LOCAL == 13
+	PRINTL 【你的实力恢复了七成】
+	PRINTL 眼睛已经完全不影响战斗了。
+ELSEIF LOCAL == 14
+	PRINTL 【明天就可以出院了】
+	PRINTL 你迫不及待想要出发去学院。
+ENDIF
+
+; 随机事件
+LOCAL:2 = RAND:3
+IF LOCAL:2 == 0
+	GOSUB PREPARE_EQUIPMENT, LOCAL
+ELSEIF LOCAL:2 == 1
+	GOSUB RECEIVE_URGENT_MESSAGE, LOCAL
+ELSE
+	PRINTL 【你在医院里进行最后的准备】
+	PRINTL 检查装备，计划路线...
+ENDIF
+RETURN
+
+@CONTACT_FEMALE, ARG:1
+; 联系女主
+LOCAL = ARG:1
+
+IF LOCAL <= 3
+	PRINTL 【你的状态太差，无法联系%CALLNAME:(1)%】
+	PRINTL 手机电量也不够了...
+	PRINTL 你决定还是先休息。
+ELSE
+	PRINTL 【你拨打了%CALLNAME:(1)%的电话...】
+	WAIT
+	
+	IF LOCAL <= 7
+		PRINTL %CALLNAME:(1)%：喂？你还好吗？眼睛怎么样了？
+		PRINTFORML %CALLNAME:(0)%：好多了，你们那边情况怎么样？
+		PRINTL %CALLNAME:(1)%：我和%CALLNAME:(3)%前辈刚到学院不久，还在熟悉环境...
+		PRINTL %CALLNAME:(1)%的声音听起来很平静。
+		PRINTFORML %CALLNAME:(0)%：那就好，要注意安全...
+		FLAG:38 += 5  ; 好感度
+	ELSEIF LOCAL <= 10
+		PRINTL 【电话响了很久才接通...】
+		PRINTL %CALLNAME:(1)%：喂...啊...我在外面...
+		PRINTL 她的声音有些急促，背景音有点嘈杂。
+		PRINTFORML %CALLNAME:(0)%：你在哪里？怎么喘得这么厉害？
+		PRINTL %CALLNAME:(1)%：没、没什么...刚和前辈一起追查魔物...
+		PRINTL 她的语气有些慌张，很快就挂了电话。
+		FLAG:75 += 3  ; 吴昊NTR进度
+		FLAG:38 += 2
+	ELSE
+		PRINTL 【电话接通了，但%CALLNAME:(1)%的语气很奇怪...】
+		PRINTL %CALLNAME:(1)%：哈啊...有事吗...我现在...嗯...不太方便...
+		PRINTL 电话那头传来微弱的呻吟声和身体摩擦的声音。
+		PRINTFORML %CALLNAME:(0)%：你那边什么声音？你在做什么？
+		PRINTL %CALLNAME:(1)%：没、没什么...我在锻炼...先挂了...
+		PRINTL 电话被匆忙挂断。
+		FLAG:75 += 5  ; 吴昊NTR进度
+		FLAG:38 -= 3  ; 怀疑导致好感下降
+	ENDIF
+ENDIF
+RETURN
+
+@CONTACT_ORGANIZATION, ARG:1
+; 联系组织
+LOCAL = ARG:1
+
+PRINTL 【你联系了组织总部...】
+PRINTL 队长：你的眼睛恢复得怎么样？
+IF LOCAL <= 5
+	PRINTL 组织目前没有新的情报，让你安心养伤。
+	PRINTL 昙明学院那边暂时由%CALLNAME:(3)%和%CALLNAME:(1)%负责。
+ELSE
+	PRINTL 组织收到一些关于昙明学院的报告...
+	PRINTL 那边的情况似乎比预想的要复杂。
+	PRINTL 队长提醒你出院后要多加小心。
+	FLAG:73 += 3  ; 学院情报
+ENDIF
+RETURN
+
+@REST_HOSPITAL, ARG:1
+; 专心休息
+LOCAL = ARG:1
+
+IF LOCAL <= 5
+	PRINTL 【你选择专心休息...】
+	PRINTL 身体恢复速度加快了。
+	FLAG:41 -= 2  ; 伤势恢复
+ELSE
+	PRINTL 【你感觉精力恢复了很多】
+	PRINTL 可以进行一些基本的活动了。
+ENDIF
+RETURN
+
+@INQUIRE_INFO, ARG:1
+; 打听情报
+LOCAL = ARG:1
+
+PRINTL 【你开始打听昙明学院的情报...】
+
+LOCAL:2 = RAND:100
+IF LOCAL:2 < 30
+	PRINTL 从护士那里听说昙明学院最近有学生失踪事件。
+	FLAG:73 += 2
+ELSEIF LOCAL:2 < 60
+	PRINTL 从电视新闻看到昙明学院有神秘事件报道。
+	FLAG:73 += 3
+ELSEIF LOCAL:2 < 80
+	PRINTL 从其他病人那里听到奇怪的传闻。
+	PRINTL "据说学院里有很多漂亮女生..."
+	FLAG:73 += 4
+ELSE
+	PRINTL 没有得到什么有用的情报。
+ENDIF
+RETURN
+
+@REHAB_TRAINING, ARG:1
+; 康复训练
+LOCAL = ARG:1
+
+IF LOCAL <= 3
+	PRINTL 【医生禁止你现在进行训练】
+	PRINTL 你只好放弃这个想法。
+ELSEIF LOCAL <= 7
+	PRINTL 【你进行了一些基础训练】
+	PRINTL 身体感觉好多了。
+	FLAG:46 += 1  ; 退魔师等级
+ELSE
+	PRINTL 【你开始恢复性训练】
+	PRINTL 实力恢复到平时的60%左右。
+	FLAG:46 += 2
+ENDIF
+RETURN
+
+@VIEW_HOSPITAL_STATUS, ARG:1
+; 查看状态
+LOCAL = ARG:1
+
+PRINTL 【住院状态】
+PRINTFORML 住院天数：{LOCAL}/15
+PRINTFORML 眼睛恢复程度：{MIN(LOCAL * 10, 100)}%
+PRINTFORML 体力恢复：{MIN(LOCAL * 15, 100)}%
+PRINTFORML 退魔师等级：{FLAG:46}
+PRINTFORML 学院情报收集度：{FLAG:73}%
+PRINTFORML %CALLNAME:(1)%好感度：{FLAG:38}
+PRINTL 
+WAIT
+RETURN
+
+@RECEIVE_FEMALE_CALL, ARG:1
+; 接到女主电话
+LOCAL = ARG:1
+
+IF LOCAL == 5 AND FLAG:50 == 0
+	PRINTL 【今天%CALLNAME:(1)%主动给你打电话...】
+	PRINTL %CALLNAME:(1)%：喂，你还好吗？
+	PRINTL 她的声音听起来有些疲惫，但还算正常。
+	PRINTFORML %CALLNAME:(0)%：我好多了，你们那边怎么样？
+	PRINTL %CALLNAME:(1)%：学院比想象的大...我和%CALLNAME:(3)%前辈在调查...
+	PRINTL 她简单说了些情况，很快就挂了电话。
+	FLAG:50 = 1
+ENDIF
+RETURN
+
+@RECEIVE_ORGANIZATION_REPORT, ARG:1
+; 收到组织报告
+LOCAL = ARG:1
+
+IF LOCAL == 6 AND FLAG:51 == 0
+	PRINTL 【组织发来了关于昙明学院的初步调查报告】
+	PRINTL 报告显示学院内部有异常的能量波动。
+	PRINTL 而且最近学生行为异常的情况增多。
+	PRINTL 调查任务比预想的要危险。
+	FLAG:51 = 1
+	FLAG:73 += 5
+ENDIF
+RETURN
+
+@HEAR_RUMORS, ARG:1
+; 听到传闻
+LOCAL = ARG:1
+
+IF LOCAL == 8 AND FLAG:52 == 0
+	PRINTL 【你在医院走廊听到两个护士在聊天...】
+	PRINTL 护士A：听说昙明学院最近很多漂亮女生被骚扰。
+	PRINTL 护士B：对啊，据说还有留学生专门找女生...
+	PRINTL 护士A：真可怕，希望%CALLNAME:(0)%去的时候小心点。
+	PRINTL 你默默记下了这些信息。
+	FLAG:52 = 1
+	FLAG:73 += 8
+ENDIF
+RETURN
+
+@PREPARE_EQUIPMENT, ARG:1
+; 准备装备
+LOCAL = ARG:1
+
+IF LOCAL == 12 AND FLAG:53 == 0
+	PRINTL 【你开始准备出院后的装备】
+	PRINTL 检查退魔师的符咒、武器和防护装备。
+	PRINTL 确保一切就绪，准备出发。
+	FLAG:53 = 1
+	FLAG:46 += 1
+ENDIF
+RETURN
+
+@RECEIVE_URGENT_MESSAGE, ARG:1
+; 收到紧急消息
+LOCAL = ARG:1
+
+IF LOCAL == 14 AND FLAG:54 == 0
+	PRINTL 【组织发来紧急消息！】
+	PRINTL 队长：%CALLNAME:(0)%，情况紧急！
+	PRINTL 昙明学院发生多起神秘事件，学生行为异常。
+	PRINTL 而且...%CALLNAME:(2)%前辈的线索出现了！
+	PRINTL 你必须尽快赶到学院！
+	FLAG:54 = 1
+	FLAG:73 += 10
+ENDIF
+RETURN

@@ -1,0 +1,249 @@
+; 主系统文件
+@MAIN_SYSTEM
+
+; 游戏主循环
+$MAIN_LOOP
+CLEARLINE 1
+PRINTFORML 【昙明学院 - 第{FLAG:43}天】
+PRINTFORML 【当前位置：{GET_LOCATION_NAME()}】
+PRINTFORML 【状态：好感度:{FLAG:38} 背德值:{FLAG:39} NTR进度:{GET_TOTAL_NTR_PROGRESS()}%】
+PRINTL 
+PRINTL 【请选择行动】
+PRINTL [1] 探索学院
+PRINTL [2] 寻找角色
+PRINTL [3] 查看状态
+PRINTL [4] 休息
+PRINTL [0] 返回标题
+PRINTL 
+
+$MAIN_INPUT
+INPUT
+
+IF RESULT == 0
+	GOTO SYSTEM_TITLE
+ELSEIF RESULT == 1
+	CALL START_MAP_SYSTEM
+	CLEARLINE 10
+	GOTO MAIN_LOOP
+ELSEIF RESULT == 2
+	GOSUB FIND_CHARACTER
+	CLEARLINE 10
+	GOTO MAIN_LOOP
+ELSEIF RESULT == 3
+	GOSUB VIEW_STATUS
+	CLEARLINE 20
+	GOTO MAIN_LOOP
+ELSEIF RESULT == 4
+	GOSUB REST
+	CLEARLINE 10
+	GOTO MAIN_LOOP
+ELSE
+	CLEARLINE 1
+	GOTO MAIN_INPUT
+ENDIF
+
+@EXPLORE_COLLEGE
+; 探索学院功能
+FLAG:61++  ; 探索次数
+FLAG:73 += RAND:5 + 1  ; 学院探索度
+PRINTL 【你开始探索昙明学院】
+WAIT
+; 随机触发事件
+LOCAL = RAND:100
+IF LOCAL < 30
+	PRINTL 【你发现了新的区域】
+	FLAG:42 += 5  ; 探索进度
+ELSEIF LOCAL < 60
+	PRINTL 【你遇到了一位同学】
+	GOSUB MEET_CLASSMATE
+ELSEIF LOCAL < 80
+	PRINTL 【你感受到了魔物的气息】
+	GOSUB DETECT_MONSTER
+ELSE
+	PRINTL 【一切都很平静】
+ENDIF
+RETURN
+
+@MEET_CHARACTER
+; 寻找角色功能
+PRINTL 【你想寻找哪位角色？】
+PRINTL [0] %CALLNAME:(2)%前辈
+PRINTL [1] %CALLNAME:(1)%
+PRINTL [2] %CALLNAME:(3)%前辈
+PRINTL [3] 佐藤老师
+PRINTL [4] 学生会长
+PRINTL [5] 返回
+INPUT
+
+SELECTCASE RESULT
+	CASE 0
+		IF FLAG:66 == 0  ; 浅香状态
+			PRINTL 【%CALLNAME:(2)%前辈仍然下落不明...】
+		ELSE
+			PRINTL 【你找到了%CALLNAME:(2)%前辈】
+			GOSUB MEET_ASAKA
+		ENDIF
+	CASE 1
+		PRINTL 【你找到了%CALLNAME:(1)%】
+		GOSUB MEET_FEMALE
+	CASE 2
+		PRINTL 【你找到了%CALLNAME:(3)%前辈】
+		GOSUB MEET_WUHAO
+	CASE 3
+		PRINTL 【你找到了佐藤老师】
+		GOSUB MEET_TEACHER
+	CASE 4
+		PRINTL 【你找到了学生会长】
+		GOSUB MEET_STUDENT_PRESIDENT
+	CASEELSE
+		RETURN
+ENDSELECT
+WAIT
+RETURN
+
+@VIEW_STATUS
+; 查看状态功能
+PRINTL 【角色状态】
+IF FLAG:44 == 0  ; 视角标记
+	PRINTFORML 当前视角：%CALLNAME:(0)%视角
+ELSE
+	PRINTFORML 当前视角：%CALLNAME:(1)%视角
+ENDIF
+PRINTFORML 游戏天数：{FLAG:43}
+PRINTFORML 好感度：{FLAG:38}
+PRINTFORML 背德值：{FLAG:39}
+PRINTL 
+PRINTL 【NTR进度】
+PRINTFORML %CALLNAME:(3)%线：{FLAG:75}%
+PRINTFORML 佐藤老师线：{FLAG:76}%
+PRINTFORML 学生会长线：{FLAG:77}%
+PRINTFORML 魔物线：{FLAG:78}%
+PRINTFORML 总体NTR进度：{GET_TOTAL_NTR_PROGRESS()}%
+PRINTL 
+PRINTL 【其他状态】
+PRINTFORML 伤势状态：{FLAG:41}
+PRINTFORML 魔物污染度：{FLAG:45}
+PRINTFORML 退魔师等级：{FLAG:46}
+PRINTFORML 特殊能力强度：{FLAG:47}
+PRINTFORML 学院探索度：{FLAG:73}%
+PRINTL 
+WAIT
+RETURN
+
+@REST
+; 休息功能
+PRINTL 【你选择休息一天】
+FLAG:43++  ; 游戏天数
+PRINTL 时间来到了第二天...
+; 检查是否有事件发生
+GOSUB CHECK_EVENTS
+WAIT
+RETURN
+
+@CHECK_EVENTS
+; 检查事件触发
+; 根据NTR进度和其他因素触发相应事件
+IF FLAG:43 == 16 AND FLAG:50 == 0  ; 游戏天数, 事件标记1
+	PRINTL 【你刚到达昙明学院】
+	PRINTL 【需要寻找%CALLNAME:(1)%的踪迹】
+	FLAG:50 = 1
+ELSEIF FLAG:75 >= 30 AND FLAG:51 == 0  ; NTR进度吴昊, 事件标记2
+	PRINTL 【%CALLNAME:(3)%的NTR行为开始显现】
+	FLAG:51 = 1
+ENDIF
+RETURN
+
+@GET_LOCATION_NAME
+#FUNCTIONS
+IF FLAG:56 == 0  ; 地点标记
+	RETURNF "学院入口"
+ELSEIF FLAG:56 == 1
+	RETURNF "教学楼"
+ELSEIF FLAG:56 == 2
+	RETURNF "宿舍区"
+ELSEIF FLAG:56 == 3
+	RETURNF "图书馆"
+ELSEIF FLAG:56 == 4
+	RETURNF "食堂"
+ELSEIF FLAG:56 == 5
+	RETURNF "操场"
+ELSE
+	RETURNF "未知地点"
+ENDIF
+
+@GET_TOTAL_NTR_PROGRESS
+#FUNCTION
+LOCAL = (FLAG:75 + FLAG:76 + FLAG:77 + FLAG:78) / 4
+RETURNF LOCAL
+
+@MEET_ASAKA
+; 遇见浅香的事件
+PRINTL 【与%CALLNAME:(2)%前辈相关的事件】
+; 此处应有具体事件内容
+RETURN
+
+@MEET_FEMALE
+; 遇见女主的事件
+IF FLAG:44 == 0  ; 视角标记
+	; 男主视角：观察女主状况
+	PRINTFORML 【你见到了%CALLNAME:(1)%】
+	IF FLAG:75 > 0  ; NTR进度吴昊
+		PRINTL 【她的神情有些异样，似乎经历了什么...】
+		FLAG:38 -= 5  ; 好感度
+	ELSE
+		PRINTL 【她看起来还好，但似乎有些疲惫】
+		FLAG:38 += 2  ; 好感度
+	ENDIF
+ELSE
+	; 女主视角：自己的感受
+	PRINTL 【你遇到了其他人】
+	; 此处根据剧情进展触发不同事件
+ENDIF
+WAIT
+RETURN
+
+@MEET_WUHAO
+; 遇见吴昊的事件
+PRINTFORML 【你遇到了%CALLNAME:(3)%前辈】
+IF FLAG:75 > 20  ; NTR进度吴昊
+	PRINTL 【他的眼神让你感到不安...】
+ELSE
+	PRINTL 【他表现得很正常，但你总觉得他在隐瞒什么】
+ENDIF
+WAIT
+RETURN
+
+@MEET_TEACHER
+; 遇见佐藤老师的事件
+PRINTFORML 【你遇到了佐藤老师】
+PRINTL 【他温和地向你打招呼】
+WAIT
+RETURN
+
+@MEET_STUDENT_PRESIDENT
+; 遇见学生会长的事件
+PRINTL 【你遇到了学生会长】
+PRINTL 【他显得很有威严】
+WAIT
+RETURN
+
+@DETECT_MONSTER
+; 发现魔物气息
+PRINTL 【你感受到了强烈的魔物气息】
+PRINTL 【这里可能有危险...】
+IF FLAG:46 >= 3  ; 退魔师等级
+	PRINTL 【凭借你的经验，你能察觉到魔物的具体位置】
+ELSE
+	PRINTL 【你需要更加小心】
+ENDIF
+WAIT
+RETURN
+
+@MEET_CLASSMATE
+; 遇见同学
+PRINTL 【你遇到了一位同学】
+PRINTL 【她告诉你一些关于学院的传闻】
+PRINTL 【最近有很多奇怪的事情发生...】
+FLAG:73 += 2  ; 学院探索度
+WAIT
+RETURN

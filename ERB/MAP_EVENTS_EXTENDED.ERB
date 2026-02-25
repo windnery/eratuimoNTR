@@ -1,0 +1,382 @@
+; 地图事件扩展系统
+; 补充缺失的事件触发逻辑
+
+@CLASSROOM_INTRUDER_EVENT
+; 教室入侵者事件（堕落度要求：20+）
+PRINTL 
+PRINTL 【你突然听到教室门被打开...】
+WAIT
+
+PRINTL 一个身影闪了进来，是%CALLNAME:(3)%！
+PRINTFORML %CALLNAME:(1)%：前、前辈！你怎么在这里...
+PRINTL %CALLNAME:(3)%：嘘...小声点。
+PRINTL 他迅速关上门，反锁。
+
+PRINTL %CALLNAME:(3)%：我知道你一直在躲我...
+PRINTFORML %CALLNAME:(1)%：没、没有...我只是...
+PRINTL %CALLNAME:(3)%：别装了，那天的事情...你也很享受吧？
+
+; 检查堕落度
+IF GET_TOTAL_DECLINE_LEVEL() >= 20
+	PRINTFORML %CALLNAME:(1)%：（脸红）那、那是...
+	PRINTL %CALLNAME:(3)%：今天也一样，让我好好疼爱你...
+	
+	PRINTL 
+	PRINTL 【他的手指轻轻滑过你的脸颊...】
+	CALL SET_PALAM, 1, 12, MIN(100, GET_PALAM(1, 12) + 10)
+	
+	; 检查退魔师能力
+	IF FLAG:46 >= 3  ; 退魔师等级足够
+		PRINTL 
+		PRINTL 【你感觉到他身上有轻微的魔物气息...】
+		PRINTFORML %CALLNAME:(1)%：（难道前辈被魔物影响了？）
+		FLAG:78 += 2
+	ELSE
+		PRINTL 
+		PRINTL 【你被他的气息迷惑了...】
+		PRINTL 身体不由自主地颤抖起来。
+		CALL SET_PALAM, 1, 20, MIN(100, GET_PALAM(1, 20) + 5)
+	ENDIF
+	
+ELSE
+	PRINTFORML %CALLNAME:(1)%：不、不要！请放开我！
+	PRINTL %CALLNAME:(3)%：切...装什么清纯。
+	PRINTL 他松开手，退后一步。
+	PRINTFORML %CALLNAME:(3)%：我会等到你主动来找我的...
+	PRINTL 说完，他离开了教室。
+	
+	PRINTL 
+	PRINTL 【你吓得浑身发抖...】
+	CALL SET_PALAM, 1, 41, MIN(100, GET_PALAM(1, 41) + 15)
+ENDIF
+
+WAIT
+RETURN
+
+@TEACHER_OFFICE_EVENT
+; 教师办公室事件
+PRINTL 
+PRINTL 【你跟着佐藤老师来到办公室...】
+WAIT
+
+PRINTL 佐藤老师：把文件放在那边就好。
+PRINTFORML %CALLNAME:(1)%：好、好的...
+PRINTL 
+PRINTL 【办公室里有淡淡的花香...】
+PRINTL 佐藤老师看起来很和善。
+
+; 根据堕落度决定后续发展
+LOCAL = GET_TOTAL_DECLINE_LEVEL()
+
+IF LOCAL >= 40
+	PRINTL 
+	PRINTL 佐藤老师：对了，%CALLNAME:(1)%同学...
+	PRINTFORML %CALLNAME:(1)%：是、是的？
+	PRINTL 佐藤老师：你最近学习上有什么困难吗？
+	PRINTFORML %CALLNAME:(1)%：还、还好...
+	PRINTL 佐藤老师：那就好...（靠近）有什么困扰可以跟我说。
+	PRINTL 他的手轻轻搭在你的肩上。
+	
+	PRINTL 
+	PRINTL 【你感受到他手掌的温度...】
+	CALL SET_PALAM, 1, 12, MIN(100, GET_PALAM(1, 12) + 8)
+	
+	IF FLAG:46 >= 2  ; 退魔师感知
+		PRINTL 【你注意到办公室角落有奇怪的符文...】
+		PRINTFORML %CALLNAME:(1)%：（这里也有魔物气息？）
+		FLAG:78 += 3
+	ENDIF
+	
+	; 选择反应
+	PRINTL 
+	PRINTL 【你要怎么做？】
+	PRINTL [1] 接受关心
+	PRINTL [2] 礼貌拒绝
+	PRINTL [3] 迅速离开
+	
+	$OFFICE_CHOICE
+	INPUT
+	
+	SELECTCASE RESULT
+		CASE 1
+			PRINTFORML %CALLNAME:(1)%：谢、谢谢老师关心...
+			PRINTL 佐藤老师：不客气...（微笑）随时欢迎你来找我。
+			FLAG:76 += 5
+			CALL SET_PALAM, 1, 20, MIN(100, GET_PALAM(1, 20) + 3)
+		CASE 2
+			PRINTFORML %CALLNAME:(1)%：谢、谢谢老师，但我该回去了...
+			PRINTL 佐藤老师：是吗...（略显失望）那下次再聊吧。
+			FLAG:76 += 2
+		CASE 3
+			PRINTFORML %CALLNAME:(1)%：对、对不起，我突然想起有事！
+			PRINTL 佐藤老师：啊...好吧，路上小心。
+	ENDSELECT
+	
+ELSE
+	PRINTL 
+	PRINTL 佐藤老师：辛苦你了，%CALLNAME:(1)%同学。
+	PRINTFORML %CALLNAME:(1)%：不、不辛苦...
+	PRINTL 佐藤老师：最近学院不太平，你晚上要注意安全。
+	PRINTFORML %CALLNAME:(1)%：好、好的...
+	PRINTL 
+	PRINTL 【老师的提醒让你更加警惕了...】
+ENDIF
+
+WAIT
+RETURN
+
+@LIBRARIAN_EVENT
+; 图书管理员事件
+PRINTL 
+PRINTL 【图书管理员向你走来...】
+WAIT
+
+PRINTL 管理员：同学，需要帮忙找书吗？
+PRINTFORML %CALLNAME:(1)%：啊，我、我自己找就好...
+PRINTL 管理员：新来的转学生吧？对图书馆还不太熟悉？
+PRINTFORML %CALLNAME:(1)%：嗯...是的...
+PRINTL 管理员：那我带你熟悉一下吧。
+
+; 堕落度影响
+IF GET_TOTAL_DECLINE_LEVEL() >= 25
+	PRINTL 
+	PRINTL 【管理员的手轻轻搭在你的背上...】
+	PRINTL 带你走向图书馆的深处。
+	
+	PRINTL 管理员：这里人比较少...（低声）可以做些安静的事情。
+	PRINTFORML %CALLNAME:(1)%：什、什么...
+	PRINTL 管理员：开玩笑的~（笑）不过这里确实适合独处。
+	
+	; 检查退魔师感知
+	IF FLAG:46 >= 1
+		PRINTL 
+		PRINTL 【你感觉到管理员身上有奇怪的气息...】
+		PRINTFORML %CALLNAME:(1)%：（是错觉吗？）
+		FLAG:78 += 1
+	ENDIF
+	
+	; 选择反应
+	PRINTL 
+	PRINTL 【你要怎么做？】
+	PRINTL [1] 感谢他的好意
+	PRINTL [2] 表示自己还有事
+	PRINTL [3] 询问关于魔物的事情（退魔师等级>3）
+	
+	$LIBRARIAN_CHOICE
+	INPUT
+	
+	SELECTCASE RESULT
+		CASE 1
+			PRINTFORML %CALLNAME:(1)%：谢、谢谢您...
+			PRINTL 管理员：不用谢~（手指轻轻划过你的手臂）
+			CALL SET_PALAM, 1, 12, MIN(100, GET_PALAM(1, 12) + 5)
+		CASE 2
+			PRINTFORML %CALLNAME:(1)%：不好意思，我突然想起还有事...
+			PRINTL 管理员：是吗...那下次再来吧。
+			CALL SET_PALAM, 1, 41, MIN(100, GET_PALAM(1, 41) + 3)
+		CASE 3
+			IF FLAG:46 >= 3
+				PRINTFORML %CALLNAME:(1)%：那个...请问图书馆里有发生过奇怪的事情吗？
+				PRINTL 管理员：（表情微妙）为什么这么问？
+				PRINTFORML %CALLNAME:(1)%：我、我有点在意...
+				PRINTL 管理员：确实...偶尔会有学生说看到奇怪的东西。
+				PRINTL 管理员：不过不用担心，图书馆很安全的。
+				FLAG:78 += 3
+			ELSE
+				PRINTL 【你的退魔师等级不够，不敢贸然询问...】
+				PRINTFORML %CALLNAME:(1)%：没、没什么...
+			ENDIF
+	ENDSELECT
+	
+ELSE
+	PRINTL 
+	PRINTL 管理员：图书馆的布局是这样的...
+	PRINTL 他耐心地介绍了各个区域。
+	PRINTFORML %CALLNAME:(1)%：谢、谢谢您的介绍。
+	PRINTL 管理员：不客气，有问题随时找我。
+ENDIF
+
+WAIT
+RETURN
+
+@LIBRARIAN_CATCH_EVENT
+; 图书管理员发现事件
+PRINTL 
+PRINTL 【图书管理员发现了你...】
+WAIT
+
+PRINTL 管理员：同学，那本书不能外借的。
+PRINTFORML %CALLNAME:(1)%：啊！对、对不起...
+PRINTL 管理员：那本书是...特殊藏书。（意味深长地看着你）
+PRINTFORML %CALLNAME:(1)%：我、我只是好奇...
+
+IF GET_TOTAL_DECLINE_LEVEL() >= 15
+	PRINTL 管理员：好奇...（靠近）对那种书好奇吗？
+	PRINTL 他的声音很低，只有你能听到。
+	
+	PRINTFORML %CALLNAME:(1)%：（脸红）我...
+	PRINTL 管理员：图书馆里还有更多...有趣的书。
+	PRINTL 管理员：如果你...真的想了解的话。
+	
+	; 选择
+	PRINTL 
+	PRINTL 【你要怎么做？】
+	PRINTL [1] 询问更多
+	PRINTL [2] 道歉并离开
+	PRINTL [3] 装作不懂
+	
+	$CATCH_CHOICE
+	INPUT
+	
+	SELECTCASE RESULT
+		CASE 1
+			PRINTFORML %CALLNAME:(1)%：真、真的还有更多吗...
+			PRINTL 管理员：当然...（微笑）不过不是谁都能看的。
+			PRINTL 管理员：你...有那个资格吗？
+			CALL SET_PALAM, 1, 20, MIN(100, GET_PALAM(1, 20) + 5)
+			FLAG:81 += 3  ; 摄影社警惕度增加
+		CASE 2
+			PRINTFORML %CALLNAME:(1)%：对、对不起，我下次不会了...
+			PRINTL 管理员：知道错就好，走吧。
+			CALL SET_PALAM, 1, 41, MIN(100, GET_PALAM(1, 41) + 5)
+		CASE 3
+			PRINTFORML %CALLNAME:(1)%：我、我不知道您在说什么...
+			PRINTL 管理员：是吗...（意味深长地笑）那就算了。
+	ENDSELECT
+	
+ELSE
+	PRINTL 
+	PRINTL 管理员：下次注意，图书馆有规矩的。
+	PRINTFORML %CALLNAME:(1)%：是、是！对不起！
+	PRINTL 【你慌张地离开了...】
+	CALL SET_PALAM, 1, 41, MIN(100, GET_PALAM(1, 41) + 10)
+ENDIF
+
+WAIT
+RETURN
+
+@FORBIDDEN_BOOK_EVENT
+; 禁书事件
+PRINTL 
+PRINTL 【你发现了一本奇怪的禁书...】
+WAIT
+
+PRINTL 书籍封面是黑色的，没有标题。
+PRINTL 翻开第一页，上面写着奇怪的符号...
+PRINTL 
+PRINTL 【这些符号似乎在扭曲变形...】
+
+; 退魔师等级检查
+IF FLAG:46 >= 4
+	PRINTL 
+	PRINTL 【你认出这是古代退魔术的咒文！】
+	PRINTL 内容是...召唤和束缚魔物的方法？
+	PRINTL 【你的退魔师知识大幅增加！】
+	FLAG:46 += 2
+	FLAG:78 += 5  ; 魔物线索
+ELSEIF FLAG:46 >= 2
+	PRINTL 
+	PRINTL 【你感觉这些符号很眼熟...】
+	PRINTL 好像是退魔术相关的记载？
+	PRINTL 【你学到了一些基础知识】
+	FLAG:46 += 1
+	FLAG:78 += 2
+ELSE
+	PRINTL 
+	PRINTL 【你看不懂这些符号，但它们让你感到不安...】
+	PRINTL 书籍似乎散发着微弱的魔物气息。
+	PRINTL 【你的不安感增加了...】
+	CALL SET_PALAM, 1, 41, MIN(100, GET_PALAM(1, 41) + 10)
+ENDIF
+
+; 堕落度影响
+IF GET_TOTAL_DECLINE_LEVEL() >= 30
+	PRINTL 
+	PRINTL 【突然，你感觉书页上浮现出淫秽的画面...】
+	PRINTL 那些符号变成了男女交合的图案...
+	PRINTFORML %CALLNAME:(1)%：啊...这、这是...
+	CALL SET_PALAM, 1, 12, MIN(100, GET_PALAM(1, 12) + 15)
+	CALL SET_PALAM, 1, 20, MIN(100, GET_PALAM(1, 20) + 8)
+	
+	PRINTL 
+	PRINTL 【你慌忙合上书，心跳加速...】
+	PRINTL 但是...那些画面已经深深印在脑海里了。
+ENDIF
+
+PRINTL 
+PRINTL 【你小心翼翼地放回这本书...】
+PRINTL 感觉这本书很危险，但又很诱人...
+WAIT
+RETURN
+
+@DORM_ADVANCED_EVENT
+; 高级宿舍事件（堕落度60+）
+PRINTL 
+PRINTL 【深夜，奇怪的声音越来越清晰...】
+WAIT
+
+PRINTL 声音似乎是从留学生宿舍那边传来的...
+PRINTL 是...女性的呻吟声？
+PRINTFORML %CALLNAME:(1)%：（难道又是留学生...）
+
+; 选择
+PRINTL 
+PRINTL 【你要怎么做？】
+PRINTL [1] 假装没听到
+PRINTL [2] 悄悄靠近查看
+PRINTL [3] 打电话给宿舍管理员
+
+$DORM_ADV_CHOICE
+INPUT
+
+SELECTCASE RESULT
+	CASE 1
+		PRINTFORML %CALLNAME:(1)%：（捂住耳朵）不、不要听...
+		PRINTL 但是声音还是钻进耳朵里。
+		PRINTL 【你感觉身体开始发热...】
+		CALL SET_PALAM, 1, 12, MIN(100, GET_PALAM(1, 12) + 10)
+		CALL SET_PALAM, 1, 20, MIN(100, GET_PALAM(1, 20) + 5)
+		
+	CASE 2
+		PRINTL 【你悄悄走出宿舍，靠近声音来源...】
+		PRINTL 透过窗户的缝隙，你看到...
+		PRINTL 一个女生正在被黑人留学生侵犯！
+		PRINTFORML %CALLNAME:(1)%：（捂住嘴）啊...
+		
+		PRINTL 女生：啊...不要...嗯〜♡
+		PRINTL 留学生：呵呵，嘴上说不要，身体很诚实嘛~
+		
+		PRINTL 【你看到女生脸上是痛苦又享受的表情...】
+		PRINTL 身体不由自主地颤抖起来。
+		CALL SET_PALAM, 1, 12, MIN(100, GET_PALAM(1, 12) + 20)
+		CALL SET_PALAM, 1, 20, MIN(100, GET_PALAM(1, 20) + 10)
+		FLAG:79 += 8  ; 留学生事件进度大幅增加
+		
+	CASE 3
+		PRINTFORML %CALLNAME:(1)%：（打电话）喂，是宿舍管理员吗？
+		PRINTL 管理员：有什么事吗？
+		PRINTFORML %CALLNAME:(1)%：留、留学生宿舍那边有奇怪的声音...
+		PRINTL 管理员：哦...那个啊，不用管。
+		PRINTFORML %CALLNAME:(1)%：诶？为、为什么...
+		PRINTL 管理员：他们经常那样，习惯就好。
+		PRINTL 管理员：还有，%CALLNAME:(1)%同学...
+		PRINTL 管理员：晚上最好不要到处乱看，知道吗？
+		PRINTL 【管理员的声音带着警告的意味...】
+		CALL SET_PALAM, 1, 41, MIN(100, GET_PALAM(1, 41) + 15)
+ENDSELECT
+
+PRINTL 
+PRINTL 【你回到床上，但已经睡不着了...】
+PRINTL 脑海里全是刚才看到/听到的画面...
+WAIT
+RETURN
+
+@GET_TOTAL_DECLINE_LEVEL
+#FUNCTION
+; 获取总堕落度
+LOCAL = GET_PALAM(1, 20)  ; 淫乱度
+LOCAL += GET_PALAM(1, 21)  ; 屈从度
+LOCAL += GET_PALAM(1, 22)  ; 受虐倾向
+LOCAL += GET_PALAM(1, 39)  ; 背德值
+LOCAL = MIN(100, LOCAL / 4)  ; 取平均值
+RETURNF LOCAL

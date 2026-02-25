@@ -1,0 +1,450 @@
+; ============================================
+; ASCII地图事件系统
+; 为ASCII地图系统提供事件支持
+; ============================================
+
+; --------------------------------------------------
+; 到达事件触发
+@TRIGGER_ARRIVAL_EVENT
+; 触发到达事件
+SELECTCASE FLAG:802
+	CASE 0  ; 学院正门
+		GOSUB GATE_ARRIVAL_EVENT
+		
+	CASE 1  ; 教学楼
+		GOSUB CLASSROOM_ARRIVAL_EVENT
+		
+	CASE 2  ; 宿舍区
+		GOSUB DORM_ARRIVAL_EVENT
+		
+	CASE 3  ; 图书馆
+		GOSUB LIBRARY_ARRIVAL_EVENT
+		
+	CASE 4  ; 操场
+		GOSUB PLAYGROUND_ARRIVAL_EVENT
+		
+	CASE 5  ; 食堂
+		GOSUB CAFETERIA_ARRIVAL_EVENT
+		
+	CASE 6  ; 体育馆
+		GOSUB GYM_ARRIVAL_EVENT
+ENDSELECT
+RETURN
+
+; --------------------------------------------------
+; 学院正门到达事件
+@GATE_ARRIVAL_EVENT
+; 到达学院正门
+LOCAL:TIME = GET_CURRENT_HOUR()
+IF LOCAL:TIME >= 7 AND LOCAL:TIME < 8
+	PRINTL 【早上好！保安向你打招呼...】
+	PRINTL 保安：同学，今天来得真早啊。
+	WAIT
+ELSEIF LOCAL:TIME >= 16 AND LOCAL:TIME < 18
+	PRINTL 【放学时间，很多学生走出校门...】
+	PRINTL 你看到一些学生在门口集合...
+	WAIT
+ENDIF
+RETURN
+
+; --------------------------------------------------
+; 教学楼到达事件
+@CLASSROOM_ARRIVAL_EVENT
+; 到达教学楼
+LOCAL:HOUR = GET_CURRENT_HOUR()
+
+IF LOCAL:HOUR >= 8 AND LOCAL:HOUR < 12
+	; 上午上课时间
+	PRINTL 【教学楼里传来讲课声...】
+	PRINTL 很多教室都在上课。
+	
+	IF RAND:100 < 30
+		PRINTL 【有老师从教室走出来...】
+		GOSUB MEET_TEACHER_IN_HALLWAY
+	ENDIF
+	
+ELSEIF LOCAL:HOUR >= 13 AND LOCAL:HOUR < 17
+	; 下午上课时间
+	PRINTL 【下午的课程开始了...】
+	
+	IF RAND:100 < 20
+		PRINTL 【看到几个学生在走廊里聊天...】
+		GOSUB OVERHEAR_STUDENT_CONVERSATION
+	ENDIF
+	
+ELSEIF LOCAL:HOUR >= 18 AND LOCAL:HOUR < 21
+	; 晚上自习时间
+	PRINTL 【教学楼里很安静，只有自习的学生...】
+	
+	IF RAND:100 < 40
+		PRINTL 【听到楼上传来奇怪的声音...】
+		IF GET_PALAM(0, 20) > 20  ; 淫乱度>20
+			PRINTL 【你好奇地想要去查看...】
+			CALL SET_PALAM, 0, 20, MIN(100, GET_PALAM(0, 20) + 2)
+		ELSE
+			PRINTL 【你觉得还是不要多管闲事...】
+		ENDIF
+	ENDIF
+	
+ELSE
+	; 深夜
+	PRINTL 【教学楼里空无一人...】
+	IF GET_PALAM(0, 23) > 30  ; 暴露倾向>30
+		PRINTL 【你感到一丝兴奋...】
+	ENDIF
+ENDIF
+
+WAIT
+RETURN
+
+; --------------------------------------------------
+; 宿舍到达事件
+@DORM_ARRIVAL_EVENT
+; 到达宿舍区
+LOCAL:HOUR = GET_CURRENT_HOUR()
+
+IF LOCAL:HOUR >= 22 OR LOCAL:HOUR < 6
+	; 深夜
+	PRINTL 【宿舍楼已经关门了...】
+	PRINTL 管理员：同学，已经过了门禁时间。
+	
+	IF GET_PALAM(0, 23) > 40  ; 暴露倾向>40
+		PRINTL 【管理员的目光在你身上停留...】
+		PRINTL 管理员：这么晚回来，是不是去干什么了？
+		CALL SET_PALAM, 0, 23, MIN(100, GET_PALAM(0, 23) + 3)
+	ENDIF
+	
+ELSEIF LOCAL:HOUR >= 12 AND LOCAL:HOUR < 14
+	; 午休时间
+	PRINTL 【午休时间，很多学生在宿舍休息...】
+	PRINTL 宿舍走廊里很安静。
+	
+ELSEIF LOCAL:HOUR >= 17 AND LOCAL:HOUR < 19
+	; 傍晚
+	PRINTL 【很多学生刚从外面回来...】
+	PRINTL 宿舍里开始热闹起来。
+	
+	IF RAND:100 < 25
+		PRINTL 【看到几个男生在女生宿舍楼下...】
+		PRINTL 他们在等女朋友吗？
+	ENDIF
+	
+ELSE
+	PRINTL 【宿舍区很安静...】
+ENDIF
+
+WAIT
+RETURN
+
+; --------------------------------------------------
+; 图书馆到达事件
+@LIBRARY_ARRIVAL_EVENT
+; 到达图书馆
+LOCAL:HOUR = GET_CURRENT_HOUR()
+
+IF LOCAL:HOUR >= 9 AND LOCAL:HOUR < 17
+	; 开放时间
+	PRINTL 【图书馆里有很多学生在学习...】
+	PRINTL 管理员在柜台后面整理书籍。
+	
+	IF RAND:100 < 20
+		PRINTL 【你感觉有人一直在看你...】
+		IF FLAG:72 == 1  ; 女性主角
+			CALL SET_PALAM, 0, 23, MIN(100, GET_PALAM(0, 23) + 1)
+		ENDIF
+	ENDIF
+	
+ELSEIF LOCAL:HOUR >= 18 AND LOCAL:HOUR < 21
+	; 晚上自习时间
+	PRINTL 【图书馆里坐满了自习的学生...】
+	PRINTL 气氛很安静，只有翻书的声音。
+	
+	IF RAND:100 < 15
+		PRINTL 【旁边的男生一直偷看你...】
+		IF FLAG:72 == 1
+			CALL SET_PALAM, 0, 23, MIN(100, GET_PALAM(0, 23) + 2)
+		ENDIF
+	ENDIF
+	
+ELSE
+	PRINTL 【图书馆已经关门了...】
+ENDIF
+
+WAIT
+RETURN
+
+; --------------------------------------------------
+; 操场到达事件
+@PLAYGROUND_ARRIVAL_EVENT
+; 到达操场
+LOCAL:HOUR = GET_CURRENT_HOUR()
+
+IF LOCAL:HOUR >= 15 AND LOCAL:HOUR < 18
+	; 下午活动时间
+	PRINTL 【操场上有很多学生在运动...】
+	PRINTL 田径队在训练，篮球队在比赛。
+	
+	IF RAND:100 < 30
+		PRINTL 【看到体育生学长在训练...】
+		GOSUB SEE_WUHAO_TRAINING
+	ENDIF
+	
+ELSEIF LOCAL:HOUR >= 8 AND LOCAL:HOUR < 12
+	; 上午体育课时间
+	PRINTL 【有班级在上体育课...】
+	PRINTL 体育老师在指导学生们。
+	
+ELSE
+	PRINTL 【操场上人不多...】
+	IF GET_PALAM(0, 23) > 25  ; 暴露倾向>25
+		PRINTL 【你感到在这里独处有些刺激...】
+	ENDIF
+ENDIF
+
+WAIT
+RETURN
+
+; --------------------------------------------------
+; 食堂到达事件
+@CAFETERIA_ARRIVAL_EVENT
+; 到达食堂
+LOCAL:HOUR = GET_CURRENT_HOUR()
+
+IF (LOCAL:HOUR >= 11 AND LOCAL:HOUR < 13) OR (LOCAL:HOUR >= 17 AND LOCAL:HOUR < 19)
+	; 用餐时间
+	PRINTL 【食堂里挤满了学生...】
+	PRINTL 大家都在排队打饭。
+	
+	IF RAND:100 < 40
+		PRINTL 【有人不小心碰到了你...】
+		PRINTL 对不起！
+		IF FLAG:72 == 1
+			CALL SET_PALAM, 0, 23, MIN(100, GET_PALAM(0, 23) + 1)
+		ENDIF
+	ENDIF
+	
+ELSEIF LOCAL:HOUR >= 19 AND LOCAL:HOUR < 21
+	; 晚餐后
+	PRINTL 【食堂里人不多，很安静...】
+	PRINTL 几个学生在角落里聊天。
+	
+	IF RAND:100 < 25
+		PRINTL 【看到一对情侣在角落里...】
+		PRINTL 他们的动作很亲密...
+	ENDIF
+	
+ELSE
+	PRINTL 【食堂还没开始供餐...】
+	PRINTL 只有几个工作人员在准备。
+ENDIF
+
+WAIT
+RETURN
+
+; --------------------------------------------------
+; 体育馆到达事件
+@GYM_ARRIVAL_EVENT
+; 到达体育馆
+LOCAL:HOUR = GET_CURRENT_HOUR()
+
+IF LOCAL:HOUR >= 15 AND LOCAL:HOUR < 21
+	; 体育活动时间
+	PRINTL 【体育馆里很热闹...】
+	PRINTL 有人在打球，有人在游泳。
+	
+	IF RAND:100 < 35
+		PRINTL 【闻到游泳池的氯气味...】
+		PRINTL 听到水声和笑声...
+	ENDIF
+	
+ELSEIF LOCAL:HOUR >= 8 AND LOCAL:HOUR < 12
+	; 上午体育课
+	PRINTL 【有班级在上游泳课...】
+	PRINTL 游泳教练在指导学生。
+	
+	IF FLAG:72 == 1
+		PRINTL 【你注意到有几个男生在看你...】
+		CALL SET_PALAM, 0, 23, MIN(100, GET_PALAM(0, 23) + 3)
+	ENDIF
+	
+ELSE
+	PRINTL 【体育馆里空荡荡的...】
+	IF GET_PALAM(0, 23) > 35  ; 暴露倾向>35
+		PRINTL 【空无一人的体育馆让你心跳加速...】
+	ENDIF
+ENDIF
+
+WAIT
+RETURN
+
+; --------------------------------------------------
+; 具体事件函数
+@MEET_TEACHER_IN_HALLWAY
+; 在走廊遇到老师
+PRINTL 
+PRINTL 【佐藤老师向你走来...】
+PRINTL 佐藤老师：%CALLNAME:(1)%，上课不要迟到哦。
+WAIT
+RETURN
+
+@OVERHEAR_STUDENT_CONVERSATION
+; 偷听到学生对话
+PRINTL 
+PRINTL 【你听到几个女生在聊天...】
+PRINTL 女生A：听说武浩学长最近经常去体育馆...
+PRINTL 女生B：是啊，好像在教哪个女生游泳...
+PRINTL 女生A：真羡慕啊...
+WAIT
+RETURN
+
+@SEE_WUHAO_TRAINING
+; 看到武浩训练
+PRINTL 
+PRINTL 【你看到武浩在田径场上训练...】
+PRINTL 他浑身是汗，肌肉线条分明...
+PRINTL 
+IF FLAG:72 == 1  ; 女性主角
+	PRINTL 【他注意到你在看他...】
+	PRINTL 武浩：嘿，%CALLNAME:(1)%，来看我训练吗？
+	CALL SET_PALAM, 0, 20, MIN(100, GET_PALAM(0, 20) + 3)
+ELSE
+	PRINTL 【他在认真训练，没有注意到你...】
+ENDIF
+WAIT
+RETURN
+
+@MEET_CLASSMATES
+; 遇到同学
+PRINTL 
+PRINTL 【遇到了几个同学...】
+PRINTL 同学A：%CALLNAME:(1)%！一起去吃饭吗？
+PRINTL 同学B：听说最近学校有奇怪的事情发生...
+WAIT
+RETURN
+
+@TEACHER_TALK_EVENT
+; 班主任谈话事件
+PRINTL 
+PRINTL 【班主任：%CALLNAME:(1)%，最近学习怎么样？】
+PRINTL 班主任：要注意休息，不要熬夜太晚...
+WAIT
+RETURN
+
+@MEET_SOMEONE_IN_CLASSROOM
+; 在空教室遇到人
+LOCAL:RAND = RAND:100
+
+IF LOCAL:RAND < 30
+	PRINTL 【武浩走了进来...】
+	PRINTL 武浩：%CALLNAME:(1)%，你在这里啊。
+	GOSUB WUHAO_CLASSROOM_ENCOUNTER
+	
+ELSEIF LOCAL:RAND < 50
+	PRINTL 【佐藤老师走了进来...】
+	PRINTL 佐藤老师：同学，这么晚了还在学习？
+	GOSUB TEACHER_CLASSROOM_ENCOUNTER
+	
+ELSEIF LOCAL:RAND < 70
+	PRINTL 【几个女生走了进来...】
+	PRINTL 她们看到你后窃窃私语...
+	GOSUB GIRLS_CLASSROOM_ENCOUNTER
+	
+ELSE
+	PRINTL 【没有人来...】
+ENDIF
+
+RETURN
+
+@DORM_ROOM_OPTIONS
+; 宿舍房间选项
+PRINTL 
+PRINTL 【你的房间里：】
+PRINTL [1] 学习
+PRINTL [2] 休息
+PRINTL [3] 换衣服
+PRINTL [4] 查看日记
+PRINTL [0] 离开房间
+
+$DORM_ROOM_CHOICE
+INPUT
+
+IF RESULT == 0
+	RETURN
+ELSEIF RESULT == 1
+	PRINTL 【你在房间里学习...】
+	CALL CONSUME_TIME, 60
+	PRINTL 【学习有所收获...】
+	
+ELSEIF RESULT == 2
+	PRINTL 【你在房间里休息...】
+	CALL CONSUME_TIME, 30
+	PRINTL 【体力恢复了...】
+	
+ELSEIF RESULT == 3
+	PRINTL 【你在房间里换衣服...】
+	CALL CONSUME_TIME, 10
+	PRINTL 【换上了便服...】
+	
+	IF GET_PALAM(0, 23) > 25  ; 暴露倾向>25
+		PRINTL 【在镜子前多停留了一会儿...】
+		CALL SET_PALAM, 0, 23, MIN(100, GET_PALAM(0, 23) + 2)
+	ENDIF
+	
+ELSEIF RESULT == 4
+	PRINTL 【你查看了日记...】
+	CALL CONSUME_TIME, 15
+	GOSUB READ_DIARY
+ENDIF
+
+WAIT
+GOTO DORM_ROOM_OPTIONS
+
+@VISIT_ROOMMATE
+; 拜访室友
+PRINTL 
+PRINTL 【你敲了敲室友的门...】
+IF RAND:100 < 70
+	PRINTL 【室友开门让你进去了...】
+	PRINTL 室友：%CALLNAME:(1)%！有什么事吗？
+	GOSUB ROOMMATE_CONVERSATION
+ELSE
+	PRINTL 【室友不在房间里...】
+	PRINTL 门锁着，你进不去。
+ENDIF
+RETURN
+
+@FIND_SOMEONE_ON_TRACK
+; 在田径场找人
+PRINTL 
+IF RAND:100 < 50
+	PRINTL 【你找到了体育生学长...】
+	PRINTL 武浩：找我吗？%CALLNAME:(1)%？
+	GOSUB TALK_WITH_WUHAO
+ELSE
+	PRINTL 【没有找到想找的人...】
+ENDIF
+RETURN
+
+@MEET_WUHAO
+; 遇到武浩
+PRINTL 
+PRINTL 【武浩向你走来...】
+PRINTL 武浩：%CALLNAME:(1)%，来看我打球吗？
+PRINTL 
+IF FLAG:72 == 1
+	PRINTL 【他的目光在你身上打量...】
+	CALL SET_PALAM, 0, 23, MIN(100, GET_PALAM(0, 23) + 3)
+ENDIF
+WAIT
+RETURN
+
+; --------------------------------------------------
+; 辅助函数
+@GET_CURRENT_HOUR
+#FUNCTION
+RETURNF FLAG:803 / 60
+
+; --------------------------------------------------
+; 需要在ASCII_MAP_SYSTEM.ERB中添加的事件调用
+; 修改 ASCII_MAP_SYSTEM.ERB 中的 TRIGGER_ARRIVAL_EVENT 函数：
+; GOSUB TRIGGER_ARRIVAL_EVENT FROM ASCII_MAP_EVENTS

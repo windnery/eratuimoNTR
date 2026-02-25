@@ -1,0 +1,756 @@
+; ============================================
+; ASCII地图系统 - 统一数字版本
+; 所有选项使用数字，统一输入处理
+; ============================================
+
+; 全局地图位置索引
+; FLAG:800 = 当前X坐标
+; FLAG:801 = 当前Y坐标  
+; FLAG:802 = 当前区域ID
+; FLAG:803 = 游戏时间（小时:分钟）
+; FLAG:804 = 当前星期几（0=周日，6=周六）
+; FLAG:805 = 当前季节（0=春，1=夏，2=秋，3=冬）
+; FLAG:806 = 当前学年（1-4）
+
+; --------------------------------------------------
+; 主地图显示函数
+@SHOW_ASCII_MAP
+; 显示ASCII地图界面
+CLEARLINE 1
+
+; 显示当前时间和位置
+PRINTL 【{GET_CURRENT_TIME()}】{GET_CURRENT_LOCATION_NAME()}】
+PRINTL 
+
+; 绘制ASCII地图
+DRAWLINE
+GOSUB DRAW_MAP_FRAME
+DRAWLINE
+
+; 显示可前往的地点
+PRINTL 
+GOSUB SHOW_AVAILABLE_DESTINATIONS
+
+; 显示地点子选项（如果已到达具体地点）
+IF IS_AT_SPECIFIC_LOCATION()
+	PRINTL 
+	GOSUB SHOW_LOCATION_OPTIONS
+ENDIF
+
+PRINTL 
+PRINTL 【输入数字选择操作，或输入0返回】
+
+RETURN
+
+; --------------------------------------------------
+; 绘制地图框架
+@DRAW_MAP_FRAME
+; 绘制ASCII地图框架
+
+; 学院地图ASCII绘制（简化版）
+PRINTL 　　　　　　　　　　　　　　　　　　　　┌──────────────────────────────────┐
+PRINTL 　　　　　　　　　　　　　　　　　　　　│　　　　　　　　　学院正门　　　　　　　　　│
+PRINTL 　　　　　　　　　　　　　　　　　　　　│　　　　┌─────────────┐　　　　　│
+PRINTL 　　　　　　　　　　　　　　　　　　　　│　　　　│　宿舍区　　　　│　　　　　│
+PRINTL 　　　　　　　　　　　　　　　　　　　　│　★　　├─────────────┤　　　　│
+PRINTL 　　　　　　　　　　　　　　　　　　　　│　　　　│　教学楼　　　　│　　　　│
+PRINTL 　　　　　　　　　　　　　　　　　　　　│　　　　├─────────────┤　　　　　│
+PRINTL 　　　　　　　　　　　　　　　　　　　　│　　　　│　图书馆　　　　│　　　　　│
+PRINTL 　　　　　　　　　　　　　　　　　　　　│　　　　└─────────────┘　　　　　│
+PRINTL 　　　　　　　　　　　　　　　　　　　　│　　　　　　　　　　　　　　　　　　　　　│
+PRINTL 　　　　　　　　　　　　　　　　　　　　│　┌───┐　　　　　┌───┐　　　　　│
+PRINTL 　　　　　　　　　　　　　　　　　　　　│　│　操场│　　　　　│　食堂│　　　　　│
+PRINTL 　　　　　　　　　　　　　　　　　　　　│　└───┘　　　　　└───┘　　　　　│
+PRINTL 　　　　　　　　　　　　　　　　　　　　└──────────────────────────────────┘
+PRINTL 　　　　　　　　　　　　　　　　　　　　　　★ 表示你的当前位置
+
+; 更详细的ASCII地图（可以根据区域不同而改变）
+SELECTCASE FLAG:802
+	CASE 0  ; 学院正门区域
+		GOSUB DRAW_GATE_AREA_MAP
+	CASE 1  ; 教学楼区域
+		GOSUB DRAW_CLASSROOM_AREA_MAP
+	CASE 2  ; 宿舍区域
+		GOSUB DRAW_DORM_AREA_MAP
+	CASE 3  ; 图书馆区域
+		GOSUB DRAW_LIBRARY_AREA_MAP
+	CASE 4  ; 操场区域
+		GOSUB DRAW_PLAYGROUND_AREA_MAP
+	CASE 5  ; 食堂区域
+		GOSUB DRAW_CAFETERIA_AREA_MAP
+ENDSELECT
+
+RETURN
+
+; --------------------------------------------------
+; 显示可前往的目的地
+@SHOW_AVAILABLE_DESTINATIONS
+LOCAL:COUNT = 0
+
+; 获取当前位置可前往的地点
+SELECTCASE FLAG:802
+	CASE 0  ; 学院正门
+		PRINTL 【可前往的地点：】
+		CALL SET_DESTINATION, LOCAL:COUNT, "教学楼", 1, 10
+		LOCAL:COUNT += 1
+		CALL SET_DESTINATION, LOCAL:COUNT, "宿舍区", 2, 15
+		LOCAL:COUNT += 1
+		CALL SET_DESTINATION, LOCAL:COUNT, "图书馆", 3, 20
+		LOCAL:COUNT += 1
+		CALL SET_DESTINATION, LOCAL:COUNT, "操场", 4, 25
+		LOCAL:COUNT += 1
+		CALL SET_DESTINATION, LOCAL:COUNT, "食堂", 5, 15
+		LOCAL:COUNT += 1
+		
+	CASE 1  ; 教学楼
+		PRINTL 【教学楼内地点：】
+		CALL SET_DESTINATION, LOCAL:COUNT, "1楼走廊", 11, 5
+		LOCAL:COUNT += 1
+		CALL SET_DESTINATION, LOCAL:COUNT, "2楼走廊", 12, 5
+		LOCAL:COUNT += 1
+		CALL SET_DESTINATION, LOCAL:COUNT, "3楼走廊", 13, 5
+		LOCAL:COUNT += 1
+		CALL SET_DESTINATION, LOCAL:COUNT, "教师办公室", 14, 8
+		LOCAL:COUNT += 1
+		CALL SET_DESTINATION, LOCAL:COUNT, "空教室", 15, 5
+		LOCAL:COUNT += 1
+		CALL SET_DESTINATION, LOCAL:COUNT, "返回正门", 0, 10
+		LOCAL:COUNT += 1
+ENDSELECT
+
+; 显示目的地列表
+FOR LOCAL:I, 0, LOCAL:COUNT - 1
+	PRINTFORML [{LOCAL:I + 1}] {GET_DESTINATION_NAME(LOCAL:I)} (需要{GET_DESTINATION_TIME(LOCAL:I)}分钟)
+NEXT
+
+RETURNF LOCAL:COUNT
+
+; --------------------------------------------------
+; 显示地点子选项（数字版本）
+@SHOW_LOCATION_OPTIONS
+IF NOT IS_AT_SPECIFIC_LOCATION()
+	RETURN
+ENDIF
+
+PRINTL 【当前位置可执行的操作：】
+
+; 根据具体位置显示不同选项（全部使用数字）
+SELECTCASE FLAG:802
+	CASE 1  ; 教学楼区域
+		SELECTCASE FLAG:800
+			CASE 11  ; 1楼走廊
+				PRINTL [1] 随便走走
+				PRINTL [2] 查看教室
+				PRINTL [3] 前往教师办公室
+				
+			CASE 12  ; 2楼走廊
+				PRINTL [1] 查看班级名单
+				PRINTL [2] 前往化学实验室
+				PRINTL [3] 前往音乐教室
+				
+			CASE 14  ; 教师办公室
+				PRINTL [1] 找班主任谈话
+				PRINTL [2] 查看教师值班表
+				PRINTL [3] 借用资料
+				
+			CASE 15  ; 空教室
+				PRINTL [1] 自习
+				PRINTL [2] 休息
+				PRINTL [3] 等人
+		ENDSELECT
+		
+	CASE 2  ; 宿舍区域
+		SELECTCASE FLAG:800
+			CASE 21  ; 女生宿舍楼
+				PRINTL [1] 回自己房间
+				PRINTL [2] 拜访室友
+				PRINTL [3] 去公共浴室
+				PRINTL [4] 去洗衣房
+				
+			CASE 22  ; 公共浴室
+				PRINTL [1] 淋浴
+				PRINTL [2] 泡澡
+				PRINTL [3] 等待
+				PRINTL [4] 偷看（需要堕落度>30）
+		ENDSELECT
+		
+	CASE 4  ; 操场区域
+		SELECTCASE FLAG:800
+			CASE 41  ; 田径场
+				PRINTL [1] 跑步锻炼
+				PRINTL [2] 观看比赛
+				PRINTL [3] 找人
+				
+			CASE 42  ; 篮球场
+				PRINTL [1] 打球
+				PRINTL [2] 观看篮球赛
+				PRINTL [3] 找体育生学长
+				
+			CASE 43  ; 更衣室
+				PRINTL [1] 换衣服
+				PRINTL [2] 洗澡
+				PRINTL [3] 等待
+		ENDSELECT
+		
+	CASE 5  ; 食堂区域
+		SELECTCASE FLAG:800
+			CASE 51  ; 一楼大厅
+				PRINTL [1] 吃饭
+				PRINTL [2] 买饮料
+				PRINTL [3] 等人
+				
+			CASE 52  ; 二楼包间
+				PRINTL [1] 聚餐
+				PRINTL [2] 约会（需要关系值>50）
+				PRINTL [3] 补习
+		ENDSELECT
+		
+	CASE 6  ; 体育馆
+		SELECTCASE FLAG:800
+			CASE 61  ; 游泳馆
+				PRINTL [1] 游泳
+				PRINTL [2] 上游泳课
+				PRINTL [3] 观看游泳比赛
+				PRINTL [4] 更衣室
+		ENDSELECT
+ENDSELECT
+
+RETURN
+
+; --------------------------------------------------
+; 目的地设置函数
+@SET_DESTINATION, ARG:1, ARG:2, ARG:3, ARG:4
+LOCALS:ARG:1:NAME = ARG:2
+LOCALS:ARG:1:ID = ARG:3
+LOCALS:ARG:1:TIME = ARG:4
+RETURN
+
+@GET_DESTINATION_NAME, ARG:1
+RETURNF LOCALS:ARG:1:NAME
+
+@GET_DESTINATION_TIME, ARG:1
+RETURNF LOCALS:ARG:1:TIME
+
+@GET_DESTINATION_ID, ARG:1
+RETURNF LOCALS:ARG:1:ID
+
+; --------------------------------------------------
+; 时间系统函数
+@GET_CURRENT_TIME
+#FUNCTION
+LOCAL:HOUR = FLAG:803 / 60
+LOCAL:MINUTE = FLAG:803 % 60
+LOCAL:WEEKDAY = GET_WEEKDAY_NAME(FLAG:804)
+RETURNF "{LOCAL:HOUR,2,ZERO}:{LOCAL:MINUTE,2,ZERO} {LOCAL:WEEKDAY}"
+
+@GET_WEEKDAY_NAME, ARG:1
+#FUNCTION
+SELECTCASE ARG:1
+	CASE 0: RETURNF "星期日"
+	CASE 1: RETURNF "星期一"
+	CASE 2: RETURNF "星期二"
+	CASE 3: RETURNF "星期三"
+	CASE 4: RETURNF "星期四"
+	CASE 5: RETURNF "星期五"
+	CASE 6: RETURNF "星期六"
+ENDSELECT
+
+@ADD_TIME, ARG:1
+LOCAL = FLAG:803 + ARG:1
+IF LOCAL >= 1440
+	LOCAL -= 1440
+	FLAG:804 += 1
+	IF FLAG:804 > 6
+		FLAG:804 = 0
+	ENDIF
+ENDIF
+FLAG:803 = LOCAL
+RETURN
+
+@CONSUME_TIME, ARG:1
+PRINTL 
+PRINTL 【时间过去了{ARG:1}分钟...】
+CALL ADD_TIME, ARG:1
+PRINTFORML 【当前时间：{GET_CURRENT_TIME()}】
+RETURN
+
+; --------------------------------------------------
+; 位置判断函数
+@IS_AT_SPECIFIC_LOCATION
+#FUNCTION
+RETURNF FLAG:800 > 10
+
+@GET_CURRENT_LOCATION_NAME
+#FUNCTION
+SELECTCASE FLAG:802
+	CASE 0: RETURNF "学院正门"
+	CASE 1: RETURNF "教学楼"
+	CASE 2: RETURNF "宿舍区"
+	CASE 3: RETURNF "图书馆"
+	CASE 4: RETURNF "操场"
+	CASE 5: RETURNF "食堂"
+	CASE 6: RETURNF "体育馆"
+	CASE 7: RETURNF "学生会大楼"
+	CASE 8: RETURNF "社团活动区"
+	CASE 9: RETURNF "医务室"
+	CASE 10: RETURNF "校长办公楼"
+	CASEELSE: RETURNF "未知区域"
+ENDSELECT
+
+; --------------------------------------------------
+; 地图移动处理（统一数字输入）
+@PROCESS_MAP_INPUT
+$MAP_INPUT_LOOP
+INPUT
+
+IF RESULT == 0
+	RETURN
+ENDIF
+
+; 检查是否在具体位置
+IF IS_AT_SPECIFIC_LOCATION()
+	; 在具体位置：处理子选项（数字）
+	LOCAL:COUNT = GET_LOCATION_OPTION_COUNT()
+	IF RESULT >= 1 AND RESULT <= LOCAL:COUNT
+		LOCAL:INDEX = RESULT
+		GOSUB PROCESS_LOCATION_ACTION, LOCAL:INDEX
+		RESTART
+	ELSE
+		PRINTL 【无效的选择！】
+		GOTO MAP_INPUT_LOOP
+	ENDIF
+ELSE
+	; 在区域：处理移动（数字）
+	LOCAL:COUNT = GOSUB SHOW_AVAILABLE_DESTINATIONS
+	IF RESULT >= 1 AND RESULT <= LOCAL:COUNT
+		LOCAL:INDEX = RESULT - 1
+		CALL MOVE_TO_DESTINATION, LOCAL:INDEX
+		RESTART
+	ELSE
+		PRINTL 【无效的选择！】
+		GOTO MAP_INPUT_LOOP
+	ENDIF
+ENDIF
+
+RETURN
+
+@MOVE_TO_DESTINATION, ARG:1
+LOCAL:ID = GET_DESTINATION_ID(ARG:1)
+LOCAL:TIME = GET_DESTINATION_TIME(ARG:1)
+LOCAL:NAME = GET_DESTINATION_NAME(ARG:1)
+
+CALL CONSUME_TIME, LOCAL:TIME
+
+IF LOCAL:ID < 10
+	FLAG:802 = LOCAL:ID
+	FLAG:800 = LOCAL:ID
+ELSE
+	FLAG:800 = LOCAL:ID
+ENDIF
+
+PRINTL 
+PRINTFORML 【到达了{LOCAL:NAME}...】
+WAIT
+
+GOSUB TRIGGER_ARRIVAL_EVENT FROM ASCII_MAP_EVENTS
+RETURN
+
+; --------------------------------------------------
+; 处理地点子选项（数字索引）
+@PROCESS_LOCATION_ACTION, ARG:1
+LOCAL:INDEX = ARG:1
+
+SELECTCASE FLAG:802
+	CASE 1: GOSUB PROCESS_CLASSROOM_ACTION, LOCAL:INDEX
+	CASE 2: GOSUB PROCESS_DORM_ACTION, LOCAL:INDEX
+	CASE 4: GOSUB PROCESS_PLAYGROUND_ACTION, LOCAL:INDEX
+	CASE 5: GOSUB PROCESS_CAFETERIA_ACTION, LOCAL:INDEX
+	CASE 6: GOSUB PROCESS_GYM_ACTION, LOCAL:INDEX
+ENDSELECT
+RETURN
+
+; --------------------------------------------------
+; 动作处理函数（数字版本）
+@PROCESS_CLASSROOM_ACTION, ARG:1
+LOCAL:INDEX = ARG:1
+LOCAL:TIME = 0
+
+SELECTCASE FLAG:800
+	CASE 11  ; 1楼走廊
+		SELECTCASE LOCAL:INDEX
+			CASE 1  ; 随便走走
+				PRINTL 【你在走廊里随便走走...】
+				LOCAL:TIME = 15
+				IF RAND:100 < 30
+					PRINTL 【遇到了几个同学在聊天...】
+					GOSUB MEET_CLASSMATES FROM ASCII_MAP_EVENTS
+				ENDIF
+				
+			CASE 2  ; 查看教室
+				PRINTL 【你查看了一间教室...】
+				LOCAL:TIME = 10
+				PRINTL 【教室里有几个学生在自习...】
+				
+			CASE 3  ; 前往教师办公室
+				PRINTL 【你前往教师办公室...】
+				FLAG:800 = 14
+				LOCAL:TIME = 5
+				RESTART
+		ENDSELECT
+		
+	CASE 14  ; 教师办公室
+		SELECTCASE LOCAL:INDEX
+			CASE 1  ; 找班主任谈话
+				PRINTL 【你找班主任谈话...】
+				LOCAL:TIME = 30
+				GOSUB TEACHER_TALK_EVENT FROM ASCII_MAP_EVENTS
+				
+			CASE 2  ; 查看教师值班表
+				PRINTL 【你查看了教师值班表...】
+				LOCAL:TIME = 10
+				PRINTL 【发现今晚有老师值班...】
+				
+			CASE 3  ; 借用资料
+				PRINTL 【你借用了教学资料...】
+				LOCAL:TIME = 15
+				PRINTL 【获得了一些学习资料...】
+		ENDSELECT
+		
+	CASE 15  ; 空教室
+		SELECTCASE LOCAL:INDEX
+			CASE 1  ; 自习
+				PRINTL 【你在空教室里自习...】
+				LOCAL:TIME = 60
+				PRINTL 【学习效率还不错...】
+				
+			CASE 2  ; 休息
+				PRINTL 【你在空教室里休息...】
+				LOCAL:TIME = 30
+				PRINTL 【体力恢复了...】
+				
+			CASE 3  ; 等人
+				PRINTL 【你在空教室里等人...】
+				LOCAL:TIME = 20
+				IF RAND:100 < 40
+					PRINTL 【有人来了...】
+					GOSUB MEET_SOMEONE_IN_CLASSROOM FROM ASCII_MAP_EVENTS
+				ENDIF
+		ENDSELECT
+ENDSELECT
+
+IF LOCAL:TIME > 0
+	CALL CONSUME_TIME, LOCAL:TIME
+	WAIT
+ENDIF
+RETURN
+
+@PROCESS_DORM_ACTION, ARG:1
+LOCAL:INDEX = ARG:1
+LOCAL:TIME = 0
+
+SELECTCASE FLAG:800
+	CASE 21  ; 女生宿舍楼
+		SELECTCASE LOCAL:INDEX
+			CASE 1  ; 回自己房间
+				PRINTL 【你回到了自己的房间...】
+				LOCAL:TIME = 5
+				PRINTL 【房间里很安静...】
+				GOSUB DORM_ROOM_OPTIONS FROM ASCII_MAP_EVENTS
+				
+			CASE 2  ; 拜访室友
+				PRINTL 【你去拜访室友...】
+				LOCAL:TIME = 15
+				PRINTL 【室友在房间里...】
+				GOSUB VISIT_ROOMMATE FROM ASCII_MAP_EVENTS
+				
+			CASE 3  ; 去公共浴室
+				PRINTL 【你前往公共浴室...】
+				FLAG:800 = 22
+				LOCAL:TIME = 5
+				RESTART
+				
+			CASE 4  ; 去洗衣房
+				PRINTL 【你前往洗衣房...】
+				LOCAL:TIME = 20
+				PRINTL 【洗衣房里空无一人...】
+		ENDSELECT
+		
+	CASE 22  ; 公共浴室
+		SELECTCASE LOCAL:INDEX
+			CASE 1  ; 淋浴
+				PRINTL 【你在公共浴室淋浴...】
+				LOCAL:TIME = 20
+				PRINTL 【热水冲刷着身体...】
+				IF FLAG:72 == 1
+					CALL SET_PALAM, 0, 23, MIN(100, GET_PALAM(0, 23) + 2)
+				ENDIF
+				
+			CASE 2  ; 泡澡
+				PRINTL 【你在公共浴室泡澡...】
+				LOCAL:TIME = 30
+				PRINTL 【热水让你放松下来...】
+				IF FLAG:72 == 1
+					CALL SET_PALAM, 0, 23, MIN(100, GET_PALAM(0, 23) + 5)
+				ENDIF
+				
+			CASE 3  ; 等待
+				PRINTL 【你在浴室门口等待...】
+				LOCAL:TIME = 15
+				PRINTL 【听到里面传来水声...】
+				
+			CASE 4  ; 偷看
+				PRINTL 【你偷偷看向浴室里面...】
+				LOCAL:TIME = 10
+				IF GET_PALAM(0, 20) > 30
+					PRINTL 【你看到了一些不该看的东西...】
+					CALL SET_PALAM, 0, 20, MIN(100, GET_PALAM(0, 20) + 5)
+				ELSE
+					PRINTL 【你感到良心不安，没有偷看...】
+				ENDIF
+		ENDSELECT
+ENDSELECT
+
+IF LOCAL:TIME > 0
+	CALL CONSUME_TIME, LOCAL:TIME
+	WAIT
+ENDIF
+RETURN
+
+@PROCESS_PLAYGROUND_ACTION, ARG:1
+LOCAL:INDEX = ARG:1
+LOCAL:TIME = 0
+
+SELECTCASE FLAG:800
+	CASE 41  ; 田径场
+		SELECTCASE LOCAL:INDEX
+			CASE 1  ; 跑步锻炼
+				PRINTL 【你在田径场上跑步锻炼...】
+				LOCAL:TIME = 30
+				PRINTL 【出了一身汗，感觉身体变好了...】
+				
+			CASE 2  ; 观看比赛
+				PRINTL 【你观看田径比赛...】
+				LOCAL:TIME = 45
+				PRINTL 【看到运动员们在努力奔跑...】
+				
+			CASE 3  ; 找人
+				PRINTL 【你在找人...】
+				LOCAL:TIME = 20
+				IF RAND:100 < 50
+					PRINTL 【找到了想找的人...】
+					GOSUB FIND_SOMEONE_ON_TRACK FROM ASCII_MAP_EVENTS
+				ELSE
+					PRINTL 【没有找到...】
+				ENDIF
+		ENDSELECT
+		
+	CASE 42  ; 篮球场
+		SELECTCASE LOCAL:INDEX
+			CASE 1  ; 打球
+				PRINTL 【你在篮球场上打球...】
+				LOCAL:TIME = 40
+				PRINTL 【运动让你心情愉悦...】
+				
+			CASE 2  ; 观看篮球赛
+				PRINTL 【你观看篮球比赛...】
+				LOCAL:TIME = 50
+				PRINTL 【比赛很激烈...】
+				
+			CASE 3  ; 找体育生学长
+				PRINTL 【你在找体育生学长...】
+				LOCAL:TIME = 15
+				IF RAND:100 < 60
+					PRINTL 【看到了武浩学长在打球...】
+					GOSUB MEET_WUHAO FROM ASCII_MAP_EVENTS
+				ELSE
+					PRINTL 【学长不在...】
+				ENDIF
+		ENDSELECT
+		
+	CASE 43  ; 更衣室
+		SELECTCASE LOCAL:INDEX
+			CASE 1  ; 换衣服
+				PRINTL 【你在更衣室换衣服...】
+				LOCAL:TIME = 10
+				PRINTL 【换上了运动服...】
+				
+			CASE 2  ; 洗澡
+				PRINTL 【你在更衣室洗澡...】
+				LOCAL:TIME = 20
+				PRINTL 【洗去了一身汗水...】
+				IF FLAG:72 == 1
+					CALL SET_PALAM, 0, 23, MIN(100, GET_PALAM(0, 23) + 3)
+				ENDIF
+				
+			CASE 3  ; 等待
+				PRINTL 【你在更衣室等待...】
+				LOCAL:TIME = 15
+				PRINTL 【听到外面传来声音...】
+		ENDSELECT
+ENDSELECT
+
+IF LOCAL:TIME > 0
+	CALL CONSUME_TIME, LOCAL:TIME
+	WAIT
+ENDIF
+RETURN
+
+@PROCESS_CAFETERIA_ACTION, ARG:1
+LOCAL:INDEX = ARG:1
+LOCAL:TIME = 0
+
+SELECTCASE FLAG:800
+	CASE 51  ; 一楼大厅
+		SELECTCASE LOCAL:INDEX
+			CASE 1  ; 吃饭
+				PRINTL 【你在食堂吃饭...】
+				LOCAL:TIME = 30
+				PRINTL 【饭菜味道还不错...】
+				
+			CASE 2  ; 买饮料
+				PRINTL 【你买了饮料...】
+				LOCAL:TIME = 10
+				PRINTL 【喝了些饮料解渴...】
+				
+			CASE 3  ; 等人
+				PRINTL 【你在食堂等人...】
+				LOCAL:TIME = 20
+				IF RAND:100 < 40
+					PRINTL 【等的人来了...】
+					GOSUB WAIT_FOR_SOMEONE FROM ASCII_MAP_EVENTS
+				ENDIF
+		ENDSELECT
+		
+	CASE 52  ; 二楼包间
+		SELECTCASE LOCAL:INDEX
+			CASE 1  ; 聚餐
+				PRINTL 【你和朋友聚餐...】
+				LOCAL:TIME = 60
+				PRINTL 【聊得很开心...】
+				
+			CASE 2  ; 约会
+				PRINTL 【你和某人约会...】
+				LOCAL:TIME = 90
+				PRINTL 【气氛很浪漫...】
+				
+			CASE 3  ; 补习
+				PRINTL 【你在补习功课...】
+				LOCAL:TIME = 45
+				PRINTL 【学习有所进步...】
+		ENDSELECT
+ENDSELECT
+
+IF LOCAL:TIME > 0
+	CALL CONSUME_TIME, LOCAL:TIME
+	WAIT
+ENDIF
+RETURN
+
+@PROCESS_GYM_ACTION, ARG:1
+LOCAL:INDEX = ARG:1
+LOCAL:TIME = 0
+
+SELECTCASE FLAG:800
+	CASE 61  ; 游泳馆
+		SELECTCASE LOCAL:INDEX
+			CASE 1  ; 游泳
+				PRINTL 【你在游泳馆游泳...】
+				LOCAL:TIME = 40
+				PRINTL 【在水中感觉很舒服...】
+				IF FLAG:72 == 1
+					CALL SET_PALAM, 0, 23, MIN(100, GET_PALAM(0, 23) + 5)
+				ENDIF
+				
+			CASE 2  ; 上游泳课
+				PRINTL 【你上游泳课...】
+				LOCAL:TIME = 60
+				PRINTL 【教练在指导动作...】
+				IF FLAG:72 == 1
+					CALL SET_PALAM, 0, 23, MIN(100, GET_PALAM(0, 23) + 8)
+				ENDIF
+				
+			CASE 3  ; 观看游泳比赛
+				PRINTL 【你观看游泳比赛...】
+				LOCAL:TIME = 50
+				PRINTL 【比赛很精彩...】
+				
+			CASE 4  ; 更衣室
+				PRINTL 【你前往更衣室...】
+				FLAG:800 = 43
+				LOCAL:TIME = 5
+				RESTART
+		ENDSELECT
+ENDSELECT
+
+IF LOCAL:TIME > 0
+	CALL CONSUME_TIME, LOCAL:TIME
+	WAIT
+ENDIF
+RETURN
+
+; --------------------------------------------------
+; 选项数量函数
+@GET_LOCATION_OPTION_COUNT
+#FUNCTION
+LOCAL:COUNT = 0
+
+SELECTCASE FLAG:802
+	CASE 1  ; 教学楼
+		SELECTCASE FLAG:800
+			CASE 11, 12, 14, 15: LOCAL:COUNT = 3
+			CASEELSE: LOCAL:COUNT = 0
+		ENDSELECT
+		
+	CASE 2  ; 宿舍区
+		SELECTCASE FLAG:800
+			CASE 21, 22: LOCAL:COUNT = 4
+			CASEELSE: LOCAL:COUNT = 0
+		ENDSELECT
+		
+	CASE 4  ; 操场
+		SELECTCASE FLAG:800
+			CASE 41, 42, 43: LOCAL:COUNT = 3
+			CASEELSE: LOCAL:COUNT = 0
+		ENDSELECT
+		
+	CASE 5  ; 食堂
+		SELECTCASE FLAG:800
+			CASE 51, 52: LOCAL:COUNT = 3
+			CASEELSE: LOCAL:COUNT = 0
+		ENDSELECT
+		
+	CASE 6  ; 体育馆
+		SELECTCASE FLAG:800
+			CASE 61: LOCAL:COUNT = 4
+			CASEELSE: LOCAL:COUNT = 0
+		ENDSELECT
+		
+	CASEELSE
+		LOCAL:COUNT = 0
+ENDSELECT
+
+RETURNF LOCAL:COUNT
+
+; --------------------------------------------------
+; 初始化地图系统
+@INIT_ASCII_MAP_SYSTEM
+IF FLAG:800 == 0 AND FLAG:802 == 0
+	FLAG:802 = 0
+	FLAG:800 = 0
+	FLAG:803 = 8 * 60
+	FLAG:804 = 1
+	FLAG:805 = 0
+	FLAG:806 = 1
+ENDIF
+RETURN
+
+; --------------------------------------------------
+; 主地图入口函数
+@ASCII_MAP_SYSTEM
+CALL INIT_ASCII_MAP_SYSTEM
+
+$MAP_MAIN_LOOP
+CLEARLINE 1
+GOSUB SHOW_ASCII_MAP
+GOSUB PROCESS_MAP_INPUT
+GOTO MAP_MAIN_LOOP

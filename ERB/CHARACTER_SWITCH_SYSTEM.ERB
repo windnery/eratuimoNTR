@@ -1,0 +1,191 @@
+; 角色切换系统
+; 允许玩家选择男女主角，动态设置Chara0的数据
+
+@INIT_CHARACTER_SYSTEM
+; 初始化角色系统
+IF FLAG:1000 == 0
+	; 角色系统初始化标记
+	FLAG:1000 = 1
+	
+	; 主角选择状态
+	FLAG:1001 = 0  ; 0=未选择, 1=男性主角, 2=女性主角
+	
+	; 角色数据备份
+	; 用于保存原始Chara0数据（如果需要恢复）
+	FLAG:1002 = 0  ; 备份标记
+ENDIF
+RETURN
+
+@SWITCH_TO_FEMALE_PROTAGONIST
+; 切换到女性主角（Chara1 -> Chara0）
+PRINTL 【正在切换到女性主角：柳如梦...】
+WAIT
+
+; 标记主角选择
+FLAG:1001 = 2
+FLAG:72 = 1  ; 玩家性别：女性
+
+; 复制基础数据到Chara0
+; 实际上在Era中不能直接修改Chara0.csv，但我们可以通过标记系统来实现
+; 使用CFLAG来标记当前使用的是哪个角色的数据
+CFLAG:0:1000 = 1  ; 标记Chara0使用女性主角数据
+
+; 设置主角相关的标记
+FLAG:1003 = 1  ; 女性主角标记
+FLAG:1004 = 0  ; 男性主角标记
+
+; 初始化女性主角特有的参数
+CALL SET_PALAM, 0, 20, 0   ; 淫乱度
+CALL SET_PALAM, 0, 21, 0   ; 屈从度
+CALL SET_PALAM, 0, 22, 0   ; 受虐倾向
+CALL SET_PALAM, 0, 23, 0   ; 暴露倾向
+CALL SET_PALAM, 0, 24, 0   ; 群交倾向
+CALL SET_PALAM, 0, 25, 0   ; 兽交倾向
+CALL SET_PALAM, 0, 26, 0   ; 乱伦倾向
+CALL SET_PALAM, 0, 27, 0   ; 同性倾向
+CALL SET_PALAM, 0, 28, 0   ; 物品化倾向
+CALL SET_PALAM, 0, 29, 0   ; 永久化倾向
+
+; 身体部位敏感度初始化（女性）
+CALL SET_PALAM, 0, 38, 10  ; 乳房敏感度
+CALL SET_PALAM, 0, 40, 15  ; 乳头敏感度
+CALL SET_PALAM, 0, 56, 5   ; 阴蒂敏感度
+CALL SET_PALAM, 0, 58, 8   ; 阴唇敏感度
+CALL SET_PALAM, 0, 60, 3   ; 阴道敏感度
+
+; 标记主角关系
+CFLAG:0:1 = 1  ; 主角标识
+CFLAG:0:2 = 2  ; 女性主角标识
+
+PRINTL 【切换完成！现在你将以柳如梦的身份开始游戏。】
+WAIT
+RETURN
+
+@SWITCH_TO_MALE_PROTAGONIST
+; 切换到男性主角（Chara2 -> Chara0）
+PRINTL 【正在切换到男性主角：白清河...】
+WAIT
+
+; 标记主角选择
+FLAG:1001 = 1
+FLAG:72 = 0  ; 玩家性别：男性
+
+; 标记Chara0使用男性主角数据
+CFLAG:0:1000 = 2
+
+; 设置主角相关的标记
+FLAG:1003 = 0  ; 女性主角标记
+FLAG:1004 = 1  ; 男性主角标记
+
+; 初始化男性主角特有的参数
+CALL SET_PALAM, 0, 20, 0   ; 淫乱度
+CALL SET_PALAM, 0, 21, 0   ; 屈从度
+CALL SET_PALAM, 0, 22, 0   ; 受虐倾向
+CALL SET_PALAM, 0, 23, 0   ; 暴露倾向
+CALL SET_PALAM, 0, 24, 0   ; 群交倾向
+CALL SET_PALAM, 0, 25, 0   ; 兽交倾向
+CALL SET_PALAM, 0, 26, 0   ; 乱伦倾向
+CALL SET_PALAM, 0, 27, 0   ; 同性倾向
+CALL SET_PALAM, 0, 28, 0   ; 物品化倾向
+CALL SET_PALAM, 0, 29, 0   ; 永久化倾向
+
+; 身体部位敏感度初始化（男性）
+CALL SET_PALAM, 0, 72, 8   ; 阴茎敏感度
+CALL SET_PALAM, 0, 70, 5   ; 睾丸敏感度
+CALL SET_PALAM, 0, 68, 3   ; 前列腺敏感度
+
+; 标记主角关系
+CFLAG:0:1 = 1  ; 主角标识
+CFLAG:0:2 = 1  ; 男性主角标识
+
+PRINTL 【切换完成！现在你将以白清河的身份开始游戏。】
+WAIT
+RETURN
+
+@GET_PROTAGONIST_NAME
+#FUNCTION
+; 获取当前主角姓名
+IF FLAG:1001 == 2
+	RETURNF "柳如梦"
+ELSEIF FLAG:1001 == 1
+	RETURNF "白清河"
+ELSE
+	RETURNF "未选择"
+ENDIF
+
+@GET_PROTAGONIST_CALLNAME
+#FUNCTION
+; 获取当前主角的称呼
+IF FLAG:1001 == 2
+	RETURNF "如梦"
+ELSEIF FLAG:1001 == 1
+	RETURNF "清河"
+ELSE
+	RETURNF "你"
+ENDIF
+
+@IS_FEMALE_PROTAGONIST
+#FUNCTION
+; 判断是否是女性主角
+IF FLAG:1001 == 2
+	RETURNF 1
+ELSE
+	RETURNF 0
+ENDIF
+
+@IS_MALE_PROTAGONIST
+#FUNCTION
+; 判断是否是男性主角
+IF FLAG:1001 == 1
+	RETURNF 1
+ELSE
+	RETURNF 0
+ENDIF
+
+; 事件响应函数
+@APPLY_PROTAGONIST_SPECIFIC_EVENTS
+; 应用主角性别特定的事件
+IF FLAG:1001 == 2  ; 女性主角
+	; 女性特有事件逻辑
+	IF FLAG:75 > 0  ; NTR进度吴昊
+		; GOSUB FEMALE_WUHAO_EVENTS
+		; 暂时注释掉未定义的函数
+	ENDIF
+	IF FLAG:76 > 0  ; NTR进度佐藤老师
+		; GOSUB FEMALE_TEACHER_EVENTS
+		; 暂时注释掉未定义的函数
+	ENDIF
+ELSEIF FLAG:1001 == 1  ; 男性主角
+	; 男性特有事件逻辑（调查视角）
+	IF FLAG:75 > 0
+		; GOSUB MALE_INVESTIGATION_EVENTS
+		; 暂时注释掉未定义的函数
+	ENDIF
+ENDIF
+RETURN
+
+; 修改TITLE.ERB中的调用
+@UPDATE_TITLE_SYSTEM
+; 更新标题系统以支持角色选择
+PRINTL 
+PRINTL 【请选择要扮演的主角：】
+PRINTL [1] 白清河（男性视角 - 调查青梅竹马的堕落）
+PRINTL [2] 柳如梦（女性视角 - 体验堕落过程）
+PRINTL [3] 返回
+PRINTL 
+
+$PROTAGONIST_CHOICE
+INPUT
+
+IF RESULT == 1
+	GOSUB SWITCH_TO_MALE_PROTAGONIST
+	RETURNF 1
+ELSEIF RESULT == 2
+	GOSUB SWITCH_TO_FEMALE_PROTAGONIST
+	RETURNF 2
+ELSEIF RESULT == 3
+	RETURNF 0
+ELSE
+	CLEARLINE 1
+	GOTO PROTAGONIST_CHOICE
+ENDIF

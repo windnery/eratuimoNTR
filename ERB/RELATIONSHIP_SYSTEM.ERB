@@ -1,0 +1,310 @@
+; 角色关系系统 - NTR关系追踪
+@SHOW_RELATIONSHIPS
+; 显示角色关系界面
+
+DRAWLINE
+PRINTFORML 角色关系系统
+DRAWLINE
+
+; 根据主角性别显示不同关系
+IF FLAG:72 == 1  ; 女性主角柳如梦
+	PRINTL 【当前角色：柳如梦（退魔师）】
+	PRINTL 【关系目标：学院内的NTR对象】
+	PRINTL 
+	
+	; 显示与各角色的关系值
+	PRINTFORML [1]学长（武浩） - 关系值：{FLAG:200}％
+	PRINTFORML [2]摄影部成员 - 关系值：{FLAG:201}％
+	PRINTFORML [3]留学生 - 关系值：{FLAG:202}％
+	PRINTFORML [4]校长儿子 - 关系值：{FLAG:203}％
+ELSE  ; 男性主角白清河
+	PRINTL 【当前角色：白清河（退魔师）】
+	PRINTL 【关系目标：寻找失踪的青梅竹马】
+	PRINTL 
+	
+	; 显示调查进度和线索
+	PRINTFORML [1]柳如梦（青梅竹马） - 失踪{FLAG:76}天
+	PRINTFORML [2]学院线索 - 收集度：{FLAG:210}％
+	PRINTFORML [3]魔物情报 - 收集度：{FLAG:211}％
+	PRINTFORML [4]可疑人物 - 调查度：{FLAG:212}％
+ENDIF
+
+PRINTL 
+PRINTFORML [0]返回主菜单
+PRINTL 
+
+$RELATIONSHIP_CHOICE
+INPUT
+
+IF RESULT == 0
+	RETURN
+ELSEIF RESULT == 1
+	; 查看详细信息
+	CALL SHOW_DETAILED_RELATION, 1
+ELSEIF RESULT == 2
+	CALL SHOW_DETAILED_RELATION, 2
+ELSEIF RESULT == 3
+	CALL SHOW_DETAILED_RELATION, 3
+ELSEIF RESULT == 4
+	CALL SHOW_DETAILED_RELATION, 4
+ELSE
+	CLEARLINE 1
+	GOTO RELATIONSHIP_CHOICE
+ENDIF
+
+; 重新显示关系列表
+RESTART
+
+; --------------------------------------------------
+; 显示详细关系信息
+@SHOW_DETAILED_RELATION
+; 参数：RELATION_ID - 关系编号
+
+DRAWLINE
+IF FLAG:72 == 1  ; 女性主角
+	IF ARG == 1
+		PRINTFORML 【学长 - 武浩】详细关系
+		DRAWLINE
+		PRINTL 【当前状态：】
+		IF FLAG:220 == 0
+			PRINTL 未接触 - 武浩是学院的体育生学长，对你很关注...
+		ELSEIF FLAG:220 == 1
+			PRINTL 初次接触 - 在体育馆遇到过几次，他总盯着你看...
+		ELSEIF FLAG:220 == 2
+			PRINTL 关系建立 - 他开始主动找你搭话，眼神充满欲望...
+		ELSEIF FLAG:220 == 3
+			PRINTL 诱惑开始 - 他邀请你去他家"补习"，手开始不老实...
+		ELSE
+			PRINTL 深度堕落 - 身体已经完全被他掌控...
+		ENDIF
+		
+		PRINTL 
+		PRINTL 【事件触发条件：】
+		PRINTL - 堕落度 > 10：初次接触事件
+		PRINTL - 堕落度 > 30：关系建立事件
+		PRINTL - 堕落度 > 50：诱惑开始事件
+		PRINTL - 堕落度 > 80：深度堕落事件
+		
+	ELSEIF ARG == 2
+		PRINTFORML 【摄影部成员】详细关系
+		DRAWLINE
+		PRINTL 【当前状态：未解锁】
+		PRINTL 【需要探索度 > 30％ 解锁摄影部】
+		
+	ELSEIF ARG == 3
+		PRINTFORML 【留学生】详细关系
+		DRAWLINE
+		PRINTL 【当前状态：未解锁】
+		PRINTL 【需要前往留学生宿舍区域解锁】
+		
+	ELSEIF ARG == 4
+		PRINTFORML 【校长儿子】详细关系
+		DRAWLINE
+		PRINTL 【当前状态：未解锁】
+		PRINTL 【需要退魔师等级 > 3 解锁】
+	ENDIF
+ELSE  ; 男性主角
+	IF ARG == 1
+		PRINTFORML 【柳如梦 - 青梅竹马】详细线索
+		DRAWLINE
+		PRINTL 【失踪时间：{FLAG:76}天】
+		PRINTL 【最后出现：学院教学楼3层】
+		PRINTL 
+		PRINTL 【已收集线索：】
+		IF FLAG:230 >= 1
+			PRINTL ✓ 她的退魔师装备不见了
+		ELSE
+			PRINTL ✗ 她的退魔师装备不见了
+		ENDIF
+		
+		IF FLAG:231 >= 1
+			PRINTL ✓ 宿舍内有挣扎痕迹
+		ELSE
+			PRINTL ✗ 宿舍内有挣扎痕迹
+		ENDIF
+		
+		IF FLAG:232 >= 1
+			PRINTL ✓ 目击者说看到她和武浩在一起
+		ELSE
+			PRINTL ✗ 目击者说看到她和武浩在一起
+		ENDIF
+		
+		IF FLAG:233 >= 1
+			PRINTL ✓ 她的笔记本上有奇怪的符号
+		ELSE
+			PRINTL ✗ 她的笔记本上有奇怪的符号
+		ENDIF
+		
+	ELSEIF ARG == 2
+		PRINTFORML 【学院线索】详细收集
+		DRAWLINE
+		PRINTL 【收集进度：{FLAG:210}％】
+		PRINTL 【已探索区域：】
+		PRINTL - 教学楼（{FLAG:80}％完成）
+		PRINTL - 体育馆（{FLAG:81}％完成）
+		PRINTL - 宿舍区（{FLAG:82}％完成）
+		PRINTL - 图书馆（{FLAG:83}％完成）
+		
+	ELSEIF ARG == 3
+		PRINTFORML 【魔物情报】详细收集
+		DRAWLINE
+		PRINTL 【收集进度：{FLAG:211}％】
+		PRINTL 【已发现魔物：】
+		IF FLAG:240 >= 1
+			PRINTL ✓ 影魔 - 会操控他人欲望
+		ELSE
+			PRINTL ✗ 影魔 - 会操控他人欲望
+		ENDIF
+		
+		IF FLAG:241 >= 1
+			PRINTL ✓ 欲妖 - 会激发他人情欲
+		ELSE
+			PRINTL ✗ 欲妖 - 会激发他人情欲
+		ENDIF
+		
+		IF FLAG:242 >= 1
+			PRINTL ✓ 魅魔 - 会附身并控制他人
+		ELSE
+			PRINTL ✗ 魅魔 - 会附身并控制他人
+		ENDIF
+		
+	ELSEIF ARG == 4
+		PRINTFORML 【可疑人物】详细调查
+		DRAWLINE
+		PRINTL 【调查进度：{FLAG:212}％】
+		PRINTL 【可疑人员列表：】
+		PRINTL - 武浩（体育生学长）- 嫌疑度：{FLAG:250}％
+		PRINTL - 摄影部成员 - 嫌疑度：{FLAG:251}％
+		PRINTL - 留学生 - 嫌疑度：{FLAG:252}％
+		PRINTL - 校长儿子 - 嫌疑度：{FLAG:253}％
+	ENDIF
+ENDIF
+
+PRINTL 
+PRINTL 【0】返回关系列表
+PRINTL 
+
+$DETAIL_RETURN_CHOICE
+INPUT
+
+IF RESULT == 0
+	RETURN
+ELSE
+	CLEARLINE 1
+	GOTO DETAIL_RETURN_CHOICE
+ENDIF
+
+; --------------------------------------------------
+; 更新关系值函数
+@UPDATE_RELATIONSHIP
+; 参数1：角色ID
+; 参数2：关系类型ID
+; 参数3：增加值
+
+LOCAL:0 = ARG:1  ; 角色ID
+LOCAL:1 = ARG:2  ; 关系类型ID
+LOCAL:2 = ARG:3  ; 增加值
+
+; 使用FLAG存储关系数据
+; 映射关系：FLAG:200-203为女性线NTR关系，FLAG:210-212为男性线调查进度
+IF FLAG:72 == 1  ; 女性线
+ IF LOCAL:1 == 100  ; 武浩
+			FLAG:200 = MIN(100, FLAG:200 + LOCAL:2)
+		ELSEIF LOCAL:1 == 101  ; 摄影部
+			FLAG:201 = MIN(100, FLAG:201 + LOCAL:2)
+		ELSEIF LOCAL:1 == 102  ; 留学生
+			FLAG:202 = MIN(100, FLAG:202 + LOCAL:2)
+		ELSEIF LOCAL:1 == 103  ; 校长儿子
+			FLAG:203 = MIN(100, FLAG:203 + LOCAL:2)
+		ENDIF
+	ELSE  ; 男性线
+		IF LOCAL:1 == 100  ; 学院线索
+			FLAG:210 = MIN(100, FLAG:210 + LOCAL:2)
+		ELSEIF LOCAL:1 == 101  ; 魔物情报
+			FLAG:211 = MIN(100, FLAG:211 + LOCAL:2)
+		ELSEIF LOCAL:1 == 102  ; 可疑人物
+			FLAG:212 = MIN(100, FLAG:212 + LOCAL:2)
+		ENDIF
+	ENDIF
+
+; 如果是女性主角，可能需要触发堕落事件
+IF FLAG:72 == 1
+	CALL CHECK_RELATIONSHIP_EVENT, LOCAL:0, LOCAL:1
+ENDIF
+
+RETURN
+
+; --------------------------------------------------
+; 检查关系事件触发
+@CHECK_RELATIONSHIP_EVENT
+; 参数1：角色ID
+; 参数2：关系类型ID
+
+LOCAL:0 = ARG:1  ; 角色ID
+LOCAL:1 = ARG:2  ; 关系类型ID
+IF FLAG:72 == 1
+		LOCAL:2 = FLAG:200  ; 武浩关系值
+	ELSE
+		LOCAL:2 = FLAG:210  ; 学院线索收集度
+	ENDIF
+
+; 检查是否需要触发事件
+IF FLAG:72 == 1 && LOCAL:1 == 100  ; 女性线且与武浩的关系
+IF LOCAL:2 >= 10 && FLAG:220 == 0
+		; 初次接触事件
+		FLAG:220 = 1
+		PRINTL 
+		PRINTL 【事件：初次接触武浩】
+		PRINTL 【在体育馆偶遇武浩，他的目光让你感到不安...】
+		WAIT
+	ELSEIF LOCAL:2 >= 30 && FLAG:220 == 1
+	; 关系建立事件
+	FLAG:220 = 2
+		PRINTL 
+		PRINTL 【事件：关系建立】
+		PRINTL 【武浩开始主动找你搭话，手不经意间碰到你的身体...】
+		WAIT
+	ELSEIF LOCAL:2 >= 50 && FLAG:220 == 2
+	; 诱惑开始事件
+	FLAG:220 = 3
+		PRINTL 
+		PRINTL 【事件：诱惑开始】
+		PRINTL 【武浩邀请你去他家"补习"，他的手在你大腿上游走...】
+		WAIT
+	ELSEIF LOCAL:2 >= 80 && FLAG:220 == 3
+	; 深度堕落事件
+	FLAG:220 = 4
+		PRINTL 
+		PRINTL 【事件：深度堕落】
+		PRINTL 【身体已经完全被武浩掌控，每一次触碰都让你颤抖...】
+		WAIT
+	ENDIF
+ENDIF
+
+RETURN
+
+; --------------------------------------------------
+; 获取总堕落度（用于主菜单显示）
+@GET_TOTAL_DECLINE_LEVEL
+LOCAL:0 = 0
+
+; 计算所有关系的平均值
+IF FLAG:200 > 0
+LOCAL:0 += FLAG:200
+ENDIF
+IF FLAG:201 > 0
+LOCAL:0 += FLAG:201
+ENDIF
+IF FLAG:202 > 0
+LOCAL:0 += FLAG:202
+ENDIF
+IF FLAG:203 > 0
+LOCAL:0 += FLAG:203
+ENDIF
+
+; 计算平均值
+IF LOCAL:0 > 0
+	LOCAL:0 = LOCAL:0 / 4
+ENDIF
+
+RETURN LOCAL:0

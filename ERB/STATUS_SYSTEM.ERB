@@ -1,0 +1,125 @@
+; 状态查看系统
+@SHOW_STATUS
+; 显示角色详细状态
+CLEARLINE 1
+REDRAW 0
+
+PRINTL 
+PRINTL 【角色状态详情】
+PRINTL 
+
+IF FLAG:72 == 1  ; 女性主角
+	PRINTL 【姓名：柳如梦】
+	PRINTL 【身份：新来的转学生，退魔师】
+	PRINTL 【学院探索度：{FLAG:73}%】
+	PRINTL 
+	
+	; 堕落度相关
+	PRINTL 【=== 堕落度统计 ===】
+	LOCAL:DECLINE = CALL GET_TOTAL_DECLINE_LEVEL
+	PRINTL 【总堕落度：{LOCAL:DECLINE}%】
+	
+	IF LOCAL:DECLINE >= 20
+		PRINTL 【状态：开始堕落】
+	ELSEIF LOCAL:DECLINE >= 40
+		PRINTL 【状态：中度堕落】
+	ELSEIF LOCAL:DECLINE >= 60
+		PRINTL 【状态：重度堕落】
+	ELSEIF LOCAL:DECLINE >= 80
+		PRINTL 【状态：完全堕落】
+	ELSE
+		PRINTL 【状态：纯洁】
+	ENDIF
+	PRINTL 
+	
+	; 详细堕落参数
+	PRINTL 【=== 详细参数 ===】
+	PRINTL 【淫乱度：{GET_PALAM(0, 20)}%】
+	PRINTL 【屈从度：{GET_PALAM(0, 21)}%】
+	PRINTL 【受虐倾向：{GET_PALAM(0, 22)}%】
+	PRINTL 【暴露倾向：{GET_PALAM(0, 23)}%】
+	PRINTL 【群交倾向：{GET_PALAM(0, 24)}%】
+	PRINTL 
+	
+	; 身体敏感度
+	PRINTL 【=== 身体敏感度 ===】
+	PRINTL 【乳房：{GET_PALAM(0, 38)}%】
+	PRINTL 【乳头：{GET_PALAM(0, 40)}%】
+	PRINTL 【阴蒂：{GET_PALAM(0, 56)}%】
+	PRINTL 【阴唇：{GET_PALAM(0, 58)}%】
+	PRINTL 【阴道：{GET_PALAM(0, 60)}%】
+	PRINTL 【肛门：{GET_PALAM(0, 66)}%】
+	PRINTL 
+	
+	; NTR进度
+	PRINTL 【=== NTR关系进展 ===】
+	PRINTL 【吴昊：{FLAG:75}%】
+	PRINTL 【佐藤老师：{FLAG:76}%】
+	PRINTL 【学生会长：{FLAG:77}%】
+	PRINTL 【魔物：{FLAG:78}%】
+	
+ELSE  ; 男性主角
+	PRINTL 【姓名：白清河】
+	PRINTL 【身份：柳如梦的青梅竹马】
+	PRINTL 【退魔师等级：{FLAG:46}】
+	PRINTL 【学院探索度：{FLAG:73}%】
+	PRINTL 
+	
+	; 调查进度
+	PRINTL 【=== 调查进度 ===】
+	PRINTL 【总体进度：{FLAG:42}%】
+	PRINTL 
+	
+	PRINTL 【=== 线索收集 ===】
+	PRINTL 【吴昊可疑度：{FLAG:75}%】
+	PRINTL 【佐藤老师可疑度：{FLAG:76}%】
+	PRINTL 【学生会长可疑度：{FLAG:77}%】
+	PRINTL 【魔物线索：{FLAG:78}%】
+	PRINTL 
+	
+	PRINTL 【=== 退魔师能力 ===】
+	PRINTL 【魔物感知：{GET_PALAM(0, 46)}%】
+	PRINTL 【驱魔能力：{GET_PALAM(0, 47)}%】
+	PRINTL 【结界布置：{GET_PALAM(0, 48)}%】
+	
+ENDIF
+
+PRINTL 
+PRINTL 【=== 通用信息 ===】
+PRINTL 【游戏天数：{FLAG:43}天】
+PRINTL 【探索次数：{FLAG:61}次】
+PRINTL 【事件触发：{FLAG:44}次】
+PRINTL 【背德值：{FLAG:39}】
+PRINTL 【魔物污染度：{FLAG:45}%】
+
+PRINTL 
+PRINTL 【按回车键返回...】
+WAIT
+
+RETURN
+
+; 堕落度计算函数
+@GET_TOTAL_DECLINE_LEVEL
+#FUNCTION
+; 计算总堕落度
+LOCAL = GET_PALAM(0, 20)  ; 淫乱度
+LOCAL += GET_PALAM(0, 21)  ; 屈从度
+LOCAL += GET_PALAM(0, 22)  ; 受虐倾向
+LOCAL += GET_PALAM(0, 23)  ; 暴露倾向
+LOCAL += GET_PALAM(0, 24)  ; 群交倾向
+LOCAL += GET_PALAM(0, 25)  ; 兽交倾向
+LOCAL += GET_PALAM(0, 26)  ; 乱伦倾向
+LOCAL += GET_PALAM(0, 27)  ; 同性倾向
+LOCAL += GET_PALAM(0, 28)  ; 物品化倾向
+LOCAL += GET_PALAM(0, 29)  ; 永久化倾向
+
+; 背德值也计入堕落度
+LOCAL += FLAG:39
+
+; 取平均值，不超过100
+LOCAL = LOCAL / 11
+IF LOCAL > 100
+	RETURNF 100
+ELSE
+	RETURNF LOCAL
+ENDIF

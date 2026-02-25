@@ -1,0 +1,88 @@
+; 游戏开始主文件
+; 当选择新游戏时，BEGIN FIRST会跳转到这里
+
+@EVENTFIRST
+; 游戏开始主函数
+CLEARLINE 1
+REDRAW 0
+
+; 显示开场文字
+PRINTL 
+PRINTL 【学院风NTR游戏 开始】
+PRINTL 
+IF FLAG:72 == 1  ; 女性视角
+	PRINTL 【主角：柳如梦】
+	PRINTL 【身份：新来的转学生，退魔师】
+	PRINTL 【任务：调查学院内的魔物事件】
+	PRINTL 【特殊：身体敏感，容易被诱惑...】
+ELSE  ; 男性视角
+	PRINTL 【主角：白清河】
+	PRINTL 【身份：柳如梦的青梅竹马】
+	PRINTL 【任务：寻找失踪的青梅竹马】
+	PRINTL 【特殊：拥有退魔师能力】
+ENDIF
+
+WAIT
+CLEARLINE 10
+
+; 进入主菜单
+GOTO MAIN_MENU
+
+$MAIN_MENU
+; 游戏主菜单
+REDRAW 1
+CLEARLINE 1
+
+PRINTL 
+PRINTFORML 【主菜单】
+PRINTFORML 【当前时间：第{FLAG:43}天】
+PRINTFORML 【探索进度：{FLAG:42}％】
+PRINTFORML 【学院探索度：{FLAG:73}％】
+PRINTL 
+IF FLAG:72 == 1  ; 女性视角
+	PRINTFORML 【当前角色：柳如梦】
+	PRINTFORML 【堕落度：{GET_TOTAL_DECLINE_LEVEL()}％】
+ELSE
+	PRINTFORML 【当前角色：白清河】
+	PRINTFORML 【调查进度：{FLAG:75}％】
+ENDIF
+PRINTL 
+
+PRINTL 【请选择行动：】
+PRINTL [1] 探索学院
+PRINTL [2] 查看状态
+PRINTL [3] 物品管理
+PRINTL [4] 角色关系
+PRINTL [5] 存档/读档
+PRINTL [0] 结束游戏
+PRINTL 
+
+$MAIN_MENU_CHOICE
+INPUT
+
+IF RESULT == 0
+	CLEARLINE 10
+	; 结束游戏
+	QUIT
+ELSEIF RESULT == 1
+	; 探索学院 - 使用ASCII地图系统
+	CALL ASCII_MAP_SYSTEM
+ELSEIF RESULT == 2
+	; 查看状态
+	CALL SHOW_STATUS
+ELSEIF RESULT == 3
+	; 物品管理
+	CALL ITEM_MANAGEMENT_NEW
+ELSEIF RESULT == 4
+	; 角色关系
+	CALL SHOW_RELATIONSHIPS
+ELSEIF RESULT == 5
+	; 存档/读档
+	CALL SAVE_LOAD_SYSTEM
+ELSE
+	CLEARLINE 1
+	GOTO MAIN_MENU_CHOICE
+ENDIF
+
+; 返回主菜单
+GOTO MAIN_MENU

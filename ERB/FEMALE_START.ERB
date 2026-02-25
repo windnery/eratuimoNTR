@@ -1,0 +1,67 @@
+; 女性线 - 开局剧情
+@EVENT_FEMALE_OPENING
+
+PRINTL 【出发前一天】
+PRINTL 
+PRINTL 你正在整理前往昙明学院的装备。
+PRINTL 这次任务是调查%CALLNAME:(2)%前辈的失踪事件，并处理学院的魔物问题。
+PRINTL 本来应该是和%CALLNAME:(0)%一起去的，但他昨天受伤住院了...
+PRINTL 
+PRINTL 队长临时改派了%CALLNAME:(3)%前辈和你同行。
+PRINTL %CALLNAME:(3)%是一位经验丰富的退魔师，但你总觉得他看你的眼神有些奇怪...
+PRINTL 
+WAIT
+
+PRINTL 【出发当天】
+PRINTL 
+PRINTL %CALLNAME:(3)%：准备好了吗？我们该出发了。
+PRINTFORML %CALLNAME:(1)%：嗯，前辈...我们要先去医院看看%CALLNAME:(0)%吗？
+PRINTL %CALLNAME:(3)%：不用了，他现在需要静养，我们去只会打扰他。
+PRINTL %CALLNAME:(3)%：放心吧，我会保护好你的。
+PRINTL 他说话时，手轻轻拍了拍你的肩膀。
+PRINTL 你感觉他的手在你肩上停留得有点久...
+PRINTL 
+PRINTL 【你回头看了眼医院的方向】
+PRINTFORML %CALLNAME:(1)%：（默默祈祷）%CALLNAME:(0)%...要快点好起来啊...
+PRINTL 
+WAIT
+
+PRINTL 【前往学院的路上】
+PRINTL 
+PRINTL 车子在路上行驶，%CALLNAME:(3)%前辈似乎心情很好。
+PRINTL %CALLNAME:(3)%：你不用担心，这次任务有我保护你。
+PRINTL %CALLNAME:(3)%：而且...学院里有很多有趣的事情呢...
+PRINTL 他说这话时，意味深长地看了你一眼。
+PRINTL 
+PRINTL 【你感到有些不安，但没说什么...】
+PRINTL 
+WAIT
+
+PRINTL 【到达昙明学院】
+PRINTL 
+PRINTL 昙明学院比想象的要大，建筑看起来很华丽。
+PRINTL 门口有保安在检查，但%CALLNAME:(3)%出示了组织的证件就让我们进去了。
+PRINTL 
+PRINTL %CALLNAME:(3)%：我们先去宿舍安顿一下，晚上再开始调查。
+PRINTFORML %CALLNAME:(1)%：好的前辈...那个，宿舍是分开的吗？
+PRINTL %CALLNAME:(3)%：（笑了笑）学院安排我们住同一栋楼的相邻房间，方便照应。
+PRINTL 
+PRINTL 【你总觉得有点不对劲，但也没办法...】
+PRINTL 
+WAIT
+
+; 设置游戏开始状态
+FLAG:43 = 1  ; 游戏天数从1开始
+FLAG:56 = 0  ; 地点：学院入口
+FLAG:67 = 1  ; 吴昊状态：正常
+FLAG:75 = 0  ; 吴昊NTR进度
+FLAG:38 = 50  ; 好感度
+
+PRINTL 【游戏正式开始】
+PRINTL 
+PRINTL 你现在可以自由探索昙明学院了。
+PRINTL 请小心行事，这里可能比你想象的要危险...
+PRINTL 
+WAIT
+
+GOTO MAIN_SYSTEM

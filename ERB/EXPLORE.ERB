@@ -1,0 +1,446 @@
+; 学院探索系统 - 与地图系统集成版
+@EXPLORE_COLLEGE
+; 探索学院功能 - 增强版，集成地图系统
+FLAG:61++  ; 探索次数
+
+; 初始化地图系统
+CALL INIT_MAP_SYSTEM
+
+CLEARLINE 1
+PRINTL 【探索学院】
+PRINTL 
+PRINTL 【当前地点：学院正门】
+PRINTFORML 【当前探索度：{FLAG:114}/100】
+PRINTL 【已发现NTR目标：无】
+PRINTL 
+PRINTL 【请选择探索方向】
+PRINTL [1] 浏览当前位置详情
+PRINTL [2] 前往邻近区域
+PRINTL [3] 探索当前位置
+PRINTL [4] 切换具体位置
+PRINTL [5] 查看地图进度
+PRINTL [0] 返回主菜单
+
+$EXPLORE_CHOICE
+INPUT
+
+IF RESULT == 0
+	RETURN
+ELSEIF RESULT == 1
+	; 浏览当前位置详情
+	PRINTL 
+	PRINTL 【学院正门前】
+	PRINTL 巨大的学院大门伫立在眼前，气势恢宏。
+	PRINTL 保安在门口站岗，对进出人员进行登记。
+	PRINTL 
+	PRINTL 【按回车键返回...】
+	WAIT
+ELSEIF RESULT == 2
+	; 前往邻近区域
+	PRINTL 
+	PRINTL 【请选择前往的区域】
+	PRINTL [1] 教学楼区域
+	PRINTL [2] 宿舍区域
+	PRINTL [3] 图书馆
+	PRINTL [4] 食堂区域
+	PRINTL [5] 操场区域
+	PRINTL [0] 取消
+	PRINTL 
+	
+	$NAVIGATE_CHOICE
+	INPUT
+	
+	IF RESULT == 0
+		RETURN
+	ELSEIF RESULT >= 1 && RESULT <= 5
+		FLAG:56 = RESULT
+		PRINTL 
+		PRINTL 【到达了新区域...】
+		PRINTL 【探索度增加了！】
+		FLAG:114 = MIN(100, FLAG:114 + 5)
+		WAIT
+	ELSE
+		CLEARLINE 1
+		GOTO NAVIGATE_CHOICE
+	ENDIF
+ELSEIF RESULT == 3
+	; 探索当前位置
+	PRINTL 
+	PRINTL 【正在探索当前位置...】
+	WAIT
+	
+	; 随机事件
+	LOCAL = RAND:100
+	IF LOCAL < 30
+		PRINTL 【你遇到了一些学生】
+		PRINTL 他们看到你后小声议论着什么...
+		IF FLAG:72 == 1  ; 女性主角
+			PRINTL 有几个男生的目光在你身上停留了很久...
+			FLAG:39 += 1  ; 背德值
+		ENDIF
+	ELSEIF LOCAL < 50
+		PRINTL 【你感受到了微弱的魔物气息...】
+		PRINTL 这里可能有危险，要小心。
+		IF FLAG:46 >= 2  ; 退魔师等级足够
+			PRINTL 凭借你的退魔师经验，你能大概判断出魔物的位置。
+			FLAG:78 += 1  ; 魔物线索
+		ENDIF
+	ELSEIF LOCAL < 70
+		PRINTL 【你发现了一些线索...】
+		IF FLAG:72 == 0  ; 男性线（调查）
+			PRINTL 这可能是柳如梦留下的痕迹...
+			FLAG:42 += 5  ; 探索进度
+		ELSE
+			PRINTL 这可能是前辈失踪的线索...
+			FLAG:42 += 3
+		ENDIF
+	ELSEIF LOCAL < 85
+		PRINTL 【你捡到了一些有用的东西】
+		PRINTL 获得50金钱。
+	ELSE
+		PRINTL 【这里看起来很平静...】
+	ENDIF
+	
+	; 增加探索次数
+	FLAG:61 += 1
+	FLAG:114 = MIN(100, FLAG:114 + 2)
+	
+	PRINTL 
+	PRINTL 【按回车键返回...】
+	WAIT
+ELSEIF RESULT == 4
+	; 切换具体位置
+	PRINTL 
+	PRINTL 【切换具体位置功能待实现】
+	PRINTL 【按回车键返回...】
+	WAIT
+ELSEIF RESULT == 5
+	; 查看地图进度
+	PRINTL 
+	PRINTL 【地图探索进度】
+	PRINTL 总探索度：{FLAG:114}%
+	PRINTL 探索次数：{FLAG:61}次
+	PRINTL 当前区域：{FLAG:56}
+	PRINTL 
+	PRINTL 【按回车键返回...】
+	WAIT
+ELSE
+	CLEARLINE 1
+	GOTO EXPLORE_CHOICE
+ENDIF
+
+; 增加探索度
+LOCAL = RAND:3 + 2
+FLAG:114 = MIN(100, FLAG:114 + LOCAL)
+
+RETURN
+
+@INIT_MAP_SYSTEM
+; 初始化地图系统
+IF FLAG:111 == 0
+	; 初始位置：学院入口
+	FLAG:56 = 0  ; 当前地图区块
+	FLAG:112 = 0  ; 具体位置
+	FLAG:113 = 0  ; 已探索地图标记
+	
+	; 地图探索度
+	FLAG:114 = 0  ; 总探索度（0-100）
+	
+	; 特殊地点解锁标记
+	FLAG:115 = 0  ; 地下区域解锁
+	FLAG:116 = 0  ; 特殊区域解锁
+	FLAG:117 = 0  ; 魔物区域解锁
+	
+	FLAG:111 = 1
+ENDIF
+RETURN
+
+@SHOW_LOCAL_POSITIONS
+; 显示当前区域的所有具体位置
+LOCAL = 0
+
+; 根据区域ID显示对应位置
+SELECTCASE FLAG:56
+	CASE 0  ; 学院入口
+		PRINTL [1] 学院正门
+		PRINTL [2] 入口广场
+		PRINTL [3] 学院石碑
+		PRINTL [4] 公告栏
+		LOCAL = 4
+		
+	CASE 1  ; 教学楼区域
+		PRINTL [1] 1楼走廊
+		PRINTL [2] 2楼走廊
+		PRINTL [3] 3楼走廊
+		PRINTL [4] 教师办公室
+		PRINTL [5] 空教室
+		PRINTL [6] 化学实验室
+		PRINTL [7] 生物实验室
+		PRINTL [8] 美术教室
+		PRINTL [9] 音乐教室
+		LOCAL = 9
+		
+	CASE 2  ; 宿舍区域
+		PRINTL [1] 女生宿舍楼
+		PRINTL [2] 男生宿舍楼
+		PRINTL [3] 留学生宿舍
+		PRINTL [4] 宿舍管理员室
+		PRINTL [5] 公共浴室
+		PRINTL [6] 洗衣房
+		PRINTL [7] 宿舍天台
+		PRINTL [8] 宿舍走廊
+		LOCAL = 8
+		
+	CASE 3  ; 图书馆
+		PRINTL [1] 一楼阅览室
+		PRINTL [2] 二楼自习室
+		PRINTL [3] 地下书库
+		PRINTL [4] 管理员办公室
+		PRINTL [5] 古籍区
+		PRINTL [6] 杂志区
+		PRINTL [7] 电子阅览区
+		LOCAL = 7
+		
+	CASE 4  ; 食堂区域
+		PRINTL [1] 一楼大厅
+		PRINTL [2] 二楼餐厅
+		PRINTL [3] 厨房区域
+		PRINTL [4] 小卖部
+		LOCAL = 4
+		
+	CASE 5  ; 操场区域
+		PRINTL [1] 田径场
+		PRINTL [2] 篮球场
+		PRINTL [3] 排球场
+		PRINTL [4] 足球场
+		PRINTL [5] 器材室
+		PRINTL [6] 看台
+		PRINTL [7] 更衣室
+		LOCAL = 7
+		
+	CASEELSE
+		PRINTL [1] 主要区域
+		LOCAL = 1
+ENDSELECT
+
+PRINTL [0] 取消
+RETURNF LOCAL
+
+@GET_MAX_LOCAL_POSITIONS, ARG:1
+#FUNCTION
+; 获取指定区域的最大位置数量
+SELECTCASE ARG:1
+	CASE 0
+		RETURNF 4
+	CASE 1
+		RETURNF 9
+	CASE 2
+		RETURNF 8
+	CASE 3
+		RETURNF 7
+	CASE 4
+		RETURNF 4
+	CASE 5
+		RETURNF 7
+	CASEELSE
+		RETURNF 1
+ENDSELECT
+
+@SET_MAP_EXPLORED, ARG:1, ARG:2
+#FUNCTION
+; 标记位置为已探索
+; ARG:1 = 区域ID
+; ARG:2 = 具体位置ID
+LOCALBIT = 1 << (ARG:1 * 8 + ARG:2)
+FLAG:113 = FLAG:113 | LOCALBIT  ; 设置探索位
+RETURNF LOCALBIT
+
+@COUNT_EXPLORED_AREAS
+#FUNCTION
+; 计算已探索区域数量
+LOCAL = 0
+LOCALTEMP = FLAG:113
+
+; 检查每个位置是否已探索（简单版本，检查前32位）
+FOR LOCALI, 0, 31
+	IF LOCALTEMP & 1
+		LOCAL++
+	ENDIF
+	LOCALTEMP >>= 1
+NEXT
+
+RETURNF LOCAL
+
+@TRIGGER_DETAILED_EVENT
+; 触发当前位置的详细事件
+SELECTCASE FLAG:56
+	CASE 0  ; 学院入口
+		SELECTCASE FLAG:112
+			CASE 0
+				GOSUB ENTRANCE_MAIN_GATE
+			CASE 1
+				GOSUB ENTRANCE_PLAZA
+			CASE 2
+				GOSUB ENTRANCE_MONUMENT
+			CASE 3
+				GOSUB ENTRANCE_BULLETIN
+		ENDSELECT
+		
+	CASE 1  ; 教学楼区域
+		SELECTCASE FLAG:112
+			CASE 0, 1, 2
+				GOSUB CLASSROOM_EVENT FROM MAP_EVENTS
+			CASE 3
+				GOSUB TEACHER_OFFICE_EVENT FROM MAP_EVENTS
+			CASE 4, 5, 6, 7, 8
+				GOSUB CLASSROOM_EVENT FROM MAP_EVENTS
+		ENDSELECT
+		
+	CASE 2  ; 宿舍区域
+		GOSUB DORM_EVENT FROM MAP_EVENTS
+		
+	CASE 3  ; 图书馆
+		GOSUB LIBRARY_EVENT FROM MAP_EVENTS
+		
+	CASE 4  ; 食堂区域
+		GOSUB CAFETERIA_EVENT FROM MAP_EVENTS
+		
+	CASE 5  ; 操场区域
+		GOSUB PLAYGROUND_EVENT FROM MAP_EVENTS
+		
+	CASEELSE
+		; 通用探索事件
+		GOSUB LOCATION_EVENTS
+ENDSELECT
+RETURN
+
+@EXPLORE_LOCATION_EVENTS
+; 探索位置的事件触发
+; 首先检查是否有特殊事件
+IF FLAG:72 == 1  ; 女性线
+	LOCAL = RAND:100
+	
+	; 根据堕落度调整事件触发率
+	LOCALD = GET_TOTAL_DECLINE_LEVEL()
+	LOCALRATE = 30 + MIN(50, LOCALD)  ; 基础30% + 堕落度（最多增加50%）
+	
+	IF LOCAL < LOCALRATE
+		; 触发详细事件
+		GOSUB TRIGGER_DETAILED_EVENT
+	ELSE
+		PRINTL 【你仔细探索了这个位置...】
+		PRINTL 没有发现什么特别的东西。
+		WAIT
+	ENDIF
+ELSE
+	; 男性线：主要是调查
+	PRINTL 【你仔细调查了这个位置...】
+	PRINTL 试图找到有关%CALLNAME:(1)%的线索。
+	
+	IF RAND:100 < 40
+		PRINTL 你发现了一些可疑的痕迹...
+		FLAG:42 += 3
+	ELSE
+		PRINTL 暂时没有发现有用的线索。
+	ENDIF
+	WAIT
+ENDIF
+RETURN
+
+; 学院入口详细事件
+@ENTRANCE_MAIN_GATE
+PRINTL 
+PRINTL 【学院正门前】
+PRINTL 巨大的学院大门伫立在眼前，看起来气势恢宏。
+PRINTL 保安在门口站岗，对进出人员进行登记。
+PRINTL 
+PRINTL 保安：同学，出示你的学生证。
+PRINTFORML %CALLNAME:(1)%：啊，好的...
+WAIT
+RETURN
+
+@ENTRANCE_PLAZA
+PRINTL 
+PRINTL 【入口广场】
+PRINTL 广场上有一些学生在休息、聊天。
+PRINTL 喷泉在阳光下闪闪发光，气氛很宁静。
+PRINTL 
+PRINTL 【你在这里放松了一会儿...】
+IF FLAG:72 == 1
+	PRINTL 有几个男生在远处偷偷看你。
+	FLAG:39 += 1
+ENDIF
+WAIT
+RETURN
+
+@ENTRANCE_MONUMENT
+PRINTL 
+PRINTL 【学院石碑前】
+PRINTL 石碑上刻着学院的建校历史和校训。
+PRINTL 你仔细阅读着上面的文字...
+PRINTL 
+PRINTL 突然，你感觉到石碑后面有微弱的魔物气息...
+IF FLAG:46 >= 2  ; 退魔师等级足够
+	PRINTL 你意识到这里可能有隐藏的线索...
+	FLAG:78 += 2
+ENDIF
+WAIT
+RETURN
+
+@ENTRANCE_BULLETIN
+PRINTL 
+PRINTL 【公告栏前】
+PRINTL 公告栏上贴满了各种通知和活动海报。
+PRINTL 你浏览着上面的内容...
+PRINTL 
+IF RAND:100 < 50
+	PRINTL 【你发现了一些有趣的活动通知...】
+	; 可能发现特殊活动
+ELSEIF RAND:100 < 30
+	PRINTL 【你看到一张寻找兼职的广告...】
+	; 可能触发兼职事件
+ELSE
+	PRINTL 大部分是普通的学院通知。
+ENDIF
+WAIT
+RETURN
+
+@CAFETERIA_EVENT
+PRINTL 
+PRINTL 【在食堂区域...】
+WAIT
+
+IF FLAG:72 == 1  ; 女性线
+	GOSUB EVENT_FOREIGN_STUDENT_CAFETERIA
+ELSE
+	PRINTL 【你在食堂里寻找%CALLNAME:(1)%的踪迹...】
+	IF RAND:100 < 20
+		PRINTL 有学生说她最近经常和一个外国留学生一起吃饭...
+		PRINTL 看起来关系不太一般。
+		FLAG:79 += 3
+	ENDIF
+ENDIF
+RETURN
+
+@PLAYGROUND_EVENT
+PRINTL 
+PRINTL 【在操场区域...】
+WAIT
+
+IF FLAG:72 == 1  ; 女性线
+	GOSUB EVENT_PLAYGROUND_HARASSMENT
+ELSE
+	PRINTL 【你在操场上寻找%CALLNAME:(1)%...】
+	IF RAND:100 < 15
+		PRINTL 你看到她正在和一个男生说话...
+		PRINTL 那个男生的手似乎不太老实...
+		FLAG:39 += 5
+	ENDIF
+ENDIF
+RETURN
+
+@GET_LOCATION_NAME
+#FUNCTION
+; 获取当前位置的完整名称
+LOCAL = GET_MAP_BLOCK_NAME(FLAG:56, FLAG:112) FROM MAP_SYSTEM
+RETURNF LOCAL

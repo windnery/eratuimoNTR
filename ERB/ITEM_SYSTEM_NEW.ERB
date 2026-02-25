@@ -1,0 +1,266 @@
+; 物品管理系统 - 基于东方触手宫模式
+@ITEM_MANAGEMENT_NEW
+; 物品管理主函数
+
+; 初始化药水数量（如果未初始化）
+IF FLAG:1100 == 0 && FLAG:1101 == 0
+	FLAG:1100 = 3  ; 初始小型恢复药水数量
+	FLAG:1101 = 2  ; 初始精力恢复剂数量
+ENDIF
+CLEARLINE 1
+REDRAW 0
+
+PRINTL 
+PRINTFORML 【物品管理系统】
+PRINTFORML 【当前金钱：{FLAG:37}元】
+PRINTL 
+
+; 调用物品列表显示函数
+CALL SHOW_ITEM_LIST
+
+; 根据返回结果处理
+IF RESULT == 1
+	; 如果有物品被使用
+	PRINTL 
+	PRINTL 【物品使用完毕】
+	WAIT
+ENDIF
+
+RETURN
+
+; --------------------------------------------------
+; 物品列表显示 - 模仿东方触手宫模式
+@SHOW_ITEM_LIST
+DRAWLINE
+PRINTFORML 请选择要查看的物品类别
+DRAWLINE
+PRINTFORML [1] 恢复类物品
+PRINTFORML [2] 装备类物品
+PRINTFORML [3] 任务物品
+PRINTFORML [4] 特殊物品
+PRINTFORML [0] 返回
+PRINTL 
+
+$INPUT_LOOP
+INPUT
+
+IF RESULT == 0
+	RETURN 0
+ELSEIF RESULT == 1
+	CALL SHOW_HEAL_ITEM_LIST
+	; 返回是否使用了物品
+	IF RESULT
+		RETURN 1
+	ENDIF
+ELSEIF RESULT == 2
+	CALL SHOW_EQUIPMENT_LIST
+	IF RESULT
+		RETURN 1
+	ENDIF
+ELSEIF RESULT == 3
+	CALL SHOW_QUEST_ITEM_LIST
+	IF RESULT
+		RETURN 1
+	ENDIF
+ELSEIF RESULT == 4
+	CALL SHOW_SPECIAL_ITEM_LIST
+	IF RESULT
+		RETURN 1
+	ENDIF
+ELSE
+	CLEARLINE 1
+	GOTO INPUT_LOOP
+ENDIF
+
+; 重新显示物品列表
+RESTART
+
+; --------------------------------------------------
+; 恢复类物品列表
+@SHOW_HEAL_ITEM_LIST
+DRAWLINE
+PRINTFORML 恢复类物品列表
+DRAWLINE
+
+; 显示物品1：小型恢复药水
+IF FLAG:1100 > 0  ; FLAG:1100存储药水数量
+	PRINTFORML [1] 小型恢复药水  {FLAG:1100}/5个   恢复体力20点
+ELSE
+	SETCOLOR 0x333333
+	PRINTFORML [1] －－－
+	RESETCOLOR
+ENDIF
+
+; 显示物品2：精力恢复剂
+IF FLAG:1101 > 0
+	PRINTFORML [2] 精力恢复剂    {FLAG:1101}/3个   恢复精力30点
+ELSE
+	SETCOLOR 0x333333
+	PRINTFORML [2] －－－
+	RESETCOLOR
+ENDIF
+
+PRINTFORML [0] 返回
+PRINTL 
+
+$HEAL_ITEM_CHOICE
+INPUT
+
+IF RESULT == 0
+	RETURN 0
+ELSEIF RESULT == 1 && FLAG:1100 > 0
+	; 使用小型恢复药水
+	PRINTL 
+	PRINTL 【使用了小型恢复药水】
+	PRINTL 【体力恢复了20点！】
+	FLAG:1100 -= 1
+	LOCAL = GET_PALAM(0, 0)
+	CALL SET_PALAM, 0, 0, MIN(100, LOCAL + 20)
+	WAIT
+	RETURN 1
+ELSEIF RESULT == 2 && FLAG:1101 > 0
+	; 使用精力恢复剂
+	PRINTL 
+	PRINTL 【使用了精力恢复剂】
+	PRINTL 【精力恢复了30点！】
+	FLAG:1101 -= 1
+	LOCAL = GET_PALAM(0, 2)
+	CALL SET_PALAM, 0, 2, MIN(100, LOCAL + 30)
+	WAIT
+	RETURN 1
+ELSE
+	CLEARLINE 1
+	GOTO HEAL_ITEM_CHOICE
+ENDIF
+
+; --------------------------------------------------
+; 装备类物品列表
+@SHOW_EQUIPMENT_LIST
+DRAWLINE
+PRINTFORML 装备类物品列表
+DRAWLINE
+
+PRINTFORML [1] 退魔师制服   已装备   防御+10，退魔能力+5
+PRINTFORML [2] 学生制服     未装备   防御+5，隐蔽性+10
+PRINTFORML [3] 性感内衣     未装备   诱惑度+15，防御-5
+PRINTFORML [0] 返回
+PRINTL 
+
+$EQUIPMENT_CHOICE
+INPUT
+
+IF RESULT == 0
+	RETURN 0
+ELSEIF RESULT == 1
+	PRINTL 
+	PRINTL 【已经装备退魔师制服】
+	WAIT
+	RETURN 1
+ELSEIF RESULT == 2
+	PRINTL 
+	PRINTL 【装备了学生制服】
+	PRINTL 【看起来更像个普通学生了...】
+	WAIT
+	RETURN 1
+ELSEIF RESULT == 3
+	PRINTL 
+	PRINTL 【装备了性感内衣...】
+	PRINTL 【感觉身体更敏感了...】
+	IF FLAG:72 == 1  ; 女性主角
+		LOCAL = GET_PALAM(0, 20)
+		CALL SET_PALAM, 0, 20, MIN(100, LOCAL + 5)
+	ENDIF
+	WAIT
+	RETURN 1
+ELSE
+	CLEARLINE 1
+	GOTO EQUIPMENT_CHOICE
+ENDIF
+
+; --------------------------------------------------
+; 任务物品列表
+@SHOW_QUEST_ITEM_LIST
+DRAWLINE
+PRINTFORML 任务物品列表
+DRAWLINE
+
+PRINTFORML [1] 魔物调查笔记   线索物品
+PRINTFORML [2] 退魔符咒      消耗品
+PRINTFORML [0] 返回
+PRINTL 
+
+$QUEST_ITEM_CHOICE
+INPUT
+
+IF RESULT == 0
+	RETURN 0
+ELSEIF RESULT == 1
+	PRINTL 
+	PRINTL 【魔物调查笔记】
+	PRINTL 【里面记录着关于学院内魔物的线索...】
+	WAIT
+	RETURN 1
+ELSEIF RESULT == 2
+	PRINTL 
+	PRINTL 【退魔符咒】
+	PRINTL 【需要退魔师等级2以上才能使用】
+	IF FLAG:46 >= 2
+		PRINTL 【你的退魔师等级足够，可以使用】
+	ELSE
+		PRINTL 【你的退魔师等级不足】
+	ENDIF
+	WAIT
+	RETURN 1
+ELSE
+	CLEARLINE 1
+	GOTO QUEST_ITEM_CHOICE
+ENDIF
+
+; --------------------------------------------------
+; 特殊物品列表
+@SHOW_SPECIAL_ITEM_LIST
+DRAWLINE
+PRINTFORML 特殊物品列表
+DRAWLINE
+
+PRINTFORML [1] 媚药           危险物品
+PRINTFORML [0] 返回
+PRINTL 
+
+$SPECIAL_ITEM_CHOICE
+INPUT
+
+IF RESULT == 0
+	RETURN 0
+ELSEIF RESULT == 1
+	PRINTL 
+	PRINTL 【媚药】
+	PRINTL 【警告：使用后会大幅增加欲望！】
+	PRINTL 
+	PRINTL 【确定要使用吗？】
+	PRINTL [1] 使用
+	PRINTL [2] 放弃
+	PRINTL 
+	
+	$CONFIRM_CHOICE
+	INPUT
+	
+	IF RESULT == 1
+		PRINTL 
+		PRINTL 【使用了媚药...】
+		PRINTL 【身体开始发热，欲望急速上升！】
+		IF FLAG:72 == 1  ; 女性主角
+			LOCAL = GET_PALAM(0, 20)
+			CALL SET_PALAM, 0, 20, MIN(100, LOCAL + 25)
+			LOCAL = GET_PALAM(0, 12)
+			CALL SET_PALAM, 0, 12, MIN(100, LOCAL + 30)
+		ENDIF
+		WAIT
+		RESTART
+	ENDIF
+ELSE
+	CLEARLINE 1
+	GOTO SPECIAL_ITEM_CHOICE
+ENDIF
+
+RETURN 0

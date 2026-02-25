@@ -1,0 +1,96 @@
+; 开场剧情
+@EVENT_OPENING
+
+PRINTL 【世界观背景】
+PRINTL 
+PRINTL 作为年轻的退魔师，你和你的搭档%CALLNAME:(1)%一直并肩作战，彼此之间有着超越友情的默契。
+PRINTL 虽然你们互相喜欢，但始终没有勇气捅破那层窗户纸，关系停留在「差临门一脚」的阶段。
+PRINTL 
+PRINTL 三个月前，你们的前辈%CALLNAME:(2)%被派往昙明学院调查魔物失踪事件，从此音信全无。
+PRINTL 组织决定派你们二人一同前往调查并营救%CALLNAME:(2)%，这对你们来说是一次重要的任务，
+PRINTL 也是一次可能让关系更进一步的机会。
+PRINTL 
+PRINTL 然而，就在出发前的一天，你在另一个任务中遭遇了强大的魔物，眼睛受到了重伤，
+PRINTL 必须留院治疗15天。无奈之下，组织改派了你的前辈%CALLNAME:(3)%与%CALLNAME:(1)%同行。
+PRINTL 
+PRINTL %CALLNAME:(3)%是一位帅气可靠的退魔师，但你总觉得他的笑容背后隐藏着什么。
+PRINTL 看着%CALLNAME:(1)%和%CALLNAME:(3)%一同出发的背影，你在病床上暗暗发誓，
+PRINTL 等伤势恢复后一定要立刻赶到学院，保护好你最重要的人%CALLNAME:(1)%。
+PRINTL 
+PRINTL 15天后，你的伤势终于好转，虽然眼睛还没有完全恢复，但你已经迫不及
+PRINTL 待地想要出发了。你整理好装备，独自踏上了前往昙明学院的道路...
+PRINTL 
+WAIT
+
+PRINTL 【对话部分】
+PRINTL 
+PRINTL 【组织会议室】
+PRINTL 
+PRINTL 队长：%CALLNAME:(2)%已经失踪三个月了，我们必须尽快找到她。昙明学院的魔物活动越来越频繁，情况不容乐观。
+PRINTL 队长：我决定派你们两个前往调查，你们是目前最适合的人选。
+PRINTL 
+IF FLAG:72 == 0  ; 玩家性别
+	PRINTFORML %CALLNAME:(0)%：%CALLNAME:(2)%前辈，我们一定会找到她的！
+ELSE
+	PRINTFORML %CALLNAME:(1)%：%CALLNAME:(2)%前辈，我们一定会找到她的！
+ENDIF
+PRINTFORML %CALLNAME:(1)%：放心吧队长，我们会完成任务的。
+PRINTL 
+PRINTL 【出发前一天，医院】
+PRINTL 
+PRINTL 医生：你的眼睛伤势很严重，必须留院治疗至少15天，绝对不能剧烈运动。
+IF FLAG:72 == 0  ; 玩家性别
+	PRINTFORML %CALLNAME:(0)%：可是...明天就要出发去昙明学院了...
+ELSE
+	PRINTFORML %CALLNAME:(1)%：可是...明天就要出发去昙明学院了...
+ENDIF
+PRINTL 医生：不行！你的眼睛如果不好好治疗，可能会永久失明，到时候连退魔师都做不了了。
+PRINTL 
+PRINTL 【组织会议室】
+PRINTL 
+PRINTL 队长：既然%CALLNAME:(0)%受伤了，那就由%CALLNAME:(3)%和%CALLNAME:(1)%一起去吧。%CALLNAME:(3)%经验丰富，应该能保护好%CALLNAME:(1)%。
+PRINTL %CALLNAME:(3)%：放心吧，我会照顾好%CALLNAME:(1)%的。
+PRINTL %CALLNAME:(1)%：（担忧地看着%CALLNAME:(0)%）那你要好好养伤，我等你。
+IF FLAG:72 == 0  ; 玩家性别
+	PRINTFORML %CALLNAME:(0)%：（勉强笑了笑）嗯，我会的。你们要小心...
+ELSE
+	PRINTFORML %CALLNAME:(1)%：（勉强笑了笑）嗯，我会的。你要好好养伤...
+ENDIF
+PRINTL 
+PRINTL 【出发当天，医院门口】
+PRINTL 
+PRINTL %CALLNAME:(3)%：时候不早了，我们该出发了。
+PRINTL %CALLNAME:(1)%：（回头看了眼病房的方向）等我，我会等你...
+IF FLAG:72 == 0  ; 玩家性别
+	PRINTFORML %CALLNAME:(0)%：（在病床上看着窗外渐行渐远的两人）一定要平安啊...
+ELSE
+	PRINTFORML %CALLNAME:(1)%：（在病床上看着窗外渐行渐远的两人）一定要平安啊...
+ENDIF
+PRINTL 
+PRINTL 【15天后】
+PRINTL 
+PRINTL 医生：你的眼睛恢复得不错，可以出院了。但还是要注意休息，避免过度使用。
+IF FLAG:72 == 0  ; 玩家性别
+	PRINTFORML %CALLNAME:(0)%：谢谢医生！（收拾东西准备出发）
+ELSE
+	PRINTFORML %CALLNAME:(1)%：谢谢医生！（收拾东西准备出发）
+ENDIF
+PRINTL 医生：喂，你要去哪里？不是说要注意休息吗？
+IF FLAG:72 == 0  ; 玩家性别
+	PRINTFORML %CALLNAME:(0)%：我必须去昙明学院，我的搭档%CALLNAME:(1)%还在那里等我...
+ELSE
+	PRINTFORML %CALLNAME:(1)%：我必须去昙明学院，我的搭档%CALLNAME:(0)%还在那里等我...
+ENDIF
+PRINTL 
+PRINTL 【%CALLNAME:(3)%和%CALLNAME:(1)%出发，%CALLNAME:(0)%在病床上目送...】
+PRINTL 
+WAIT
+
+; 设置游戏开始状态
+FLAG:43 = 15  ; 游戏天数
+PRINTL 
+PRINTL 【游戏正式开始】
+PRINTL 
+WAIT
+
+RETURN

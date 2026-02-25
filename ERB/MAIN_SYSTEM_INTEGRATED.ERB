@@ -1,0 +1,402 @@
+; 主系统集成文件
+@MAIN_SYSTEM
+; 游戏主循环 - 增强版
+
+; 初始化检查
+IF FLAG:90 == 0
+	CALL INIT_DECLINE_SYSTEM
+	FLAG:90 = 1
+ENDIF
+
+$MAIN_LOOP
+CLEARLINE 1
+PRINTL 【昙明学院 - 第{FLAG:43}天】
+PRINTL 【当前位置：{GET_LOCATION_NAME()}】
+PRINTL 【状态：好感度:{FLAG:38} 背德值:{FLAG:39} NTR进度:{GET_TOTAL_NTR_PROGRESS()}%】
+
+; 显示身体状态摘要
+IF FLAG:72 == 1  ; 女性线
+	PRINTFORML 【身体：胸部{GET_BREAST_SIZE_TEXT(1)} 小穴{GET_VAGINA_SIZE_TEXT(1)} 淫乱度:{GET_PALAM(1, 20)}】
+ENDIF
+
+PRINTL 
+PRINTL 【请选择行动】
+PRINTL [1] 探索学院
+PRINTL [2] 寻找角色
+PRINTL [3] 查看状态
+PRINTL [4] 查看身体状态
+PRINTL [5] 查看堕落状态
+PRINTL [6] 休息
+PRINTL [0] 返回标题
+
+$MAIN_INPUT
+INPUT
+
+IF RESULT == 0
+	GOTO SYSTEM_TITLE
+ELSEIF RESULT == 1
+	GOSUB EXPLORE_COLLEGE
+	CLEARLINE 10
+	GOTO MAIN_LOOP
+ELSEIF RESULT == 2
+	GOSUB FIND_CHARACTER
+	CLEARLINE 10
+	GOTO MAIN_LOOP
+ELSEIF RESULT == 3
+	GOSUB VIEW_STATUS
+	CLEARLINE 20
+	GOTO MAIN_LOOP
+ELSEIF RESULT == 4
+	GOSUB VIEW_BODY_STATUS
+	CLEARLINE 20
+	GOTO MAIN_LOOP
+ELSEIF RESULT == 5
+	GOSUB VIEW_DECLINE_STATUS
+	CLEARLINE 20
+	GOTO MAIN_LOOP
+ELSEIF RESULT == 6
+	GOSUB REST
+	CLEARLINE 10
+	GOTO MAIN_LOOP
+ELSE
+	CLEARLINE 1
+	GOTO MAIN_INPUT
+ENDIF
+
+@FIND_CHARACTER
+; 寻找角色功能 - 增强版
+PRINTL 【你想寻找哪位角色？】
+PRINTL [0] %CALLNAME:(2)%前辈
+PRINTL [1] %CALLNAME:(1)%
+PRINTL [2] %CALLNAME:(3)%前辈
+PRINTL [3] 佐藤老师
+PRINTL [4] 学生会长
+PRINTL [5] 黑人留学生
+PRINTL [6] 校长儿子
+PRINTL [7] 摄影社肥宅
+PRINTL [8] 返回
+
+$FIND_CHARACTER_INPUT
+INPUT
+
+SELECTCASE RESULT
+	CASE 0
+		IF FLAG:66 == 0
+			PRINTL 【%CALLNAME:(2)%前辈仍然下落不明...】
+		ELSE
+			PRINTL 【你找到了%CALLNAME:(2)%前辈】
+			GOSUB MEET_ASAKA
+		ENDIF
+	CASE 1
+		IF FLAG:72 == 0  ; 男性线寻找女主
+			PRINTL 【你正在寻找%CALLNAME:(1)%...】
+			GOSUB FIND_FEMALE_MALE_LINE
+		ELSE  ; 女性线（自己）
+			PRINTL 【你在寻找其他人...】
+			GOSUB FIND_OTHER_CHARACTERS
+		ENDIF
+	CASE 2
+		PRINTL 【你找到了%CALLNAME:(3)%前辈】
+		GOSUB MEET_WUHAO_ENHANCED
+	CASE 3
+		PRINTL 【你找到了佐藤老师】
+		GOSUB MEET_TEACHER_ENHANCED
+	CASE 4
+		PRINTL 【你找到了学生会长】
+		GOSUB MEET_STUDENT_PRESIDENT_ENHANCED
+	CASE 5
+		PRINTL 【你找到了黑人留学生】
+		GOSUB MEET_FOREIGN_STUDENT
+	CASE 6
+		PRINTL 【你找到了校长儿子】
+		GOSUB MEET_PRINCIPAL_SON
+	CASE 7
+		PRINTL 【你找到了摄影社肥宅】
+		GOSUB MEET_PHOTO_CLUB_FAT
+	CASE 8
+		RETURN
+ENDSELECT
+WAIT
+RETURN
+
+@MEET_WUHAO_ENHANCED
+; 遇见吴昊 - 增强版
+PRINTFORML 【你遇到了%CALLNAME:(3)%前辈】
+PRINTL 
+
+; 根据NTR进度触发不同事件
+IF FLAG:75 < 10
+	PRINTL %CALLNAME:(3)%：哟，%CALLNAME:(1)%，今天气色不错嘛。
+	PRINTL 他露出标志性的轻浮笑容，眼神在你身上游移。
+	PRINTFORML %CALLNAME:(1)%：前、前辈...请不要这样盯着我看...
+	PRINTL %CALLNAME:(3)%：害羞了？真可爱呢...
+	
+	PRINTL 
+	PRINTL 【选择：】
+	PRINTL [1] 礼貌回应
+	PRINTL [2] 冷淡回应
+	PRINTL [3] 无视他离开
+	
+	$WUHAO_MEET_CHOICE_1
+	INPUT
+	
+	SELECTCASE RESULT
+		CASE 1
+			PRINTFORML %CALLNAME:(1)%：谢、谢谢前辈夸奖...
+			PRINTL %CALLNAME:(3)%：不客气，我们可是搭档呢...
+			FLAG:75 += 2
+			FLAG:38 += 1
+		CASE 2
+			PRINTFORML %CALLNAME:(1)%：前辈，请自重...
+			PRINTL %CALLNAME:(3)%：切，开个玩笑嘛...
+			FLAG:75 += 1
+			FLAG:38 -= 2
+		CASE 3
+			PRINTL 【你无视了%CALLNAME:(3)%，转身离开】
+			PRINTL %CALLNAME:(3)%：（看着你的背影）早晚会让你主动来找我的...
+	ENDSELECT
+ELSEIF FLAG:75 < 30
+	PRINTL %CALLNAME:(3)%：%CALLNAME:(1)%，我有话跟你说。
+	PRINTL 他走近你，手自然地搭在你肩膀上。
+	PRINTFORML %CALLNAME:(1)%：前辈...请放开...
+	PRINTL %CALLNAME:(3)%：别这么冷淡嘛，我们不是搭档吗？
+	PRINTL 他的手在你肩上轻轻揉捏。
+	
+	PRINTL 
+	PRINTL 【选择：】
+	PRINTL [1] 推开他的手
+	PRINTL [2] 默默忍受
+	PRINTL [3] 大声斥责
+	
+	$WUHAO_MEET_CHOICE_2
+	INPUT
+	
+	SELECTCASE RESULT
+		CASE 1
+			PRINTL 【你推开了他的手】
+			PRINTL %CALLNAME:(3)%：反应这么大干嘛？我又不会吃了你...
+			PRINTL 但他眼神中的欲望更加明显了。
+			FLAG:75 += 3
+			CALL APPLY_SEX_EVENT_EFFECTS, 7, 10, 1  ; 束缚效果
+		CASE 2
+			PRINTL 【你选择默默忍受...】
+			PRINTL %CALLNAME:(3)%：真乖...我就喜欢你这样听话的女孩子...
+			PRINTL 他的手滑向你的背部，轻轻抚摸。
+			FLAG:75 += 5
+			CALL APPLY_SEX_EVENT_EFFECTS, 7, 20, 2
+			CALL APPLY_SEX_EVENT_EFFECTS, 0, 15, 1  ; 乳交效果（间接）
+		CASE 3
+			PRINTFORML %CALLNAME:(1)%：前辈！请你放尊重点！
+			PRINTL %CALLNAME:(3)%：好好好，我错了行了吧...
+			PRINTL 他举起双手作投降状，但笑容依然轻浮。
+			FLAG:75 += 2
+			FLAG:38 -= 5
+	ENDSELECT
+ELSEIF FLAG:75 < 60
+	PRINTL %CALLNAME:(3)%：%CALLNAME:(1)%，来我房间一下，有重要的事。
+	PRINTL 他的眼神充满占有欲，语气不容拒绝。
+	PRINTFORML %CALLNAME:(1)%：前、前辈...有什么事不能在这里说吗？
+	PRINTL %CALLNAME:(3)%：这是关于%CALLNAME:(2)%前辈的线索，很重要。
+	PRINTL 
+	
+	PRINTL 【选择：】
+	PRINTL [1] 相信他，跟他去
+	PRINTL [2] 拒绝，要求在这里说
+	PRINTL [3] 找借口离开
+	
+	$WUHAO_MEET_CHOICE_3
+	INPUT
+	
+	SELECTCASE RESULT
+		CASE 1
+			GOSUB WUHAO_ROOM_EVENT
+		CASE 2
+			PRINTFORML %CALLNAME:(1)%：如果是重要的线索，就在这里说吧。
+			PRINTL %CALLNAME:(3)%：啧...真拿你没办法...
+			PRINTL 他有些不爽，但还是放弃了。
+			FLAG:75 += 4
+		CASE 3
+			PRINTFORML %CALLNAME:(1)%：对不起前辈，我突然想起来有事...
+			PRINTL %CALLNAME:(3)%：每次都这样...算了，下次吧。
+			PRINTL 他看着你逃跑的背影，眼神阴沉。
+			FLAG:75 += 3
+	ENDSELECT
+ELSE
+	; 堕落度高时的事件
+	GOSUB WUHAO_ADVANCED_EVENT
+ENDIF
+
+WAIT
+RETURN
+
+@WUHAO_ROOM_EVENT
+; 吴昊房间事件
+PRINTL 
+PRINTL 【你跟着%CALLNAME:(3)%前辈来到了他的房间...】
+WAIT
+
+PRINTL 房间门被关上，%CALLNAME:(3)%转身看着你。
+PRINTL %CALLNAME:(3)%：其实没有什么线索...
+PRINTFORML %CALLNAME:(1)%：诶？那前辈...
+PRINTL %CALLNAME:(3)%：我只是想和你独处而已。
+PRINTL 他慢慢靠近你，把你逼到墙边。
+PRINTL 
+PRINTL 【房间很小，你无处可逃...】
+WAIT
+
+; 触发具体事件
+IF FLAG:75 < 40
+	GOSUB WUHAO_ROOM_HARASSMENT
+ELSEIF FLAG:75 < 70
+	GOSUB WUHAO_ROOM_SEX
+ELSE
+	GOSUB WUHAO_ROOM_TRAINING
+ENDIF
+
+RETURN
+
+@WUHAO_ROOM_HARASSMENT
+; 吴昊房间骚扰事件
+PRINTL %CALLNAME:(3)%：别害怕，我不会伤害你的...
+PRINTL 他一只手撑在你头边的墙上，另一只手抚摸你的脸颊。
+PRINTFORML %CALLNAME:(1)%：前辈...请不要这样...
+PRINTL %CALLNAME:(3)%：你知道吗？你脸红的样子特别可爱...
+PRINTL 他的脸越来越近，呼吸喷在你的脸上。
+PRINTL 
+PRINTL 【他的嘴唇几乎要碰到你的...】
+WAIT
+
+PRINTL 【选择：】
+PRINTL [1] 转头避开
+PRINTL [2] 用手挡住
+PRINTL [3] 膝盖顶击
+
+$WUHAO_ROOM_HARASSMENT_CHOICE
+INPUT
+
+SELECTCASE RESULT
+	CASE 1
+		PRINTL 【你转头避开了他的吻】
+		PRINTL %CALLNAME:(3)%的嘴唇擦过你的脸颊。
+		PRINTL %CALLNAME:(3)%：躲什么嘛...真扫兴...
+		PRINTL 他有些不爽地放开了你。
+		FLAG:75 += 8
+		CALL APPLY_SEX_EVENT_EFFECTS, 7, 30, 2
+	CASE 2
+		PRINTL 【你用手挡住了他的嘴】
+		PRINTFORML %CALLNAME:(1)%：前辈...请适可而止...
+		PRINTL %CALLNAME:(3)%：啧...你越是这样我越想要你...
+		PRINTL 他抓住你的手腕，强行吻了你的手心。
+		PRINTFORML %CALLNAME:(1)%：啊！请放开...
+		FLAG:75 += 12
+		CALL APPLY_SEX_EVENT_EFFECTS, 7, 40, 3
+		CALL APPLY_SEX_EVENT_EFFECTS, 1, 20, 1  ; 口交效果（间接）
+	CASE 3
+		PRINTL 【你膝盖用力顶向他的裆部！】
+		PRINTL %CALLNAME:(3)%：呜啊！你...
+		PRINTL 他痛苦地捂着下身跪倒在地。
+		PRINTFORML %CALLNAME:(1)%：（趁机开门逃跑）对不起前辈！
+		PRINTL 你飞快地逃出了房间。
+		FLAG:75 += 5
+		FLAG:38 -= 10
+ENDSELECT
+
+PRINTL 
+PRINTL 【你逃离了%CALLNAME:(3)%的房间，心跳加速...】
+WAIT
+RETURN
+
+; ... 其他角色的事件函数可以类似扩展
+
+@REST_ENHANCED
+; 休息功能 - 增强版
+PRINTL 【你选择休息一天】
+FLAG:43++  ; 游戏天数
+
+; 身体状态更新
+GOSUB DAILY_BODY_UPDATE
+
+; 更新堕落素质
+CALL UPDATE_DECLINE_BY_NTR_PROGRESS
+
+PRINTL 时间来到了第二天...
+
+; 检查夜晚事件
+IF FLAG:72 == 1  ; 女性线
+	GOSUB DECLINE_NIGHT_EVENT
+ENDIF
+
+; 检查是否有事件发生
+GOSUB CHECK_EVENTS_ENHANCED
+
+WAIT
+RETURN
+
+@CHECK_EVENTS_ENHANCED
+; 检查事件触发 - 增强版
+IF FLAG:43 == 16 AND FLAG:50 == 0
+	PRINTL 【你刚到达昙明学院】
+	PRINTL 【需要寻找%CALLNAME:(1)%的踪迹】
+	FLAG:50 = 1
+ELSEIF FLAG:75 >= 30 AND FLAG:51 == 0
+	PRINTL 【%CALLNAME:(3)%的NTR行为开始显现】
+	PRINTL 你感觉%CALLNAME:(3)%前辈看你的眼神越来越不对劲...
+	FLAG:51 = 1
+ELSEIF FLAG:75 >= 60 AND FLAG:52 == 0
+	PRINTL 【%CALLNAME:(3)%已经不再掩饰他的欲望】
+	PRINTL 他开始在公共场合对你动手动脚...
+	FLAG:52 = 1
+ELSEIF GET_TOTAL_DECLINE_LEVEL() >= 50 AND FLAG:53 == 0
+	PRINTL 【你的身体已经习惯了被侵犯的快感】
+	PRINTL 有时候甚至会期待那种感觉...
+	FLAG:53 = 1
+ENDIF
+
+; 其他角色的触发事件可以在这里添加
+
+RETURN
+
+@VIEW_STATUS_ENHANCED
+; 查看状态功能 - 增强版
+PRINTL 【角色状态】
+IF FLAG:72 == 0
+	PRINTFORML 当前视角：%CALLNAME:(0)%视角
+ELSE
+	PRINTFORML 当前视角：%CALLNAME:(1)%视角
+ENDIF
+PRINTFORML 游戏天数：{FLAG:43}
+PRINTFORML 好感度：{FLAG:38}
+PRINTFORML 背德值：{FLAG:39}
+PRINTL 
+
+PRINTL 【NTR进度】
+PRINTFORML %CALLNAME:(3)%线：{FLAG:75}%
+PRINTFORML 佐藤老师线：{FLAG:76}%
+PRINTFORML 学生会长线：{FLAG:77}%
+PRINTFORML 黑人留学生线：{FLAG:79}%
+PRINTFORML 校长儿子线：{FLAG:80}%
+PRINTFORML 摄影社线：{FLAG:81}%
+PRINTFORML 总体NTR进度：{GET_TOTAL_NTR_PROGRESS()}%
+PRINTL 
+
+PRINTL 【其他状态】
+PRINTFORML 伤势状态：{FLAG:41}
+PRINTFORML 魔物污染度：{FLAG:45}
+PRINTFORML 退魔师等级：{FLAG:46}
+PRINTFORML 特殊能力强度：{FLAG:47}
+PRINTFORML 学院探索度：{FLAG:73}%
+PRINTL 
+
+WAIT
+RETURN
+
+@VIEW_BODY_STATUS
+; 查看身体状态
+GOSUB GET_BODY_STATUS
+RETURN
+
+; 主系统需要调用的函数声明
+@GET_TOTAL_NTR_PROGRESS
+#FUNCTION
+LOCAL = (FLAG:75 + FLAG:76 + FLAG:77 + FLAG:78 + FLAG:79 + FLAG:80 + FLAG:81) / 7
+RETURNF LOCAL

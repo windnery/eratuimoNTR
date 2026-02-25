@@ -1,0 +1,550 @@
+; 服装相关事件系统
+@RANDOM_HARASSMENT_EVENT
+; 随机搭讪事件
+PRINTL 
+PRINTL 【一个男生走过来搭讪...】
+PRINTL 男生：嘿，美女，一个人吗？
+PRINTFORML %CALLNAME:(1)%：我、我还有事...
+PRINTL 男生：别急着走嘛，聊聊天而已。
+PRINTL 
+PRINTL 【选择：】
+PRINTL [1] 礼貌拒绝
+PRINTL [2] 无视离开
+PRINTL [3] 尝试交流（需要堕落度>10）
+
+$HARASSMENT_CHOICE
+INPUT
+
+SELECTCASE RESULT
+	CASE 1
+		PRINTFORML %CALLNAME:(1)%：对不起，我真的有事...
+		PRINTL 男生：切，装什么清高...
+		PRINTL 他有些不爽地离开了。
+		FLAG:100 += 5  ; 事件性感度加成
+	CASE 2
+		PRINTL 【你无视了他，快步离开】
+		PRINTL 男生：喂！我在跟你说话呢！
+		PRINTL 你在他的抱怨声中逃离了。
+		FLAG:100 += 3
+	CASE 3
+		IF GET_TOTAL_DECLINE_LEVEL() >= 10
+			GOSUB HARASSMENT_FLIRT
+		ELSE
+			PRINTL 【你的堕落度还不够...】
+			GOTO HARASSMENT_CHOICE
+		ENDIF
+ENDSELECT
+
+WAIT
+RETURN
+
+@HARASSMENT_FLIRT
+; 搭讪调情事件
+PRINTFORML %CALLNAME:(1)%：那...就聊一会儿...
+PRINTL 男生：这才对嘛！你叫什么名字？
+PRINTL 他开始和你搭话，眼神在你身上游移。
+PRINTL 
+PRINTL 【根据穿着不同，他的行为也不同】
+LOCAL = GET_CHEST_EXPOSURE_LEVEL()
+
+IF LOCAL >= 2  ; 胸部部分裸露
+	PRINTL 男生：（盯着你的胸部）身材真好...
+	PRINTFORML %CALLNAME:(1)%：请、请不要这样看...
+	PRINTL 男生：害羞了？真可爱...
+	FLAG:100 += 15
+	CALL APPLY_SEX_EVENT_EFFECTS, 6, 20, 2
+ELSEIF GET_CROTCH_EXPOSURE_LEVEL() >= 2  ; 下体部分裸露
+	PRINTL 男生：（盯着你的裙子）裙子有点短哦...
+	PRINTFORML %CALLNAME:(1)%：这、这是...
+	PRINTL 男生：不过我很喜欢...
+	FLAG:100 += 12
+	CALL APPLY_SEX_EVENT_EFFECTS, 6, 15, 2
+ELSE
+	PRINTL 男生：你今天穿得很漂亮呢。
+	PRINTFORML %CALLNAME:(1)%：谢、谢谢...
+	FLAG:100 += 8
+ENDIF
+
+; 继续对话可能升级
+IF RAND:100 < GET_TOTAL_DECLINE_LEVEL()
+	GOSUB HARASSMENT_ESCALATION
+ENDIF
+
+RETURN
+
+@HARASSMENT_ESCALATION
+; 搭讪升级事件
+PRINTL 
+PRINTL 【男生的行为开始升级...】
+WAIT
+
+PRINTL 男生：能给我你的联系方式吗？
+PRINTL 他靠得更近了，你能闻到他身上的味道。
+PRINTFORML %CALLNAME:(1)%：对、对不起，不行...
+PRINTL 男生：为什么不行？我又不会吃了你...
+PRINTL 他的手轻轻碰了碰你的手臂。
+PRINTL 
+PRINTL 【选择：】
+PRINTL [1] 推开他离开
+PRINTL [2] 给予假联系方式
+PRINTL [3] 允许肢体接触（需要堕落度>20）
+
+$ESCALATION_CHOICE
+INPUT
+
+SELECTCASE RESULT
+	CASE 1
+		PRINTL 【你用力推开他】
+		PRINTFORML %CALLNAME:(1)%：请不要再靠近了！
+		PRINTL 男生：切，真没劲...
+		PRINTL 他转身离开了。
+		FLAG:100 += 8
+	CASE 2
+		PRINTFORML %CALLNAME:(1)%：那、那我给你一个...
+		PRINTL 你给了他一个假的电话号码。
+		PRINTL 男生：太好了！我会打给你的！
+		PRINTL 他高兴地记下了号码。
+		FLAG:100 += 10
+		CALL APPLY_SEX_EVENT_EFFECTS, 6, 10, 1
+	CASE 3
+		IF GET_TOTAL_DECLINE_LEVEL() >= 20
+			GOSUB HARASSMENT_PHYSICAL_CONTACT
+		ELSE
+			PRINTL 【你的堕落度还不够...】
+			GOTO ESCALATION_CHOICE
+		ENDIF
+ENDSELECT
+
+RETURN
+
+@HARASSMENT_PHYSICAL_CONTACT
+; 搭讪肢体接触事件
+PRINTL 【你默许了他的接触...】
+WAIT
+
+PRINTL 男生：你的皮肤好滑...
+PRINTL 他的手在你手臂上轻轻抚摸。
+PRINTFORML %CALLNAME:(1)%：请、请不要这样...
+PRINTL 男生：嘴上说不要，身体却没躲开呢...
+PRINTL 他更加大胆了，手滑向你的腰部。
+PRINTFORML %CALLNAME:(1)%：啊...那里不行...
+PRINTL 但你的反抗很微弱。
+PRINTL 
+PRINTL 【他的手开始不老实...】
+WAIT
+
+; 根据穿着触发不同事件
+LOCAL = GET_CHEST_EXPOSURE_LEVEL()
+
+IF LOCAL >= 1  ; 胸部若隐若现或更裸露
+	GOSUB CHEST_HARASSMENT_EVENT
+ELSEIF GET_CROTCH_EXPOSURE_LEVEL() >= 1  ; 下体若隐若现
+	GOSUB CROTCH_HARASSMENT_EVENT
+ELSE
+	GOSUB GENERAL_HARASSMENT_EVENT
+ENDIF
+
+RETURN
+
+@CHEST_HARASSMENT_EVENT
+; 胸部骚扰事件
+PRINTL 男生：（盯着你的胸部）这里好像很诱人呢...
+PRINTL 他的手向你的胸部移动。
+PRINTFORML %CALLNAME:(1)%：不、不要碰那里...
+PRINTL 男生：别害羞嘛，让我摸摸...
+PRINTL 
+PRINTL 【他的手碰到了你的胸部...】
+WAIT
+
+IF GET_EQUIP(1) == 0 OR FLAG:92 >= 1  ; 没穿上衣或上衣掀开
+	PRINTL 男生：哦？没穿内衣吗？
+	PRINTL 他直接碰到了你的乳头。
+	PRINTFORML %CALLNAME:(1)%：啊...不要...
+	PRINTL 乳头在他的玩弄下硬了起来。
+	FLAG:100 += 25
+	CALL APPLY_SEX_EVENT_EFFECTS, 0, 30, 3
+	CALL APPLY_SEX_EVENT_EFFECTS, 6, 20, 2
+ELSEIF GET_EQUIP(1) == 1308 OR GET_EQUIP(1) == 1309  ; 透明或开胸上衣
+	PRINTL 男生：透过衣服都能看到呢...
+	PRINTL 他隔着衣服揉捏你的胸部。
+	PRINTFORML %CALLNAME:(1)%：嗯...隔着衣服也不行...
+	FLAG:100 += 20
+	CALL APPLY_SEX_EVENT_EFFECTS, 0, 20, 2
+ELSE
+	PRINTL 男生：隔着衣服都这么有料...
+	PRINTL 他隔着衣服抚摸你的胸部。
+	PRINTFORML %CALLNAME:(1)%：请、请住手...
+	FLAG:100 += 15
+	CALL APPLY_SEX_EVENT_EFFECTS, 0, 15, 2
+ENDIF
+
+; 可能触发更严重事件
+IF RAND:100 < GET_TOTAL_DECLINE_LEVEL()
+	GOSUB CHEST_HARASSMENT_ESCALATION
+ENDIF
+
+RETURN
+
+@CROTCH_HARASSMENT_EVENT
+; 下体骚扰事件
+PRINTL 男生：裙子下面是什么样子呢...
+PRINTL 他的手向你的裙子下面摸去。
+PRINTFORML %CALLNAME:(1)%：那里不行！绝对不行！
+PRINTL 男生：别这么小气嘛...
+PRINTL 
+PRINTL 【他的手伸进了你的裙子...】
+WAIT
+
+IF GET_EQUIP(2) == 0 OR FLAG:93 >= 1  ; 没穿裙子或裙子掀起
+	PRINTL 男生：哦？直接就能摸到呢...
+	PRINTL 他的手直接碰到了你的内裤。
+	PRINTFORML %CALLNAME:(1)%：啊！请拿开！
+	PRINTL 但他没有停下，反而开始抚摸。
+	FLAG:100 += 30
+	CALL APPLY_SEX_EVENT_EFFECTS, 6, 25, 3
+	CALL APPLY_SEX_EVENT_EFFECTS, 7, 20, 2
+ELSEIF GET_EQUIP(2) == 907  ; 透明裙
+	PRINTL 男生：透过裙子都能看到内裤呢...
+	PRINTL 他隔着裙子抚摸你的私处。
+	PRINTFORML %CALLNAME:(1)%：嗯...隔着裙子也不行...
+	FLAG:100 += 25
+	CALL APPLY_SEX_EVENT_EFFECTS, 6, 20, 2
+ELSEIF GET_EQUIP(2) == 903  ; 迷你裙
+	PRINTL 男生：裙子这么短，很容易就能摸到呢...
+	PRINTL 他的手从裙摆下伸了进去。
+	PRINTFORML %CALLNAME:(1)%：请、请不要...
+	FLAG:100 += 22
+	CALL APPLY_SEX_EVENT_EFFECTS, 6, 18, 2
+ELSE
+	PRINTL 男生：让我看看裙子下面...
+	PRINTL 他试图掀开你的裙子。
+	PRINTFORML %CALLNAME:(1)%：不行！快放开！
+	FLAG:100 += 18
+	CALL APPLY_SEX_EVENT_EFFECTS, 6, 15, 2
+ENDIF
+
+; 可能触发掀裙子事件
+IF RAND:100 < 40
+	CALL UPDATE_CLOTHING_VISIBILITY, 1, 0  ; 裙子被掀起
+ENDIF
+
+RETURN
+
+@GENERAL_HARASSMENT_EVENT
+; 一般骚扰事件
+PRINTL 男生：今天就到这里吧...
+PRINTL 他放开了你，但眼神依然充满欲望。
+PRINTFORML %CALLNAME:(1)%：哈啊...哈啊...
+PRINTL 男生：下次再找你玩...
+PRINTL 他转身离开了。
+PRINTL 
+PRINTL 【你松了口气，但身体还残留着刚才的感觉...】
+FLAG:100 += 12
+CALL APPLY_SEX_EVENT_EFFECTS, 6, 10, 1
+
+WAIT
+RETURN
+
+@RANDOM_TOUCH_EVENT
+; 随机触碰事件
+PRINTL 
+PRINTL 【在拥挤的地方，有人故意碰了你一下...】
+WAIT
+
+LOCAL = RAND:100
+
+IF LOCAL < 40
+	; 胸部被碰
+	PRINTL 【有人从后面撞了你一下，手碰到了你的胸部...】
+	PRINTFORML %CALLNAME:(1)%：啊！谁...
+	PRINTL 但你回头时，人群拥挤，不知道是谁。
+	
+	IF GET_CHEST_EXPOSURE_LEVEL() >= 1
+		PRINTL 【因为是隔着衣服，感觉不是很明显...】
+		FLAG:100 += 8
+	ELSE
+		PRINTL 【因为穿着厚衣服，几乎感觉不到...】
+		FLAG:100 += 3
+	ENDIF
+	
+ELSEIF LOCAL < 70
+	; 臀部被碰
+	PRINTL 【有人从旁边经过，手擦过了你的臀部...】
+	PRINTFORML %CALLNAME:(1)%：呀！不要...
+	PRINTL 但人太多，找不到犯人。
+	
+	IF GET_CROTCH_EXPOSURE_LEVEL() >= 1
+		PRINTL 【裙子有点短，能清楚感觉到手的触感...】
+		FLAG:100 += 10
+	ELSE
+		PRINTL 【还好裙子比较厚...】
+		FLAG:100 += 5
+	ENDIF
+	
+ELSE
+	; 被摸大腿
+	PRINTL 【有人蹲下系鞋带，手摸到了你的大腿...】
+	PRINTFORML %CALLNAME:(1)%：啊！你在做什么！
+	PRINTL 男生：对不起对不起，我在系鞋带...
+	PRINTL 他赶紧道歉，但你感觉他是故意的。
+	
+	IF GET_EQUIP(4) == 0 OR GET_EQUIP(4) >= 406  ; 没穿袜子或穿网袜
+		PRINTL 【因为是直接摸到皮肤，感觉很清晰...】
+		FLAG:100 += 12
+	ELSE
+		PRINTL 【隔着袜子，感觉没那么明显...】
+		FLAG:100 += 7
+	ENDIF
+ENDIF
+
+; 根据性感度可能触发后续事件
+IF CALCULATE_SEXY_SCORE() >= 80 AND RAND:100 < 30
+	PRINTL 
+	PRINTL 【那个人似乎还在附近徘徊...】
+	GOSUB STALKING_CONTINUATION
+ENDIF
+
+WAIT
+RETURN
+
+@RANDOM_VERBAL_HARASSMENT
+; 随机言语骚扰
+PRINTL 
+PRINTL 【你听到几个男生在议论你...】
+WAIT
+
+PRINTL 男生A：看那边那个女生，身材真好。
+PRINTL 男生B：是啊，特别是胸部，看起来很大。
+PRINTL 男生C：裙子也好短，腿真漂亮。
+PRINTFORML %CALLNAME:(1)%：（低下头快步走开）
+PRINTL 男生A：喂，别走啊，聊聊天嘛！
+PRINTL 
+PRINTL 【他们开始对你喊话...】
+WAIT
+
+LOCAL = GET_CHEST_EXPOSURE_LEVEL()
+
+IF LOCAL >= 1
+	PRINTL 男生B：胸部都看得见哦，是不是故意的？
+	PRINTFORML %CALLNAME:(1)%：（脸红了）不、不是...
+	FLAG:100 += 15
+	CALL APPLY_SEX_EVENT_EFFECTS, 6, 12, 1
+ELSEIF GET_CROTCH_EXPOSURE_LEVEL() >= 1
+	PRINTL 男生C：裙子这么短，是想勾引男生吧？
+	PRINTFORML %CALLNAME:(1)%：才、才没有...
+	FLAG:100 += 12
+	CALL APPLY_SEX_EVENT_EFFECTS, 6, 10, 1
+ELSE
+	PRINTL 男生A：穿得这么性感，不就是想让人看吗？
+	PRINTFORML %CALLNAME:(1)%：这是校服...
+	FLAG:100 += 8
+ENDIF
+
+; 可能升级为跟踪
+IF CALCULATE_SEXY_SCORE() >= 100 AND RAND:100 < 20
+	PRINTL 
+	PRINTL 【那几个男生开始跟着你...】
+	GOSUB RANDOM_STALKING_EVENT
+ENDIF
+
+WAIT
+RETURN
+
+@RANDOM_STALKING_EVENT
+; 随机跟踪事件
+PRINTL 
+PRINTL 【你感觉有人一直在跟着你...】
+WAIT
+
+PRINTL 【你回头看了一眼，发现几个男生在不远处】
+PRINTL 他们看到你回头，假装在看别处。
+PRINTFORML %CALLNAME:(1)%：（加快脚步）
+PRINTL 但他们也加快了速度。
+PRINTL 
+PRINTL 【你开始害怕了...】
+WAIT
+
+PRINTL 【选择：】
+PRINTL [1] 跑到人多的地方
+PRINTL [2] 躲进女厕所
+PRINTL [3] 大声呼救
+PRINTL [4] 转身质问（需要勇气>50）
+
+$STALKING_CHOICE
+INPUT
+
+SELECTCASE RESULT
+	CASE 1
+		PRINTL 【你跑到教学楼人多的地方】
+		PRINTL 那几个男生没有跟过来。
+		PRINTL 【你暂时安全了...】
+		FLAG:100 += 5
+	CASE 2
+		PRINTL 【你躲进了女厕所】
+		PRINTL 等了十分钟，感觉外面没人了才出来。
+		PRINTL 【跟踪者似乎离开了...】
+		FLAG:100 += 8
+		CALL SET_PALAM, 1, 16, MIN(100, GET_PALAM(1, 16) + 5)  ; 恐惧感增加
+	CASE 3
+		PRINTL 【你大声呼救】
+		PRINTFORML %CALLNAME:(1)%：救命啊！有人跟踪我！
+		PRINTL 附近的老师和学生赶了过来。
+		PRINTL 那几个男生赶紧逃跑了。
+		PRINTL 【老师询问了情况，但你没看清他们的脸...】
+		FLAG:100 += 3
+	CASE 4
+		IF GET_PALAM(1, 57) >= 50  ; 勇气值
+			PRINTL 【你转身面对他们】
+			PRINTFORML %CALLNAME:(1)%：你们为什么要跟着我！
+			PRINTL 男生们没想到你会反抗，愣了一下。
+			PRINTL 男生A：没、没有啊，我们只是顺路...
+			PRINTL 他们尴尬地离开了。
+			PRINTL 【你成功吓退了他们...】
+			FLAG:100 += 2
+			CALL SET_PALAM, 1, 57, GET_PALAM(1, 57) + 3  ; 勇气增加
+		ELSE
+			PRINTL 【你没有足够的勇气...】
+			GOTO STALKING_CHOICE
+		ENDIF
+ENDSELECT
+
+; 跟踪失败可能转为其他骚扰
+IF RAND:100 < 30
+	PRINTL 
+	PRINTL 【但他们在其他地方又出现了...】
+	GOSUB STALKING_CONTINUATION
+ENDIF
+
+WAIT
+RETURN
+
+@STALKING_CONTINUATION
+; 跟踪后续事件
+PRINTL 
+PRINTL 【那几个男生又出现在你面前...】
+WAIT
+
+PRINTL 男生A：美女，别跑嘛，我们只是想跟你交个朋友。
+PRINTL 男生B：是啊，我们又不是坏人。
+PRINTL 男生C：一起玩嘛，保证让你开心。
+PRINTL 
+PRINTL 【他们围住了你...】
+WAIT
+
+; 根据穿着决定事件严重程度
+LOCAL = CALCULATE_SEXY_SCORE()
+
+IF LOCAL >= 120 AND GET_TOTAL_DECLINE_LEVEL() >= 40
+	GOSUB STALKING_GROUP_HARASSMENT
+ELSEIF LOCAL >= 90
+	GOSUB STALKING_ADVANCED_HARASSMENT
+ELSE
+	GOSUB STALKING_BASIC_HARASSMENT
+ENDIF
+
+RETURN
+
+@CHEST_HARASSMENT_ESCALATION
+; 胸部骚扰升级事件
+PRINTL 
+PRINTL 【男生的行为越来越过分...】
+WAIT
+
+PRINTL 男生：让我看看里面...
+PRINTL 他开始解你的上衣扣子。
+PRINTFORML %CALLNAME:(1)%：不、不行...扣子...
+PRINTL 男生：别动，很快就好了...
+PRINTL 
+PRINTL 【扣子被解开了...】
+WAIT
+
+CALL UPDATE_CLOTHING_VISIBILITY, 0, 0  ; 上衣被掀开
+
+PRINTL 男生：哦？{GET_CLOTHING_NAME(GET_EQUIP(11))}吗？
+PRINTL 他看到了你的内衣。
+PRINTFORML %CALLNAME:(1)%：请、请不要看...
+PRINTL 男生：很性感嘛，是不是特意穿给我看的？
+PRINTFORML %CALLNAME:(1)%：才、才不是...
+PRINTL 
+PRINTL 【他开始抚摸你的内衣...】
+WAIT
+
+IF GET_EQUIP(11) == 1106 OR GET_EQUIP(11) == 1105  ; 透明或情趣内衣
+	PRINTL 男生：透过内衣都能看到乳头呢...
+	PRINTL 他能清楚地看到你挺立的乳头。
+	PRINTFORML %CALLNAME:(1)%：啊...不要看...
+	FLAG:100 += 35
+	CALL APPLY_SEX_EVENT_EFFECTS, 0, 40, 4
+ELSEIF GET_EQUIP(11) == 1107  ; 开扣内衣
+	PRINTL 男生：哦？是开扣的啊，很方便呢...
+	PRINTL 他解开了内衣的扣子。
+	PRINTFORML %CALLNAME:(1)%：啊！扣子...
+	FLAG:100 += 30
+	CALL APPLY_SEX_EVENT_EFFECTS, 0, 35, 3
+ELSE
+	PRINTL 男生：让我摸摸看...
+	PRINTL 他隔着内衣揉捏你的胸部。
+	PRINTFORML %CALLNAME:(1)%：嗯...隔着内衣也不行...
+	FLAG:100 += 25
+	CALL APPLY_SEX_EVENT_EFFECTS, 0, 25, 3
+ENDIF
+
+; 可能触发内衣被解开
+IF RAND:100 < GET_TOTAL_DECLINE_LEVEL()
+	GOSUB BRA_REMOVAL_EVENT
+ENDIF
+
+RETURN
+
+@BRA_REMOVAL_EVENT
+; 内衣被解开事件
+PRINTL 
+PRINTL 【男生解开了你的内衣...】
+WAIT
+
+CALL UPDATE_CLOTHING_VISIBILITY, 5, 0  ; 内衣被解开
+
+PRINTL 男生：终于看到了...真漂亮...
+PRINTL 他看着你裸露的胸部，眼神充满欲望。
+PRINTFORML %CALLNAME:(1)%：不、不要看...求你了...
+PRINTL 男生：这么漂亮的胸部，怎么能不看呢？
+PRINTL 他开始直接玩弄你的乳头。
+PRINTFORML %CALLNAME:(1)%：啊...那里...敏感...
+PRINTL 乳头在他的刺激下变得更加硬挺。
+PRINTL 
+PRINTL 【他开始用嘴...】
+WAIT
+
+PRINTL 男生：让我尝尝看...
+PRINTL 他含住了你的乳头，开始吮吸。
+PRINTFORML %CALLNAME:(1)%：啊！不要吸...嗯啊...
+PRINTL 强烈的刺激让你浑身颤抖。
+PRINTL 
+PRINTL 【根据胸部大小有不同效果】
+LOCAL = GET_PALAM(1, 42)  ; 胸部大小
+
+IF LOCAL >= 40  ; 巨乳以上
+	PRINTL 男生：好大...一口都含不住...
+	PRINTL 他用力吮吸，让你的胸部变形。
+	FLAG:100 += 45
+	CALL APPLY_SEX_EVENT_EFFECTS, 0, 50, 5
+ELSEIF LOCAL >= 30
+	PRINTL 男生：大小刚好...很适合含呢...
+	PRINTL 他能轻松地含住整个乳头。
+	FLAG:100 += 40
+	CALL APPLY_SEX_EVENT_EFFECTS, 0, 45, 4
+ELSE
+	PRINTL 男生：虽然不大，但很敏感呢...
+	PRINTL 他能感觉到你身体的剧烈反应。
+	FLAG:100 += 35
+	CALL APPLY_SEX_EVENT_EFFECTS, 0, 40, 4
+ENDIF
+
+; 可能触发更严重事件（如被拍照）
+IF RAND:100 < 20
+	PRINTL 
+	PRINTL 【他的朋友拿出手机开始拍照...】
+	GOSUB PHOTO_HARASSMENT_EVENT
+ENDIF
+
+RETURN

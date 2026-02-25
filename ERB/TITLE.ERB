@@ -1,0 +1,156 @@
+; 标题画面
+@SYSTEM_TITLE
+
+; 初始化全局变量
+GLOBAL:0 = 0
+GLOBAL:1 = 0
+GLOBAL:2 = 0
+GLOBAL:3 = 0
+GLOBAL:4 = 0
+
+; 设置标题画面
+REDRAW 1
+
+; 计算版本号显示
+LOCAL:0 = GAMEBASE_VERSION / 1000
+LOCAL:1 = GAMEBASE_VERSION % 1000 / 10
+LOCAL:2 = GAMEBASE_VERSION % 10
+STRLENFORM {LOCAL:1}
+LOCALS:1 = %"0" * (2 - RESULT:0)%{LOCAL:1}
+LOCALS:0 = v{LOCAL:0}.%LOCALS:1%
+SIF LOCAL:2 != 0
+	LOCALS:0 = %LOCALS:0%.{LOCAL:2}
+
+; 显示标题信息
+DRAWLINE 
+ALIGNMENT CENTER
+PRINTFORML 【EraTaimaCollege_NTR】
+PRINTFORML %LOCALS:0%
+PRINTFORML 【学院风重度NTR向文字模拟游戏】
+PRINTFORML 【2026年】
+PRINTL 
+PRINTFORML 【请选择游戏模式】
+ALIGNMENT LEFT
+DRAWLINE 
+
+; 提供选项
+PRINTL 
+PRINTL [1] 新游戏
+PRINTL [2] 继续游戏
+PRINTL [0] 退出游戏
+PRINTL 
+
+$INPUT_LOOP
+INPUT
+
+IF RESULT == 0
+	CLEARLINE 10
+	END
+ELSEIF RESULT == 1
+	CLEARLINE 10
+	GOTO NEW_GAME_MALE
+ELSEIF RESULT == 2
+	CLEARLINE 10
+	GOTO NEW_GAME_FEMALE
+ELSEIF RESULT == 3
+	CLEARLINE 10
+	GOTO LOAD_GAME
+ELSE
+	CLEARLINE 1
+	GOTO INPUT_LOOP
+ENDIF
+
+$NEW_GAME_MALE
+; 设置为男性视角
+FLAG:44 = 0  ; 视角标记
+FLAG:72 = 0  ; 玩家性别
+; 直接初始化变量
+FLAG:43 = 1    ; 游戏天数
+FLAG:42 = 0    ; 探索进度
+FLAG:79 = 0    ; 任务状态
+FLAG:75 = 0    ; NTR进度吴昊
+FLAG:76 = 0    ; NTR进度佐藤老师
+FLAG:77 = 0    ; NTR进度学生会长
+FLAG:78 = 0    ; NTR进度魔物
+FLAG:39 = 0    ; 背德值
+FLAG:45 = 0    ; 魔物污染度
+FLAG:46 = 1    ; 退魔师等级
+FLAG:73 = 0    ; 学院探索度
+FLAG:61 = 0    ; 探索次数
+FLAG:56 = 0    ; 地点标记
+; 添加主角角色
+ADDCHARA 0
+; 开始游戏
+BEGIN FIRST
+
+$NEW_GAME_FEMALE
+; 设置为女性视角
+FLAG:44 = 1  ; 视角标记
+FLAG:72 = 1  ; 玩家性别
+; 直接初始化变量
+FLAG:43 = 1    ; 游戏天数
+FLAG:42 = 0    ; 探索进度
+FLAG:79 = 0    ; 任务状态
+FLAG:75 = 0    ; NTR进度吴昊
+FLAG:76 = 0    ; NTR进度佐藤老师
+FLAG:77 = 0    ; NTR进度学生会长
+FLAG:78 = 0    ; NTR进度魔物
+FLAG:39 = 0    ; 背德值
+FLAG:45 = 0    ; 魔物污染度
+FLAG:46 = 1    ; 退魔师等级
+FLAG:73 = 0    ; 学院探索度
+FLAG:61 = 0    ; 探索次数
+FLAG:56 = 0    ; 地点标记
+; 添加主角角色
+ADDCHARA 0
+; 开始游戏
+BEGIN FIRST
+
+$LOAD_GAME
+; 加载存档
+PRINTL 【加载功能待实现】
+WAIT
+GOTO SYSTEM_TITLE
+
+; $START_GAME标签已不再需要，因为BEGIN FIRST会开始游戏
+
+@INITIALIZE_GAME
+; 初始化游戏变量
+FLAG:43 = 1    ; 游戏天数
+FLAG:42 = 0    ; 探索进度
+FLAG:79 = 0    ; 任务状态
+FLAG:50 = 0    ; 事件标记1
+FLAG:51 = 0    ; 事件标记2
+FLAG:52 = 0    ; 事件标记3
+FLAG:53 = 0    ; 事件标记4
+FLAG:54 = 0    ; 事件标记5
+FLAG:75 = 0    ; NTR进度吴昊
+FLAG:76 = 0    ; NTR进度佐藤老师
+FLAG:77 = 0    ; NTR进度学生会长
+FLAG:78 = 0    ; NTR进度魔物
+FLAG:39 = 0    ; 背德值
+FLAG:41 = 0    ; 伤势状态
+FLAG:45 = 0    ; 魔物污染度
+FLAG:46 = 1    ; 退魔师等级
+FLAG:47 = 0    ; 特殊能力强度
+FLAG:48 = 0    ; 关系状态
+FLAG:38 = 50   ; 好感度
+FLAG:65 = 0    ; 任务完成度
+FLAG:73 = 0    ; 学院探索度
+FLAG:66 = 0    ; 浅香状态
+FLAG:67 = 0    ; 吴昊状态
+FLAG:68 = 0    ; 佐藤老师状态
+FLAG:69 = 0    ; 学生会长状态
+FLAG:70 = 0    ; 魔物状态
+FLAG:71 = 0    ; 战斗状态
+FLAG:63 = 0    ; 败北次数
+FLAG:61 = 0    ; 探索次数
+FLAG:62 = 0    ; 对话次数
+FLAG:44 = 0    ; 事件触发次数
+FLAG:64 = 1    ; 时间标记
+FLAG:56 = 0    ; 地点标记
+FLAG:57 = 0    ; 角色位置
+FLAG:58 = 0    ; 行动标记
+FLAG:59 = 0    ; 选择标记
+FLAG:60 = 0    ; 系统标记
+RETURN

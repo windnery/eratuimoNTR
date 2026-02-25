@@ -1,0 +1,736 @@
+; 服装系统和性感度系统
+@INIT_CLOTHING_SYSTEM
+; 初始化服装系统
+IF FLAG:91 == 0
+	; 设置默认服装（校服）
+	CALL SET_EQUIP, 1, 1301  ; 校服上衣
+	CALL SET_EQUIP, 2, 901   ; 校服裙
+	CALL SET_EQUIP, 3, 301   ; 学生鞋
+	CALL SET_EQUIP, 4, 401   ; 学生袜
+	CALL SET_EQUIP, 6, 601   ; 学生内裤
+	CALL SET_EQUIP, 11, 1101 ; 学生内衣
+	
+	; 服装可见度初始化
+	FLAG:92 = 0  ; 上衣可见度: 0=正常 1=掀开 2=湿透 3=破损 4=脱掉
+	FLAG:93 = 0  ; 裙子可见度
+	FLAG:94 = 0  ; 内衣可见度
+	FLAG:95 = 0  ; 内裤可见度
+	FLAG:96 = 0  ; 全身湿透标记
+	
+	; 性感度相关
+	FLAG:97 = 0  ; 当前性感度
+	FLAG:98 = 0  ; 基础性感度（身材相关）
+	FLAG:99 = 0  ; 服装性感度加成
+	FLAG:100 = 0 ; 事件性感度加成
+	
+	FLAG:91 = 1
+ENDIF
+RETURN
+
+@CALCULATE_SEXY_SCORE
+; 计算性感度总分
+#FUNCTION
+; 1. 基础性感度（身材）
+LOCAL = GET_BASE_SEXY_SCORE()
+
+; 2. 服装性感度（考虑可见度）
+LOCAL += GET_CLOTHING_SEXY_SCORE()
+
+; 3. 事件性感度加成
+LOCAL += FLAG:100
+
+; 4. 湿身效果
+IF FLAG:96 == 1
+	LOCAL += 20  ; 湿身增加性感度
+ENDIF
+
+; 5. 破损效果
+IF FLAG:92 == 3 OR FLAG:93 == 3
+	LOCAL += 15  ; 衣服破损增加性感度
+ENDIF
+
+; 6. 胸部裸露效果
+IF GET_CHEST_EXPOSURE_LEVEL() >= 2
+	LOCAL += GET_CHEST_EXPOSURE_BONUS()
+ENDIF
+
+; 7. 下体裸露效果
+IF GET_CROTCH_EXPOSURE_LEVEL() >= 2
+	LOCAL += GET_CROTCH_EXPOSURE_BONUS()
+ENDIF
+
+; 存储并返回
+FLAG:97 = LOCAL
+RETURNF LOCAL
+
+@GET_BASE_SEXY_SCORE
+; 获取基础性感度（身材相关）
+#FUNCTION
+LOCAL = 0
+
+; 胸部大小影响
+LOCAL:1 = GET_PALAM(1, 42)  ; 胸部大小
+IF LOCAL:1 <= 10
+	LOCAL += 5  ; 贫乳
+ELSEIF LOCAL:1 <= 20
+	LOCAL += 10 ; 微乳
+ELSEIF LOCAL:1 <= 30
+	LOCAL += 15 ; 普通
+ELSEIF LOCAL:1 <= 40
+	LOCAL += 25 ; 巨乳
+ELSEIF LOCAL:1 <= 50
+	LOCAL += 35 ; 爆乳
+ELSEIF LOCAL:1 <= 60
+	LOCAL += 45 ; 超乳
+ELSE
+	LOCAL += 55 ; 怪物级
+ENDIF
+
+; 身材比例影响
+LOCAL:2 = GET_PALAM(1, 72)  ; 身材比例
+IF LOCAL:2 >= 80
+	LOCAL += 20  ; 完美比例
+ELSEIF LOCAL:2 >= 60
+	LOCAL += 12  ; 良好比例
+ELSEIF LOCAL:2 >= 40
+	LOCAL += 5   ; 普通比例
+ELSE
+	LOCAL += 0   ; 比例不佳
+ENDIF
+
+; 皮肤状态影响
+LOCAL:3 = GET_PALAM(1, 80)  ; 皮肤光泽
+LOCAL += LOCAL:3 / 5
+
+LOCAL:4 = GET_PALAM(1, 81)  ; 皮肤弹性
+LOCAL += LOCAL:4 / 5
+
+; 淫乱度影响
+LOCAL:5 = GET_PALAM(1, 20)  ; 淫乱度
+LOCAL += LOCAL:5 / 3
+
+; 存储基础性感度
+FLAG:98 = LOCAL
+RETURNF LOCAL
+
+@GET_CLOTHING_SEXY_SCORE
+; 获取服装性感度加成
+#FUNCTION
+LOCAL = 0
+
+; 根据当前穿着和可见度计算
+
+; 上衣性感度
+LOCAL += GET_CLOTHING_PIECE_SEXY_SCORE(1, FLAG:92)  ; 上衣
+
+; 裙子/裤子性感度
+LOCAL += GET_CLOTHING_PIECE_SEXY_SCORE(2, FLAG:93)  ; 下装
+
+; 内衣性感度（只有在可见时才计算）
+IF FLAG:94 >= 1  ; 内衣可见
+	LOCAL += GET_CLOTHING_PIECE_SEXY_SCORE(11, 0)
+ENDIF
+
+; 内裤性感度（只有在可见时才计算）
+IF FLAG:95 >= 1  ; 内裤可见
+	LOCAL += GET_CLOTHING_PIECE_SEXY_SCORE(6, 0)
+ENDIF
+
+; 鞋子袜子性感度
+LOCAL += GET_CLOTHING_PIECE_SEXY_SCORE(3, 0)  ; 鞋子
+LOCAL += GET_CLOTHING_PIECE_SEXY_SCORE(4, 0)  ; 袜子
+
+; 存储服装性感度
+FLAG:99 = LOCAL
+RETURNF LOCAL
+
+@GET_CLOTHING_PIECE_SEXY_SCORE, ARG:1, ARG:2
+; 获取单件服装的性感度加成
+; ARG:1 = 服装类型
+; ARG:2 = 可见度
+#FUNCTION
+LOCAL = GET_EQUIP(ARG:1)  ; 获取当前装备
+
+IF LOCAL == 0
+	; 没穿这件衣服
+	SELECTCASE ARG:1
+		CASE 1, 13  ; 上衣
+			RETURNF 30  ; 裸露上身
+		CASE 2, 7, 8, 9  ; 下装
+			RETURNF 40  ; 裸露下体
+		CASE 11  ; 内衣
+			RETURNF 0   ; 没穿内衣但不裸露
+		CASE 6   ; 内裤
+			RETURNF 0   ; 没穿内裤但不裸露
+		CASEELSE
+			RETURNF 0
+	ENDSELECT
+ENDIF
+
+; 根据装备ID判断性感度
+SELECTCASE LOCAL
+	; 上衣性感度
+	CASE 1301  ; 校服上衣
+		IF ARG:2 == 0
+			RETURNF 5
+		ELSEIF ARG:2 == 1  ; 掀开
+			RETURNF 20
+		ELSEIF ARG:2 == 2  ; 湿透
+			RETURNF 25
+		ELSEIF ARG:2 == 3  ; 破损
+			RETURNF 30
+		ELSE
+			RETURNF 5
+		ENDIF
+	CASE 1302  ; 衬衫
+		IF ARG:2 == 0
+			RETURNF 8
+		ELSEIF ARG:2 == 2  ; 湿透
+			RETURNF 30
+		ELSE
+			RETURNF 8
+		ENDIF
+	CASE 1308  ; 透明上衣
+		RETURNF 35
+	CASE 1309  ; 开胸上衣
+		RETURNF 40
+	CASE 1311  ; 女仆装
+		RETURNF 25
+	CASE 1312  ; 巫女服
+		RETURNF 20
+		
+	; 裙子性感度
+	CASE 901   ; 校服裙
+		IF ARG:2 == 0
+			RETURNF 8
+		ELSEIF ARG:2 == 1  ; 掀起
+			RETURNF 35
+		ELSEIF ARG:2 == 2  ; 湿透
+			RETURNF 28
+		ELSEIF ARG:2 == 3  ; 破损
+			RETURNF 40
+		ELSE
+			RETURNF 8
+		ENDIF
+	CASE 902   ; 短裙
+		IF ARG:2 == 0
+			RETURNF 15
+		ELSEIF ARG:2 == 1  ; 掀起
+			RETURNF 45
+		ELSE
+			RETURNF 15
+		ENDIF
+	CASE 903   ; 迷你裙
+		IF ARG:2 == 0
+			RETURNF 25
+		ELSEIF ARG:2 == 1  ; 掀起
+			RETURNF 50
+		ELSE
+			RETURNF 25
+		ENDIF
+	CASE 907   ; 透明裙
+		RETURNF 40
+		
+	; 内衣性感度
+	CASE 1101  ; 学生内衣
+		RETURNF 5
+	CASE 1103  ; 蕾丝内衣
+		RETURNF 20
+	CASE 1105  ; 情趣内衣
+		RETURNF 35
+	CASE 1106  ; 透明内衣
+		RETURNF 40
+	CASE 1107  ; 开扣内衣
+		RETURNF 30
+		
+	; 内裤性感度
+	CASE 601   ; 学生内裤
+		RETURNF 3
+	CASE 603   ; 四角内裤
+		RETURNF 2
+	CASE 604   ; 蕾丝内裤
+		RETURNF 25
+	CASE 605   ; 透明内裤
+		RETURNF 35
+	CASE 606   ; 开裆内裤
+		RETURNF 45
+	CASE 607   ; 情趣内裤
+		RETURNF 30
+		
+	; 特殊服装
+	CASE 1507  ; 裸体围裙
+		RETURNF 55
+	CASE 1701  ; 比基尼
+		RETURNF 40
+	CASE 1702  ; 情趣内衣套装
+		RETURNF 50
+	CASE 1704  ; cosplay服装
+		RETURNF 25
+		
+	CASEELSE
+		RETURNF 10  ; 默认值
+ENDSELECT
+
+@GET_CHEST_EXPOSURE_LEVEL
+; 获取胸部裸露等级
+#FUNCTION
+; 0=完全遮挡 1=若隐若现 2=部分裸露 3=完全裸露
+
+; 没穿上衣
+IF GET_EQUIP(1) == 0 AND GET_EQUIP(13) == 0
+	RETURNF 3
+ENDIF
+
+; 上衣掀开
+IF FLAG:92 == 1
+	; 检查内衣
+	IF GET_EQUIP(11) == 0
+		RETURNF 3  ; 没穿内衣，完全裸露
+	ELSE
+		RETURNF 2  ; 穿着内衣，部分裸露
+	ENDIF
+ENDIF
+
+; 上衣湿透或透明
+IF FLAG:92 == 2
+	SELECTCASE GET_EQUIP(1)
+		CASE 1308, 1309  ; 透明或开胸上衣
+			RETURNF 2
+		CASEELSE
+			RETURNF 1
+	ENDSELECT
+ELSEIF GET_EQUIP(1) == 1308 OR GET_EQUIP(1) == 1309  ; 透明/开胸上衣
+	RETURNF 1
+ENDIF
+
+RETURNF 0
+
+@GET_CHEST_EXPOSURE_BONUS
+; 获取胸部裸露加成
+#FUNCTION
+LOCAL = GET_CHEST_EXPOSURE_LEVEL()
+
+SELECTCASE LOCAL
+	CASE 1  ; 若隐若现
+		; 根据胸部大小增加效果
+		LOCAL:1 = GET_PALAM(1, 42)  ; 胸部大小
+		IF LOCAL:1 >= 40  ; 巨乳以上
+			RETURNF 25
+		ELSEIF LOCAL:1 >= 30
+			RETURNF 20
+		ELSEIF LOCAL:1 >= 20
+			RETURNF 15
+		ELSE
+			RETURNF 10
+		ENDIF
+	CASE 2  ; 部分裸露
+		IF GET_EQUIP(11) == 0  ; 没穿内衣
+			RETURNF 35
+		ELSE  ; 穿着内衣
+			RETURNF 25
+		ENDIF
+	CASE 3  ; 完全裸露
+		RETURNF 50
+	CASEELSE
+		RETURNF 0
+ENDSELECT
+
+@GET_CROTCH_EXPOSURE_LEVEL
+; 获取下体裸露等级
+#FUNCTION
+; 0=完全遮挡 1=若隐若现 2=部分裸露 3=完全裸露
+
+; 没穿下装
+IF GET_EQUIP(2) == 0 AND GET_EQUIP(7) == 0 AND GET_EQUIP(8) == 0 AND GET_EQUIP(9) == 0
+	RETURNF 3
+ENDIF
+
+; 裙子掀起
+IF FLAG:93 == 1
+	; 检查内裤
+	IF GET_EQUIP(6) == 0
+		RETURNF 3  ; 没穿内裤，完全裸露
+	ELSE
+		RETURNF 2  ; 穿着内裤，部分裸露
+	ENDIF
+ENDIF
+
+; 裙子湿透或透明
+IF FLAG:93 == 2
+	SELECTCASE GET_EQUIP(2)
+		CASE 907  ; 透明裙
+			RETURNF 2
+		CASEELSE
+			RETURNF 1
+	ENDSELECT
+ELSEIF GET_EQUIP(2) == 907  ; 透明裙
+	RETURNF 1
+ENDIF
+
+; 开裆裤
+IF GET_EQUIP(8) == 804  ; 开裆裤
+	RETURNF 2
+ENDIF
+
+RETURNF 0
+
+@GET_CROTCH_EXPOSURE_BONUS
+; 获取下体裸露加成
+#FUNCTION
+LOCAL = GET_CROTCH_EXPOSURE_LEVEL()
+
+SELECTCASE LOCAL
+	CASE 1  ; 若隐若现
+		RETURNF 20
+	CASE 2  ; 部分裸露
+		IF GET_EQUIP(6) == 0  ; 没穿内裤
+			RETURNF 40
+		ELSE  ; 穿着内裤
+			RETURNF 30
+		ENDIF
+	CASE 3  ; 完全裸露
+		RETURNF 60
+	CASEELSE
+		RETURNF 0
+ENDSELECT
+
+@UPDATE_CLOTHING_VISIBILITY, ARG:1, ARG:2
+; 更新服装可见度
+; ARG:1 = 事件类型
+; ARG:2 = 强度
+
+SELECTCASE ARG:1
+	CASE 0  ; 上衣被掀开
+		FLAG:92 = 1  ; 上衣掀开
+		PRINTL 【你的上衣被掀开了！内衣露出来了！】
+		FLAG:94 = 1  ; 内衣可见
+		
+	CASE 1  ; 裙子被掀起
+		FLAG:93 = 1  ; 裙子掀起
+		PRINTL 【你的裙子被掀起来了！内裤露出来了！】
+		FLAG:95 = 1  ; 内裤可见
+		
+	CASE 2  ; 被泼水湿透
+		FLAG:92 = 2  ; 上衣湿透
+		FLAG:93 = 2  ; 裙子湿透
+		FLAG:96 = 1  ; 全身湿透
+		PRINTL 【你被泼了一身水，衣服都湿透了！】
+		FLAG:94 = 1  ; 内衣可见（湿透后显现）
+		FLAG:95 = 1  ; 内裤可见
+		
+	CASE 3  ; 衣服被撕破
+		IF RAND:100 < 50
+			FLAG:92 = 3  ; 上衣破损
+			PRINTL 【你的上衣被撕破了！】
+		ELSE
+			FLAG:93 = 3  ; 裙子破损
+			PRINTL 【你的裙子被撕破了！】
+		ENDIF
+		FLAG:94 = 1  ; 内衣可见
+		FLAG:95 = 1  ; 内裤可见
+		
+	CASE 4  ; 被脱掉衣服
+		IF ARG:2 == 0  ; 上衣
+			CALL SET_EQUIP, 1, 0
+			FLAG:92 = 4  ; 上衣脱掉
+			PRINTL 【你的上衣被脱掉了！】
+		ELSE  ; 下装
+			CALL SET_EQUIP, 2, 0
+			CALL SET_EQUIP, 7, 0
+			CALL SET_EQUIP(8, 0)
+			CALL SET_EQUIP, 9, 0
+			FLAG:93 = 4  ; 下装脱掉
+			PRINTL 【你的下装被脱掉了！】
+		ENDIF
+		
+	CASE 5  ; 内衣被解开
+		IF ARG:2 == 0  ; 内衣
+			CALL SET_EQUIP, 11, 0
+			PRINTL 【你的内衣被解开了！】
+		ELSE  ; 内裤
+			CALL SET_EQUIP, 6, 0
+			PRINTL 【你的内裤被脱掉了！】
+		ENDIF
+		
+	CASE 6  ; 恢复正常（整理衣服）
+		FLAG:92 = 0
+		FLAG:93 = 0
+		FLAG:94 = 0
+		FLAG:95 = 0
+		FLAG:96 = 0
+		PRINTL 【你整理好了衣服...】
+		
+	CASE 7  ; 换上特定服装
+		; ARG:2 = 服装ID
+		CALL CHANGE_CLOTHING, ARG:2
+ENDSELECT
+
+; 重新计算性感度
+CALL CALCULATE_SEXY_SCORE
+RETURN
+
+@CHANGE_CLOTHING, ARG:1
+; 更换服装
+SELECTCASE ARG:1
+	CASE 40  ; 学生制服
+		CALL SET_EQUIP, 1, 1301
+		CALL SET_EQUIP, 2, 901
+		CALL SET_EQUIP, 3, 301
+		CALL SET_EQUIP, 4, 401
+		CALL SET_EQUIP, 6, 601
+		CALL SET_EQUIP, 11, 1101
+		PRINTL 【你换上了学生制服】
+		
+	CASE 41  ; 运动服
+		CALL SET_EQUIP, 1, 1305
+		CALL SET_EQUIP, 2, 801
+		CALL SET_EQUIP, 3, 302
+		CALL SET_EQUIP, 4, 402
+		CALL SET_EQUIP, 6, 602
+		CALL SET_EQUIP, 11, 1104
+		PRINTL 【你换上了运动服】
+		
+	CASE 47  ; 情趣内衣
+		CALL SET_EQUIP, 1, 0
+		CALL SET_EQUIP, 2, 0
+		CALL SET_EQUIP, 11, 1105
+		CALL SET_EQUIP, 6, 607
+		PRINTL 【你换上了情趣内衣...】
+		
+	CASE 56  ; 裸体围裙
+		CALL SET_EQUIP, 1, 1507
+		CALL SET_EQUIP, 2, 0
+		CALL SET_EQUIP, 11, 0
+		CALL SET_EQUIP, 6, 0
+		PRINTL 【你换上了裸体围裙...】
+		
+	CASE 61  ; 比基尼
+		CALL SET_EQUIP, 1, 1701
+		CALL SET_EQUIP, 2, 1701
+		CALL SET_EQUIP, 11, 0
+		CALL SET_EQUIP, 6, 0
+		PRINTL 【你换上了比基尼】
+ENDSELECT
+
+; 重置可见度
+FLAG:92 = 0
+FLAG:93 = 0
+FLAG:94 = 0
+FLAG:95 = 0
+FLAG:96 = 0
+
+RETURN
+
+@GET_SEXY_LEVEL_TEXT
+; 获取性感度等级描述
+#FUNCTION
+LOCAL = CALCULATE_SEXY_SCORE()
+
+SELECTCASE LOCAL
+	CASE <= 30
+		RETURNF "保守"
+	CASE <= 60
+		RETURNF "普通"
+	CASE <= 90
+		RETURNF "性感"
+	CASE <= 120
+		RETURNF "非常性感"
+	CASE <= 150
+		RETURNF "极度诱惑"
+	CASEELSE
+		RETURNF "令人无法抗拒"
+ENDSELECT
+
+@APPLY_SEXY_EFFECTS
+; 应用性感度效果
+LOCAL = CALCULATE_SEXY_SCORE()
+
+; 事件触发概率增加
+IF LOCAL >= 60 AND RAND:100 < LOCAL / 3
+	; 触发搭讪事件
+	GOSUB TRIGGER_HARASSMENT_EVENT
+ENDIF
+
+; NPC行为变化
+IF LOCAL >= 80
+	PRINTL 【你感觉到周围男生的目光都集中在你身上...】
+	FLAG:39 += LOCAL / 40  ; 背德感增加
+ENDIF
+
+; 自身反应（堕落度高时）
+IF LOCAL >= 100 AND GET_TOTAL_DECLINE_LEVEL() >= 30
+	PRINTL 【这么高的性感度让你自己也感到兴奋...】
+	CALL SET_PALAM, 1, 15, MIN(100, GET_PALAM(1, 15) + 5)  ; 兴奋度增加
+ENDIF
+
+RETURN
+
+@TRIGGER_HARASSMENT_EVENT
+; 触发骚扰事件
+LOCAL = RAND:100
+
+IF LOCAL < 30
+	; 普通搭讪
+	PRINTL 【一个男生走过来搭讪...】
+	GOSUB RANDOM_HARASSMENT_EVENT
+ELSEIF LOCAL < 60
+	; 肢体接触
+	PRINTL 【有人在拥挤中故意碰了你一下...】
+	GOSUB RANDOM_TOUCH_EVENT
+ELSEIF LOCAL < 80
+	; 言语骚扰
+	PRINTL 【你听到几个男生在议论你...】
+	GOSUB RANDOM_VERBAL_HARASSMENT
+ELSE
+	; 更严重的事件
+	PRINTL 【有人开始尾随你...】
+	GOSUB RANDOM_STALKING_EVENT
+ENDIF
+
+RETURN
+
+@VIEW_CLOTHING_STATUS
+; 查看服装状态
+CLEARLINE 1
+PRINTL 【服装状态】
+PRINTL 
+
+; 当前穿着
+PRINTL 【当前穿着：】
+PRINTFORML 上衣：{GET_CLOTHING_NAME(GET_EQUIP(1))} [{GET_VISIBILITY_TEXT(FLAG:92)}]
+PRINTFORML 下装：{GET_CLOTHING_NAME(GET_EQUIP(2))} [{GET_VISIBILITY_TEXT(FLAG:93)}]
+PRINTFORML 内衣：{GET_CLOTHING_NAME(GET_EQUIP(11))} [{GET_VISIBILITY_TEXT(FLAG:94)}]
+PRINTFORML 内裤：{GET_CLOTHING_NAME(GET_EQUIP(6))} [{GET_VISIBILITY_TEXT(FLAG:95)}]
+PRINTFORML 鞋子：{GET_CLOTHING_NAME(GET_EQUIP(3))}
+PRINTFORML 袜子：{GET_CLOTHING_NAME(GET_EQUIP(4))}
+
+IF FLAG:96 == 1
+	PRINTL 【状态：湿透】
+ENDIF
+
+PRINTL 
+PRINTL 【性感度分析：】
+PRINTFORML 基础性感度（身材）：{FLAG:98}
+PRINTFORML 服装性感度：{FLAG:99}
+PRINTFORML 事件加成：{FLAG:100}
+PRINTFORML 总性感度：{FLAG:97} - {GET_SEXY_LEVEL_TEXT()}
+PRINTL 
+
+PRINTL 【裸露程度：】
+PRINTFORML 胸部：{GET_EXPOSURE_TEXT(GET_CHEST_EXPOSURE_LEVEL())}
+PRINTFORML 下体：{GET_EXPOSURE_TEXT(GET_CROTCH_EXPOSURE_LEVEL())}
+PRINTL 
+
+PRINTL 【影响：】
+PRINTL 高性感度会增加被骚扰的概率
+PRINTL 裸露程度过高会导致更严重的事件
+PRINTL 湿身或破损状态会大幅增加性感度
+
+WAIT
+RETURN
+
+@GET_CLOTHING_NAME, ARG:1
+; 获取服装名称
+#FUNCTION
+SELECTCASE ARG:1
+	CASE 0
+		RETURNF "无"
+		
+	; 上衣
+	CASE 1301
+		RETURNF "校服上衣"
+	CASE 1302
+		RETURNF "衬衫"
+	CASE 1308
+		RETURNF "透明上衣"
+	CASE 1309
+		RETURNF "开胸上衣"
+	CASE 1311
+		RETURNF "女仆装"
+		
+	; 下装
+	CASE 901
+		RETURNF "校服裙"
+	CASE 902
+		RETURNF "短裙"
+	CASE 903
+		RETURNF "迷你裙"
+	CASE 907
+		RETURNF "透明裙"
+		
+	; 内衣
+	CASE 1101
+		RETURNF "学生内衣"
+	CASE 1103
+		RETURNF "蕾丝内衣"
+	CASE 1105
+		RETURNF "情趣内衣"
+		
+	; 内裤
+	CASE 601
+		RETURNF "学生内裤"
+	CASE 604
+		RETURNF "蕾丝内裤"
+	CASE 605
+		RETURNF "透明内裤"
+		
+	; 特殊
+	CASE 1507
+		RETURNF "裸体围裙"
+	CASE 1701
+		RETURNF "比基尼"
+		
+	CASEELSE
+		RETURNF "未知服装"
+ENDSELECT
+
+@GET_VISIBILITY_TEXT, ARG:1
+; 获取可见度文本
+#FUNCTION
+SELECTCASE ARG:1
+	CASE 0
+		RETURNF "正常"
+	CASE 1
+		RETURNF "掀开"
+	CASE 2
+		RETURNF "湿透"
+	CASE 3
+		RETURNF "破损"
+	CASE 4
+		RETURNF "脱掉"
+	CASEELSE
+		RETURNF "正常"
+ENDSELECT
+
+@GET_EXPOSURE_TEXT, ARG:1
+; 获取裸露程度文本
+#FUNCTION
+SELECTCASE ARG:1
+	CASE 0
+		RETURNF "完全遮挡"
+	CASE 1
+		RETURNF "若隐若现"
+	CASE 2
+		RETURNF "部分裸露"
+	CASE 3
+		RETURNF "完全裸露"
+	CASEELSE
+		RETURNF "完全遮挡"
+ENDSELECT
+
+@DAILY_CLOTHING_RESET
+; 每日服装重置
+FLAG:100 = 0  ; 重置事件加成
+IF FLAG:96 == 1  ; 如果湿透
+	FLAG:96 = 0  ; 恢复干燥
+	PRINTL 【经过一天，你的衣服已经干了...】
+ENDIF
+
+; 衣服破损需要修复（概率）
+IF (FLAG:92 == 3 OR FLAG:93 == 3) AND RAND:100 < 30
+	PRINTL 【你修补了破损的衣服...】
+	FLAG:92 = 0
+	FLAG:93 = 0
+ENDIF
+
+RETURN

@@ -1,0 +1,274 @@
+; ============================================
+; ASCII地图系统 - 数字版本
+; 所有选项使用数字，统一输入处理
+; ============================================
+
+; 需要修改的函数列表：
+; 1. PROCESS_CLASSROOM_ACTION - 已修改为数字索引
+; 2. PROCESS_DORM_ACTION - 需要修改
+; 3. PROCESS_PLAYGROUND_ACTION - 需要修改  
+; 4. PROCESS_CAFETERIA_ACTION - 需要修改
+; 5. PROCESS_GYM_ACTION - 需要修改
+
+; --------------------------------------------------
+; 宿舍动作处理（数字版本）
+@PROCESS_DORM_ACTION, ARG:1
+LOCAL:INDEX = ARG:1
+LOCAL:TIME = 0
+
+SELECTCASE FLAG:800
+	CASE 21  ; 女生宿舍楼
+		SELECTCASE LOCAL:INDEX
+			CASE 1  ; 回自己房间
+				PRINTL 【你回到了自己的房间...】
+				LOCAL:TIME = 5
+				PRINTL 【房间里很安静...】
+				; 房间内选项
+				GOSUB DORM_ROOM_OPTIONS
+				
+			CASE 2  ; 拜访室友
+				PRINTL 【你去拜访室友...】
+				LOCAL:TIME = 15
+				PRINTL 【室友在房间里...】
+				GOSUB VISIT_ROOMMATE
+				
+			CASE 3  ; 去公共浴室
+				PRINTL 【你前往公共浴室...】
+				FLAG:800 = 22  ; 移动到公共浴室
+				LOCAL:TIME = 5
+				RESTART
+				
+			CASE 4  ; 去洗衣房
+				PRINTL 【你前往洗衣房...】
+				LOCAL:TIME = 20
+				PRINTL 【洗衣房里空无一人...】
+		ENDSELECT
+		
+	CASE 22  ; 公共浴室
+		SELECTCASE LOCAL:INDEX
+			CASE 1  ; 淋浴
+				PRINTL 【你在公共浴室淋浴...】
+				LOCAL:TIME = 20
+				PRINTL 【热水冲刷着身体...】
+				; 增加堕落度
+				IF FLAG:72 == 1  ; 女性主角
+					CALL SET_PALAM, 0, 23, MIN(100, GET_PALAM(0, 23) + 2)  ; 暴露倾向
+				ENDIF
+				
+			CASE 2  ; 泡澡
+				PRINTL 【你在公共浴室泡澡...】
+				LOCAL:TIME = 30
+				PRINTL 【热水让你放松下来...】
+				IF FLAG:72 == 1
+					CALL SET_PALAM, 0, 23, MIN(100, GET_PALAM(0, 23) + 5)
+				ENDIF
+				
+			CASE 3  ; 等待
+				PRINTL 【你在浴室门口等待...】
+				LOCAL:TIME = 15
+				PRINTL 【听到里面传来水声...】
+				
+			CASE 4  ; 偷看
+				PRINTL 【你偷偷看向浴室里面...】
+				LOCAL:TIME = 10
+				IF GET_PALAM(0, 20) > 30  ; 淫乱度>30
+					PRINTL 【你看到了一些不该看的东西...】
+					CALL SET_PALAM, 0, 20, MIN(100, GET_PALAM(0, 20) + 5)
+				ELSE
+					PRINTL 【你感到良心不安，没有偷看...】
+				ENDIF
+		ENDSELECT
+ENDSELECT
+
+IF LOCAL:TIME > 0
+	CALL CONSUME_TIME, LOCAL:TIME
+	WAIT
+ENDIF
+
+RETURN
+
+; --------------------------------------------------
+; 操场动作处理（数字版本）
+@PROCESS_PLAYGROUND_ACTION, ARG:1
+LOCAL:INDEX = ARG:1
+LOCAL:TIME = 0
+
+SELECTCASE FLAG:800
+	CASE 41  ; 田径场
+		SELECTCASE LOCAL:INDEX
+			CASE 1  ; 跑步锻炼
+				PRINTL 【你在田径场上跑步锻炼...】
+				LOCAL:TIME = 30
+				PRINTL 【出了一身汗，感觉身体变好了...】
+				
+			CASE 2  ; 观看比赛
+				PRINTL 【你观看田径比赛...】
+				LOCAL:TIME = 45
+				PRINTL 【看到运动员们在努力奔跑...】
+				
+			CASE 3  ; 找人
+				PRINTL 【你在找人...】
+				LOCAL:TIME = 20
+				IF RAND:100 < 50
+					PRINTL 【找到了想找的人...】
+					GOSUB FIND_SOMEONE_ON_TRACK
+				ELSE
+					PRINTL 【没有找到...】
+				ENDIF
+		ENDSELECT
+		
+	CASE 42  ; 篮球场
+		SELECTCASE LOCAL:INDEX
+			CASE 1  ; 打球
+				PRINTL 【你在篮球场上打球...】
+				LOCAL:TIME = 40
+				PRINTL 【运动让你心情愉悦...】
+				
+			CASE 2  ; 观看篮球赛
+				PRINTL 【你观看篮球比赛...】
+				LOCAL:TIME = 50
+				PRINTL 【比赛很激烈...】
+				
+			CASE 3  ; 找体育生学长
+				PRINTL 【你在找体育生学长...】
+				LOCAL:TIME = 15
+				IF RAND:100 < 60
+					PRINTL 【看到了武浩学长在打球...】
+					GOSUB MEET_WUHAO
+				ELSE
+					PRINTL 【学长不在...】
+				ENDIF
+		ENDSELECT
+		
+	CASE 43  ; 更衣室
+		SELECTCASE LOCAL:INDEX
+			CASE 1  ; 换衣服
+				PRINTL 【你在更衣室换衣服...】
+				LOCAL:TIME = 10
+				PRINTL 【换上了运动服...】
+				
+			CASE 2  ; 洗澡
+				PRINTL 【你在更衣室洗澡...】
+				LOCAL:TIME = 20
+				PRINTL 【洗去了一身汗水...】
+				IF FLAG:72 == 1
+					CALL SET_PALAM, 0, 23, MIN(100, GET_PALAM(0, 23) + 3)
+				ENDIF
+				
+			CASE 3  ; 等待
+				PRINTL 【你在更衣室等待...】
+				LOCAL:TIME = 15
+				PRINTL 【听到外面传来声音...】
+		ENDSELECT
+ENDSELECT
+
+IF LOCAL:TIME > 0
+	CALL CONSUME_TIME, LOCAL:TIME
+	WAIT
+ENDIF
+
+RETURN
+
+; --------------------------------------------------
+; 食堂动作处理（数字版本）
+@PROCESS_CAFETERIA_ACTION, ARG:1
+LOCAL:INDEX = ARG:1
+LOCAL:TIME = 0
+
+SELECTCASE FLAG:800
+	CASE 51  ; 一楼大厅
+		SELECTCASE LOCAL:INDEX
+			CASE 1  ; 吃饭
+				PRINTL 【你在食堂吃饭...】
+				LOCAL:TIME = 30
+				PRINTL 【饭菜味道还不错...】
+				
+			CASE 2  ; 买饮料
+				PRINTL 【你买了饮料...】
+				LOCAL:TIME = 10
+				PRINTL 【喝了些饮料解渴...】
+				
+			CASE 3  ; 等人
+				PRINTL 【你在食堂等人...】
+				LOCAL:TIME = 20
+				IF RAND:100 < 40
+					PRINTL 【等的人来了...】
+					GOSUB WAIT_FOR_SOMEONE
+				ENDIF
+		ENDSELECT
+		
+	CASE 52  ; 二楼包间
+		SELECTCASE LOCAL:INDEX
+			CASE 1  ; 聚餐
+				PRINTL 【你和朋友聚餐...】
+				LOCAL:TIME = 60
+				PRINTL 【聊得很开心...】
+				
+			CASE 2  ; 约会
+				PRINTL 【你和某人约会...】
+				LOCAL:TIME = 90
+				PRINTL 【气氛很浪漫...】
+				
+			CASE 3  ; 补习
+				PRINTL 【你在补习功课...】
+				LOCAL:TIME = 45
+				PRINTL 【学习有所进步...】
+		ENDSELECT
+ENDSELECT
+
+IF LOCAL:TIME > 0
+	CALL CONSUME_TIME, LOCAL:TIME
+	WAIT
+ENDIF
+
+RETURN
+
+; --------------------------------------------------
+; 体育馆动作处理（数字版本）
+@PROCESS_GYM_ACTION, ARG:1
+LOCAL:INDEX = ARG:1
+LOCAL:TIME = 0
+
+SELECTCASE FLAG:800
+	CASE 61  ; 游泳馆
+		SELECTCASE LOCAL:INDEX
+			CASE 1  ; 游泳
+				PRINTL 【你在游泳馆游泳...】
+				LOCAL:TIME = 40
+				PRINTL 【在水中感觉很舒服...】
+				IF FLAG:72 == 1
+					CALL SET_PALAM, 0, 23, MIN(100, GET_PALAM(0, 23) + 5)
+				ENDIF
+				
+			CASE 2  ; 上游泳课
+				PRINTL 【你上游泳课...】
+				LOCAL:TIME = 60
+				PRINTL 【教练在指导动作...】
+				IF FLAG:72 == 1
+					CALL SET_PALAM, 0, 23, MIN(100, GET_PALAM(0, 23) + 8)
+				ENDIF
+				
+			CASE 3  ; 观看游泳比赛
+				PRINTL 【你观看游泳比赛...】
+				LOCAL:TIME = 50
+				PRINTL 【比赛很精彩...】
+				
+			CASE 4  ; 更衣室
+				PRINTL 【你前往更衣室...】
+				FLAG:800 = 43  ; 移动到更衣室
+				LOCAL:TIME = 5
+				RESTART
+		ENDSELECT
+ENDSELECT
+
+IF LOCAL:TIME > 0
+	CALL CONSUME_TIME, LOCAL:TIME
+	WAIT
+ENDIF
+
+RETURN
+
+; --------------------------------------------------
+; 在ASCII_MAP_SYSTEM.ERB中替换原有的动作处理函数
+; 将原有的 PROCESS_DORM_ACTION、PROCESS_PLAYGROUND_ACTION、
+; PROCESS_CAFETERIA_ACTION、PROCESS_GYM_ACTION 替换为这些数字版本

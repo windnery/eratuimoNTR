@@ -1,0 +1,383 @@
+; 物品管理系统
+@ITEM_MANAGEMENT
+; 物品管理主函数
+CLEARLINE 1
+REDRAW 0
+
+PRINTL 
+PRINTFORML 【物品管理系统】
+PRINTFORML 【当前金钱：{FLAG:37}元】
+PRINTL 
+
+PRINTL 【物品列表：】
+PRINTL [1] 小型恢复药水 ×5
+PRINTL [2] 学生制服 ×1
+PRINTL [3] 魔物调查笔记 ×1
+PRINTL [4] 退魔符咒 ×3
+PRINTL [0] 返回主菜单
+PRINTL 
+
+$ITEM_MAIN_CHOICE
+INPUT
+
+IF RESULT == 0
+	RETURN
+ELSEIF RESULT == 1
+	PRINTL 
+	PRINTL 【小型恢复药水】
+	PRINTL 【效果：恢复体力20点】
+	PRINTL 【描述：普通的小型恢复药水，味道有点苦】
+	PRINTL 
+	PRINTL 【选择操作：】
+	PRINTL [1] 使用
+	PRINTL [2] 丢弃
+	PRINTL [0] 返回
+	PRINTL 
+	
+	$POTION_CHOICE
+	INPUT
+	
+	IF RESULT == 1
+		PRINTL 
+		PRINTL 【使用了小型恢复药水】
+		PRINTL 【体力恢复了20点！】
+		; 这里应该调用恢复函数
+		WAIT
+	ELSEIF RESULT == 2
+		PRINTL 
+		PRINTL 【丢弃了小型恢复药水】
+		PRINTL 【获得10元补偿】
+		FLAG:37 += 10
+		WAIT
+	ENDIF
+ELSEIF RESULT == 2
+	PRINTL 
+	PRINTL 【学生制服】
+	PRINTL 【效果：防御+5，隐蔽性+10】
+	PRINTL 【描述：普通的学生制服，看起来更像个普通学生】
+	PRINTL 
+	PRINTL 【选择操作：】
+	PRINTL [1] 装备
+	PRINTL [2] 卸下
+	PRINTL [0] 返回
+	PRINTL 
+	
+	$UNIFORM_CHOICE
+	INPUT
+	
+	IF RESULT == 1
+		PRINTL 
+		PRINTL 【装备了学生制服】
+		WAIT
+	ENDIF
+ELSEIF RESULT == 3
+	PRINTL 
+	PRINTL 【魔物调查笔记】
+	PRINTL 【效果：无直接效果】
+	PRINTL 【描述：记录着魔物的线索和调查记录】
+	PRINTL 
+	PRINTL 【按回车键返回...】
+	WAIT
+ELSEIF RESULT == 4
+	PRINTL 
+	PRINTL 【退魔符咒】
+	PRINTL 【效果：可以暂时驱散弱小的魔物】
+	PRINTL 【描述：退魔师使用的符咒，需要一定的退魔师能力】
+	PRINTL 
+	PRINTL 【按回车键返回...】
+	WAIT
+ELSE
+	CLEARLINE 1
+	GOTO ITEM_MAIN_CHOICE
+ENDIF
+
+; 返回物品管理菜单
+GOTO ITEM_MANAGEMENT
+
+; --------------------------------------------------
+; 恢复类物品显示
+@SHOW_RECOVERY_ITEMS
+PRINTL 
+PRINTL 【恢复类物品】
+PRINTL 
+PRINTL [1] 小型恢复药水 - 恢复体力20点 (数量：5)
+PRINTL [2] 中型恢复药水 - 恢复体力50点 (数量：2)
+PRINTL [3] 精力恢复剂 - 恢复精力30点 (数量：3)
+PRINTL [4] 解毒剂 - 解除中毒状态 (数量：1)
+PRINTL [5] 镇静剂 - 降低欲望10点 (数量：2)
+PRINTL [0] 返回
+PRINTL 
+
+$RECOVERY_CHOICE
+INPUT
+
+IF RESULT == 0
+	RETURN
+ELSEIF RESULT == 1
+	PRINTL 
+	PRINTL 【使用了小型恢复药水】
+	PRINTL 【体力恢复了20点！】
+	CALL USE_SMALL_POTION
+	WAIT
+ELSEIF RESULT == 2
+	PRINTL 
+	PRINTL 【使用了中型恢复药水】
+	PRINTL 【体力恢复了50点！】
+	CALL USE_MEDIUM_POTION
+	WAIT
+ELSEIF RESULT == 3
+	PRINTL 
+	PRINTL 【使用了精力恢复剂】
+	PRINTL 【精力恢复了30点！】
+	CALL USE_ENERGY_RESTORE
+	WAIT
+ELSEIF RESULT == 4
+	PRINTL 
+	PRINTL 【使用了解毒剂】
+	PRINTL 【中毒状态解除了！】
+	CALL USE_ANTIDOTE
+	WAIT
+ELSEIF RESULT == 5
+	PRINTL 
+	PRINTL 【使用了镇静剂】
+	PRINTL 【欲望降低了10点！】
+	CALL USE_SEDATIVE
+	WAIT
+ELSE
+	CLEARLINE 1
+	GOTO RECOVERY_CHOICE
+ENDIF
+
+RETURN
+
+; --------------------------------------------------
+; 装备类物品显示
+@SHOW_EQUIPMENT_ITEMS
+PRINTL 
+PRINTL 【装备类物品】
+PRINTL 
+PRINTL [1] 退魔师制服 - 防御+10，退魔能力+5 (已装备)
+PRINTL [2] 学生制服 - 防御+5，隐蔽性+10
+PRINTL [3] 运动服 - 敏捷+8，体力恢复+3
+PRINTL [4] 便服装 - 普通服装，无特殊效果
+PRINTL [5] 性感内衣 - 诱惑度+15，防御-5
+PRINTL [0] 返回
+PRINTL 
+
+$EQUIPMENT_CHOICE
+INPUT
+
+IF RESULT == 0
+	RETURN
+ELSEIF RESULT == 1
+	PRINTL 
+	PRINTL 【已经装备退魔师制服】
+	WAIT
+ELSEIF RESULT == 2
+	PRINTL 
+	PRINTL 【换上了学生制服】
+	PRINTL 【看起来更像个普通学生了...】
+	WAIT
+ELSEIF RESULT == 3
+	PRINTL 
+	PRINTL 【换上了运动服】
+	PRINTL 【感觉行动更灵活了】
+	WAIT
+ELSEIF RESULT == 4
+	PRINTL 
+	PRINTL 【换上了便服装】
+	PRINTL 【看起来很休闲】
+	WAIT
+ELSEIF RESULT == 5
+	PRINTL 
+	PRINTL 【换上了性感内衣...】
+	PRINTL 【感觉身体更敏感了...】
+	IF FLAG:72 == 1  ; 女性主角
+		CALL SET_PALAM, 0, 20, MIN(100, GET_PALAM(0, 20) + 5)  ; 淫乱度增加
+	ENDIF
+	WAIT
+ELSE
+	CLEARLINE 1
+	GOTO EQUIPMENT_CHOICE
+ENDIF
+
+RETURN
+
+; --------------------------------------------------
+; 任务类物品显示
+@SHOW_QUEST_ITEMS
+PRINTL 
+PRINTL 【任务类物品】
+PRINTL 
+PRINTL [1] 魔物调查笔记 - 记录着魔物的线索
+PRINTL [2] 退魔符咒 - 可以暂时驱散弱小的魔物
+PRINTL [3] 学院地图 - 标注了可疑地点
+PRINTL [4] 偷拍照片 - 可疑的偷拍照片...
+PRINTL [5] 神秘钥匙 - 不知道能打开什么
+PRINTL [0] 返回
+PRINTL 
+
+$QUEST_CHOICE
+INPUT
+
+IF RESULT == 0
+	RETURN
+ELSEIF RESULT >= 1 && RESULT <= 5
+	PRINTL 
+	PRINTL 【查看了物品...】
+	PRINTL 【暂时没有更多信息】
+	WAIT
+ELSE
+	CLEARLINE 1
+	GOTO QUEST_CHOICE
+ENDIF
+
+RETURN
+
+; --------------------------------------------------
+; 特殊类物品显示
+@SHOW_SPECIAL_ITEMS
+PRINTL 
+PRINTL 【特殊类物品】
+PRINTL 
+PRINTL [1] 媚药 - 使用后欲望大幅增加 (危险！)
+PRINTL [2] 束缚道具 - 用于特殊游戏...
+PRINTL [3] 偷拍摄像头 - 可以隐秘拍摄
+PRINTL [4] 情趣玩具 - 增加敏感度的道具
+PRINTL [5] 堕落记录 - 记录着堕落经历的本子
+PRINTL [0] 返回
+PRINTL 
+
+$SPECIAL_CHOICE
+INPUT
+
+IF RESULT == 0
+	RETURN
+ELSEIF RESULT == 1
+	PRINTL 
+	PRINTL 【警告：媚药会大幅增加欲望！】
+	PRINTL 【确定要使用吗？】
+	PRINTL [1] 使用
+	PRINTL [2] 放弃
+	PRINTL 
+	
+	$APHRODISIAC_CHOICE
+	INPUT
+	
+	IF RESULT == 1
+		PRINTL 
+		PRINTL 【使用了媚药...】
+		PRINTL 【身体开始发热，欲望急速上升！】
+		IF FLAG:72 == 1
+			CALL SET_PALAM, 0, 20, MIN(100, GET_PALAM(0, 20) + 25)
+			CALL SET_PALAM, 0, 12, MIN(100, GET_PALAM(0, 12) + 30)
+		ENDIF
+		WAIT
+	ENDIF
+ELSEIF RESULT >= 2 && RESULT <= 5
+	PRINTL 
+	PRINTL 【这类物品现在还不能使用...】
+	PRINTL 【可能需要特定条件或堕落度】
+	WAIT
+ELSE
+	CLEARLINE 1
+	GOTO SPECIAL_CHOICE
+ENDIF
+
+RETURN
+
+; --------------------------------------------------
+; 使用物品菜单
+@USE_ITEM_MENU
+PRINTL 
+PRINTL 【选择要使用的物品：】
+PRINTL [1] 恢复类物品
+PRINTL [2] 装备类物品
+PRINTL [3] 特殊类物品
+PRINTL [0] 取消
+PRINTL 
+
+$USE_ITEM_CHOICE
+INPUT
+
+IF RESULT == 0
+	RETURN
+ELSEIF RESULT == 1
+	GOTO SHOW_RECOVERY_ITEMS
+ELSEIF RESULT == 2
+	GOTO SHOW_EQUIPMENT_ITEMS
+ELSEIF RESULT == 3
+	GOTO SHOW_SPECIAL_ITEMS
+ELSE
+	CLEARLINE 1
+	GOTO USE_ITEM_CHOICE
+ENDIF
+
+RETURN
+
+; --------------------------------------------------
+; 丢弃物品菜单
+@DISCARD_ITEM_MENU
+PRINTL 
+PRINTL 【选择要丢弃的物品：】
+PRINTL [1] 小型恢复药水 (5个)
+PRINTL [2] 精力恢复剂 (3个)
+PRINTL [3] 学生制服
+PRINTL [0] 取消
+PRINTL 
+
+$DISCARD_ITEM_CHOICE
+INPUT
+
+IF RESULT == 0
+	RETURN
+ELSEIF RESULT >= 1 && RESULT <= 3
+	PRINTL 
+	PRINTL 【确定要丢弃这个物品吗？】
+	PRINTL [1] 确定丢弃
+	PRINTL [2] 取消
+	PRINTL 
+	
+	$CONFIRM_DISCARD
+	INPUT
+	
+	IF RESULT == 1
+		PRINTL 
+		PRINTL 【物品已丢弃】
+		PRINTL 【获得少量金钱补偿】
+		FLAG:37 += 10  ; 金钱增加
+		WAIT
+	ENDIF
+ELSE
+	CLEARLINE 1
+	GOTO DISCARD_ITEM_CHOICE
+ENDIF
+
+RETURN
+
+; --------------------------------------------------
+; 物品使用函数
+@USE_SMALL_POTION
+; 使用小型恢复药水
+CALL SET_PALAM, 0, 0, MIN(100, GET_PALAM(0, 0) + 20)
+RETURN
+
+@USE_MEDIUM_POTION
+; 使用中型恢复药水
+CALL SET_PALAM, 0, 0, MIN(100, GET_PALAM(0, 0) + 50)
+RETURN
+
+@USE_ENERGY_RESTORE
+; 使用精力恢复剂
+CALL SET_PALAM, 0, 2, MIN(100, GET_PALAM(0, 2) + 30)
+RETURN
+
+@USE_ANTIDOTE
+; 使用解毒剂
+CALL SET_PALAM, 0, 41, MAX(0, GET_PALAM(0, 41) - 40)  ; 减少不安感
+RETURN
+
+@USE_SEDATIVE
+; 使用镇静剂
+CALL SET_PALAM, 0, 12, MAX(0, GET_PALAM(0, 12) - 10)  ; 降低欲望
+RETURN

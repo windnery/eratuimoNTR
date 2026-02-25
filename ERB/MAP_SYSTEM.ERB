@@ -1,0 +1,621 @@
+; 学院地图系统
+@INIT_MAP_SYSTEM
+; 初始化地图系统
+IF FLAG:111 == 0
+	; 初始位置：学院入口
+	FLAG:56 = 0  ; 当前地图区块
+	FLAG:112 = 0  ; 具体位置（区块内的具体位置）
+	FLAG:113 = 0  ; 已探索地图标记（位图）
+	
+	; 地图探索度
+	FLAG:114 = 0  ; 总探索度（0-100）
+	
+	; 特殊地点解锁标记
+	FLAG:115 = 0  ; 地下区域解锁
+	FLAG:116 = 0  ; 特殊区域解锁
+	FLAG:117 = 0  ; 魔物区域解锁
+	
+	FLAG:111 = 1
+ENDIF
+RETURN
+
+@GET_LOCATION_NAME
+; 获取当前位置名称
+#FUNCTION
+; 获取当前地图区块名称
+LOCAL = GET_MAP_BLOCK_NAME(FLAG:56, FLAG:112)
+RETURNF LOCAL
+
+@GET_MAP_BLOCK_NAME, ARG:1, ARG:2
+; 获取地图区块内具体位置名称
+#FUNCTION
+; ARG:1 = 地图区块ID
+; ARG:2 = 具体位置ID
+
+SELECTCASE ARG:1
+	CASE 0  ; 学院入口
+		SELECTCASE ARG:2
+			CASE 0
+				RETURNF "学院正门"
+			CASE 1
+				RETURNF "入口广场"
+			CASE 2
+				RETURNF "学院石碑"
+			CASE 3
+				RETURNF "公告栏"
+			CASEELSE
+				RETURNF "学院入口"
+		ENDSELECT
+		
+	CASE 1  ; 教学楼区域
+		SELECTCASE ARG:2
+			CASE 0
+				RETURNF "1楼走廊"
+			CASE 1
+				RETURNF "2楼走廊"
+			CASE 2
+				RETURNF "3楼走廊"
+			CASE 3
+				RETURNF "教师办公室"
+			CASE 4
+				RETURNF "空教室"
+			CASE 5
+				RETURNF "化学实验室"
+			CASE 6
+				RETURNF "生物实验室"
+			CASE 7
+				RETURNF "美术教室"
+			CASE 8
+				RETURNF "音乐教室"
+			CASEELSE
+				RETURNF "教学楼"
+		ENDSELECT
+		
+	CASE 2  ; 宿舍区域
+		SELECTCASE ARG:2
+			CASE 0
+				RETURNF "女生宿舍楼"
+			CASE 1
+				RETURNF "男生宿舍楼"
+			CASE 2
+				RETURNF "留学生宿舍"
+			CASE 3
+				RETURNF "宿舍管理员室"
+			CASE 4
+				RETURNF "公共浴室"
+			CASE 5
+				RETURNF "洗衣房"
+			CASE 6
+				RETURNF "宿舍天台"
+			CASE 7
+				RETURNF "宿舍走廊"
+			CASEELSE
+				RETURNF "宿舍区"
+		ENDSELECT
+		
+	CASE 3  ; 图书馆
+		SELECTCASE ARG:2
+			CASE 0
+				RETURNF "一楼阅览室"
+			CASE 1
+				RETURNF "二楼自习室"
+			CASE 2
+				RETURNF "地下书库"
+			CASE 3
+				RETURNF "管理员办公室"
+			CASE 4
+				RETURNF "古籍区"
+			CASE 5
+				RETURNF "杂志区"
+			CASE 6
+				RETURNF "电子阅览区"
+			CASEELSE
+				RETURNF "图书馆"
+		ENDSELECT
+		
+	CASE 4  ; 操场区域
+		SELECTCASE ARG:2
+			CASE 0
+				RETURNF "田径场"
+			CASE 1
+				RETURNF "篮球场"
+			CASE 2
+				RETURNF "排球场"
+			CASE 3
+				RETURNF "足球场"
+			CASE 4
+				RETURNF "器材室"
+			CASE 5
+				RETURNF "看台"
+			CASE 6
+				RETURNF "更衣室"
+			CASEELSE
+				RETURNF "操场"
+		ENDSELECT
+		
+	CASE 5  ; 食堂区域
+		SELECTCASE ARG:2
+			CASE 0
+				RETURNF "一楼大厅"
+			CASE 1
+				RETURNF "二楼包间"
+			CASE 2
+				RETURNF "厨房"
+			CASE 3
+				RETURNF "员工休息室"
+			CASE 4
+				RETURNF "后厨"
+			CASE 5
+				RETURNF "储藏室"
+			CASEELSE
+				RETURNF "食堂"
+		ENDSELECT
+		
+	CASE 6  ; 体育馆
+		SELECTCASE ARG:2
+			CASE 0
+				RETURNF "主体育馆"
+			CASE 1
+				RETURNF "健身房"
+			CASE 2
+				RETURNF "游泳馆"
+			CASE 3
+				RETURNF "淋浴间"
+			CASE 4
+				RETURNF "器材仓库"
+			CASE 5
+				RETURNF "更衣室"
+			CASEELSE
+				RETURNF "体育馆"
+		ENDSELECT
+		
+	CASE 7  ; 学生会大楼
+		SELECTCASE ARG:2
+			CASE 0
+				RETURNF "学生会办公室"
+			CASE 1
+				RETURNF "会议室"
+			CASE 2
+				RETURNF "活动室"
+			CASE 3
+				RETURNF "档案室"
+			CASE 4
+				RETURNF "会长办公室"
+			CASEELSE
+				RETURNF "学生会大楼"
+		ENDSELECT
+		
+	CASE 8  ; 社团活动区
+		SELECTCASE ARG:2
+			CASE 0
+				RETURNF "摄影社活动室"
+			CASE 1
+				RETURNF "文学社活动室"
+			CASE 2
+				RETURNF "美术社活动室"
+			CASE 3
+				RETURNF "音乐社活动室"
+			CASE 4
+				RETURNF "茶道社活动室"
+			CASE 5
+				RETURNF "空手道部道场"
+			CASE 6
+				RETURNF "篮球部活动室"
+			CASEELSE
+				RETURNF "社团活动区"
+		ENDSELECT
+		
+	CASE 9  ; 医务室区域
+		SELECTCASE ARG:2
+			CASE 0
+				RETURNF "医务室"
+			CASE 1
+				RETURNF "药品仓库"
+			CASE 2
+				RETURNF "隔离病房"
+			CASE 3
+				RETURNF "护士休息室"
+			CASEELSE
+				RETURNF "医务室"
+		ENDSELECT
+		
+	CASE 10  ; 校长办公楼
+		SELECTCASE ARG:2
+			CASE 0
+				RETURNF "校长办公室"
+			CASE 1
+				RETURNF "副校长办公室"
+			CASE 2
+				RETURNF "教务处"
+			CASE 3
+				RETURNF "财务处"
+			CASE 4
+				RETURNF "档案室"
+			CASEELSE
+				RETURNF "校长办公楼"
+		ENDSELECT
+		
+	CASEELSE
+		RETURNF "未知地点"
+ENDSELECT
+
+@EXPLORE_MAP
+; 探索地图功能
+CLEARLINE 1
+PRINTL 【探索学院地图】
+PRINTFORML 【当前位置：{GET_LOCATION_NAME()}】
+PRINTFORML 【地图探索度：{FLAG:114}%】
+PRINTL 
+
+; 显示当前区块的可前往地点
+PRINTL 【可前往的地点：】
+LOCAL = GET_AVAILABLE_LOCATIONS(FLAG:56, FLAG:112)
+
+; 显示选项
+FOR LOCAL:1, 0, LOCAL:0
+	LOCAL:2 = GET_LOCATION_OPTION(LOCAL:1)
+	PRINTFORML [{LOCAL:1}] {LOCAL:2}
+NEXT
+
+PRINTL 
+PRINTL 【输入数字选择前往的地点，或输入0返回主菜单】
+
+$MAP_CHOICE
+INPUT
+
+IF RESULT == 0
+	RETURN
+ELSEIF RESULT >= 1 AND RESULT <= LOCAL:0
+	; 移动到新位置
+	GOSUB MOVE_TO_LOCATION, RESULT - 1
+ELSE
+	CLEARLINE 1
+	GOTO MAP_CHOICE
+ENDIF
+
+RETURN
+
+@GET_AVAILABLE_LOCATIONS, ARG:1, ARG:2
+; 获取可前往的地点列表
+#FUNCTION
+; 返回可前往地点的数量，同时设置全局变量
+LOCAL:0 = 0
+
+; 根据当前区块和位置确定可前往的地点
+SELECTCASE ARG:1
+	CASE 0  ; 学院入口
+		; 可以前往的主要区域
+		CALL SET_AVAILABLE_OPTION, LOCAL:0, "教学楼"
+		LOCAL:0 += 1
+		CALL SET_AVAILABLE_OPTION, LOCAL:0, "宿舍区"
+		LOCAL:0 += 1
+		CALL SET_AVAILABLE_OPTION, LOCAL:0, "图书馆"
+		LOCAL:0 += 1
+		CALL SET_AVAILABLE_OPTION, LOCAL:0, "操场"
+		LOCAL:0 += 1
+		CALL SET_AVAILABLE_OPTION, LOCAL:0, "食堂"
+		LOCAL:0 += 1
+		
+	CASE 1  ; 教学楼区域
+		; 可以在教学楼内移动，或返回入口
+		CALL SET_AVAILABLE_OPTION, LOCAL:0, "1楼走廊"
+		LOCAL:0 += 1
+		CALL SET_AVAILABLE_OPTION, LOCAL:0, "2楼走廊"
+		LOCAL:0 += 1
+		CALL SET_AVAILABLE_OPTION, LOCAL:0, "3楼走廊"
+		LOCAL:0 += 1
+		CALL SET_AVAILABLE_OPTION, LOCAL:0, "教师办公室"
+		LOCAL:0 += 1
+		CALL SET_AVAILABLE_OPTION, LOCAL:0, "空教室"
+		LOCAL:0 += 1
+		CALL SET_AVAILABLE_OPTION, LOCAL:0, "返回学院入口"
+		LOCAL:0 += 1
+		
+	; 其他区块类似...
+ENDSELECT
+
+RETURNF LOCAL:0
+
+@MOVE_TO_LOCATION, ARG:1
+; 移动到新位置
+LOCAL = GET_TARGET_LOCATION(FLAG:56, FLAG:112, ARG:1)
+
+IF LOCAL >= 0
+	; 移动成功
+	FLAG:56 = LOCAL / 10  ; 新区块
+	FLAG:112 = LOCAL % 10  ; 新位置
+	
+	; 增加探索度
+	LOCAL:1 = CHECK_NEW_LOCATION(FLAG:56, FLAG:112)
+	IF LOCAL:1 == 1
+		FLAG:114 += 1  ; 探索度增加
+		PRINTL 【发现了新的地点！】
+	ENDIF
+	
+	PRINTL 【移动到了{GET_LOCATION_NAME()}...】
+	WAIT
+	
+	; 触发地点事件
+	GOSUB TRIGGER_LOCATION_EVENT
+ELSE
+	PRINTL 【无法移动到该位置...】
+	WAIT
+ENDIF
+
+RETURN
+
+@TRIGGER_LOCATION_EVENT
+; 触发地点事件
+; 根据地点类型触发不同事件
+LOCAL = RAND:100
+
+; 根据地点类型决定事件
+SELECTCASE FLAG:56
+	CASE 0  ; 学院入口
+		IF LOCAL < 20
+			PRINTL 【在学院入口遇到了同学...】
+			GOSUB MEET_CLASSMATE
+		ELSEIF LOCAL < 40
+			PRINTL 【看到了学院的公告栏...】
+			GOSUB CHECK_BULLETIN_BOARD
+		ENDIF
+		
+	CASE 1  ; 教学楼
+		IF LOCAL < 30
+			GOSUB CLASSROOM_EVENT
+		ELSEIF LOCAL < 60
+			GOSUB TEACHER_OFFICE_EVENT
+		ENDIF
+		
+	CASE 2  ; 宿舍区
+		IF LOCAL < 40
+			GOSUB DORM_EVENT
+		ELSEIF LOCAL < 70
+			GOSUB BATH_EVENT
+		ENDIF
+		
+	CASE 3  ; 图书馆
+		IF LOCAL < 35
+			GOSUB LIBRARY_EVENT
+		ELSEIF LOCAL < 65
+			GOSUB SECRET_BOOK_EVENT
+		ENDIF
+		
+	CASE 4  ; 操场
+		IF LOCAL < 40
+			GOSUB SPORTS_EVENT
+		ELSEIF LOCAL < 70
+			GOSUB CHANGEROOM_EVENT
+		ENDIF
+		
+	CASE 5  ; 食堂
+		IF LOCAL < 30
+			GOSUB CAFETERIA_EVENT
+		ELSEIF LOCAL < 60
+			GOSUB KITCHEN_EVENT
+		ENDIF
+		
+	CASE 6  ; 体育馆
+		IF LOCAL < 40
+			GOSUB GYM_EVENT
+		ELSEIF LOCAL < 70
+			GOSUB SWIMMING_EVENT
+		ENDIF
+		
+	CASE 7  ; 学生会大楼
+		IF LOCAL < 50
+			GOSUB STUDENT_COUNCIL_EVENT
+		ENDIF
+		
+	CASE 8  ; 社团活动区
+		IF LOCAL < 30
+			GOSUB CLUB_EVENT
+		ELSEIF LOCAL < 60
+			GOSUB PHOTO_CLUB_EVENT
+		ENDIF
+		
+	CASE 9  ; 医务室
+		IF LOCAL < 40
+			GOSUB INFIRMARY_EVENT
+		ELSEIF LOCAL < 70
+			GOSUB NURSE_EVENT
+		ENDIF
+		
+	CASE 10  ; 校长办公楼
+		IF LOCAL < 30
+			GOSUB PRINCIPAL_OFFICE_EVENT
+		ELSEIF LOCAL < 60
+			GOSUB FINANCE_EVENT
+		ENDIF
+		
+	CASE 12  ; 花园庭院
+		IF LOCAL < 40
+			GOSUB GARDEN_EVENT
+		ELSEIF LOCAL < 70
+			GOSUB SECRET_MEETING_EVENT
+		ENDIF
+		
+	CASE 14  ; 校门周边
+		IF LOCAL < 40
+			GOSUB GATE_EVENT
+		ELSEIF LOCAL < 70
+			GOSUB CONVENIENCE_STORE_EVENT
+		ENDIF
+		
+	CASE 15  ; 屋顶天台
+		IF LOCAL < 40
+			GOSUB ROOFTOP_EVENT
+		ELSEIF LOCAL < 70
+			GOSUB SECRET_MEETING_ROOFTOP
+		ENDIF
+		
+	CASE 16  ; 地下区域
+		IF LOCAL < 40
+			GOSUB UNDERGROUND_EVENT
+		ELSEIF LOCAL < 70
+			GOSUB SECRET_ROOM_EVENT
+		ENDIF
+		
+	CASE 17  ; 特殊区域
+		IF LOCAL < 40
+			GOSUB MONSTER_EVENT
+		ELSEIF LOCAL < 70
+			GOSUB EXORCIST_EVENT
+		ENDIF
+ENDSELECT
+
+RETURN
+
+@CHECK_NEW_LOCATION, ARG:1, ARG:2
+; 检查是否是新的地点
+#FUNCTION
+; 使用位图记录已探索地点
+; 每个区块最多10个位置，用1位表示是否探索过
+LOCAL:1 = ARG:1 * 10 + ARG:2  ; 计算位置编号（0-179）
+LOCAL:2 = LOCAL:1 / 32  ; 位图索引
+LOCAL:3 = LOCAL:1 % 32  ; 位图中的位置
+
+; 检查是否已探索
+IF (FLAG:113 + LOCAL:2) & (1 << LOCAL:3) == 0
+	; 标记为已探索
+	FLAG:113 + LOCAL:2 |= (1 << LOCAL:3)
+	RETURNF 1  ; 是新的地点
+ELSE
+	RETURNF 0  ; 已探索过
+ENDIF
+
+@GET_TARGET_LOCATION, ARG:1, ARG:2, ARG:3
+; 获取目标位置
+#FUNCTION
+; 返回目标位置的编码：区块ID*10 + 位置ID
+; 如果无法移动返回-1
+
+SELECTCASE ARG:1
+	CASE 0  ; 学院入口
+		SELECTCASE ARG:3
+			CASE 0
+				RETURNF 10  ; 教学楼，区块1位置0
+			CASE 1
+				RETURNF 20  ; 宿舍区，区块2位置0
+			CASE 2
+				RETURNF 30  ; 图书馆，区块3位置0
+			CASE 3
+				RETURNF 40  ; 操场，区块4位置0
+			CASE 4
+				RETURNF 50  ; 食堂，区块5位置0
+			CASEELSE
+				RETURNF -1
+		ENDSELECT
+		
+	CASE 1  ; 教学楼区域
+		SELECTCASE ARG:2
+			CASE 0  ; 1楼走廊
+				SELECTCASE ARG:3
+					CASE 0
+						RETURNF 11  ; 2楼走廊
+					CASE 1
+						RETURNF 13  ; 教师办公室
+					CASE 2
+						RETURNF 14  ; 空教室
+					CASE 3
+						RETURNF 0   ; 返回学院入口
+					CASEELSE
+						RETURNF -1
+				ENDSELECT
+			CASEELSE
+				; 其他位置类似
+				RETURNF -1
+		ENDSELECT
+		
+	; 其他区块的移动逻辑类似...
+	CASEELSE
+		RETURNF -1
+ENDSELECT
+
+; 设置可前往选项的全局变量
+@SET_AVAILABLE_OPTION, ARG:1, ARG:2
+; 设置可前往选项
+; 使用全局数组存储选项
+GLOBAL:ARG:1 = ARG:2
+RETURN
+
+; 地图探索度计算
+@CALCULATE_EXPLORATION_RATE
+; 计算地图探索度
+#FUNCTION
+LOCAL = 0
+FOR LOCAL:1, 0, 18  ; 18个区块
+	FOR LOCAL:2, 0, 10  ; 每个区块最多10个位置
+		LOCAL:3 = LOCAL:1 * 10 + LOCAL:2
+		LOCAL:4 = LOCAL:3 / 32
+		LOCAL:5 = LOCAL:3 % 32
+		
+		IF (FLAG:113 + LOCAL:4) & (1 << LOCAL:5) != 0
+			LOCAL += 1
+		ENDIF
+	NEXT
+NEXT
+
+; 总共有180个位置（18区块*10位置）
+LOCAL = LOCAL * 100 / 180
+RETURNF LOCAL
+
+@VIEW_MAP_STATUS
+; 查看地图状态
+CLEARLINE 1
+PRINTL 【地图状态】
+PRINTL 
+
+PRINTFORML 【地图探索度：{CALCULATE_EXPLORATION_RATE()}%】
+PRINTL 
+
+PRINTL 【已探索的主要区域：】
+FOR LOCAL:1, 0, 18
+	LOCAL:2 = 0
+	FOR LOCAL:3, 0, 10
+		LOCAL:4 = LOCAL:1 * 10 + LOCAL:3
+		LOCAL:5 = LOCAL:4 / 32
+		LOCAL:6 = LOCAL:4 % 32
+		
+		IF (FLAG:113 + LOCAL:5) & (1 << LOCAL:6) != 0
+			LOCAL:2 += 1
+		ENDIF
+	NEXT
+	
+	IF LOCAL:2 > 0
+		PRINTFORML {GET_MAP_BLOCK_NAME(LOCAL:1, 0)}：{LOCAL:2}/10个地点
+	ENDIF
+NEXT
+
+PRINTL 
+PRINTL 【特殊区域状态：】
+IF FLAG:115 == 1
+	PRINTL 地下区域：已解锁
+ELSE
+	PRINTL 地下区域：未解锁（需要堕落度≥40）
+ENDIF
+
+IF FLAG:116 == 1
+	PRINTL 特殊区域：已解锁
+ELSE
+	PRINTL 特殊区域：未解锁（需要探索度≥60%）
+ENDIF
+
+IF FLAG:117 == 1
+	PRINTL 魔物区域：已解锁
+ELSE
+	PRINTL 魔物区域：未解锁（需要NTR进度≥50%）
+ENDIF
+
+PRINTL 
+PRINTL 【探索建议：】
+IF CALCULATE_EXPLORATION_RATE() < 30
+	PRINTL 建议先探索教学楼、宿舍、图书馆等主要区域
+ELSEIF CALCULATE_EXPLORATION_RATE() < 60
+	PRINTL 可以开始探索操场、食堂、体育馆等区域
+ELSE
+	PRINTL 可以尝试探索地下区域和特殊区域
+ENDIF
+
+WAIT
+RETURN

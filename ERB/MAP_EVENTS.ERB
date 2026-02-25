@@ -1,0 +1,288 @@
+; 地图事件系统
+@CLASSROOM_EVENT
+; 教室事件
+PRINTL 
+PRINTL 【在教室里...】
+WAIT
+
+LOCAL = RAND:100
+
+IF LOCAL < 30
+	; 遇到同学
+	PRINTL 【教室里有一个同学在自习...】
+	GOSUB CLASSMATE_STUDY_EVENT
+ELSEIF LOCAL < 60
+	; 空教室
+	PRINTL 【教室里空无一人...】
+	PRINTL 【你可以在这里休息一会儿...】
+	
+	PRINTL 
+	PRINTL 【选择：】
+	PRINTL [1] 休息
+	PRINTL [2] 离开
+	PRINTL [3] 检查教室（需要堕落度>10）
+	
+	$CLASSROOM_CHOICE
+	INPUT
+	
+	SELECTCASE RESULT
+		CASE 1
+			PRINTL 【你在这里休息了一会儿...】
+			CALL SET_PALAM, 1, 0, MIN(100, GET_PALAM(1, 0) + 20)  ; 体力恢复
+			CALL SET_PALAM, 1, 2, MIN(100, GET_PALAM(1, 2) + 15)  ; 精力恢复
+		CASE 2
+			PRINTL 【你离开了教室...】
+		CASE 3
+			IF GET_TOTAL_DECLINE_LEVEL() >= 10
+				GOSUB CLASSROOM_SEARCH_EVENT
+			ELSE
+				PRINTL 【你的堕落度还不够...】
+			ENDIF
+	ENDSELECT
+ELSE
+	; 遇到老师
+	PRINTL 【老师正在教室里备课...】
+	GOSUB TEACHER_CLASSROOM_EVENT
+ENDIF
+
+WAIT
+RETURN
+
+@CLASSMATE_STUDY_EVENT
+; 同学自习事件
+PRINTL 同学：啊，%CALLNAME:(1)%同学，你也来自习吗？
+PRINTFORML %CALLNAME:(1)%：嗯...有点事...
+PRINTL 同学：最近学院里好多奇怪的事情，你听说了吗？
+PRINTFORML %CALLNAME:(1)%：什、什么事情...
+PRINTL 同学：听说有女生晚上在宿舍被骚扰...
+PRINTL 同学：还有人说看到奇怪的东西在教学楼里...
+PRINTFORML %CALLNAME:(1)%：（不安地）真、真的吗...
+PRINTL 同学：你还是小心点比较好，特别是晚上...
+PRINTL 
+PRINTL 【选择：】
+PRINTL [1] 询问更多
+PRINTL [2] 表示害怕
+PRINTL [3] 不理会
+
+$CLASSMATE_CHOICE
+INPUT
+
+SELECTCASE RESULT
+	CASE 1
+		PRINTFORML %CALLNAME:(1)%：还、还有什么传闻吗...
+		PRINTL 同学：还有人说，摄影社的那个肥宅很可疑...
+		PRINTL 同学：他经常拍女生的照片...
+		PRINTFORML %CALLNAME:(1)%：（想起自己的经历）我、我知道了...
+		; 增加对摄影社的警惕
+		FLAG:81 += 5
+		
+	CASE 2
+		PRINTFORML %CALLNAME:(1)%：好、好可怕...我会小心的...
+		PRINTL 同学：嗯，小心点总没错。
+		; 增加不安感
+		CALL SET_PALAM, 1, 41, MIN(100, GET_PALAM(1, 41) + 5)
+		
+	CASE 3
+		PRINTFORML %CALLNAME:(1)%：谢谢提醒...
+		PRINTL 同学：不客气，你自己小心。
+ENDSELECT
+
+WAIT
+RETURN
+
+@CLASSROOM_SEARCH_EVENT
+; 教室搜索事件
+PRINTL 【你开始检查教室...】
+WAIT
+
+LOCAL = RAND:100
+
+IF LOCAL < 40
+	; 发现奇怪的东西
+	PRINTL 【你在讲台下面发现了一些奇怪的东西...】
+	PRINTL 是一些用过的避孕套和湿透的内裤。
+	PRINTFORML %CALLNAME:(1)%：这、这是...
+	PRINTL 看起来有人在这里做过什么...
+	
+	; 根据堕落度有不同反应
+	IF GET_TOTAL_DECLINE_LEVEL() >= 30
+		PRINTL 【你竟然有点兴奋...】
+		CALL SET_PALAM, 1, 15, MIN(100, GET_PALAM(1, 15) + 5)  ; 兴奋度增加
+	ELSE
+		PRINTL 【你感到恶心和害怕...】
+		CALL SET_PALAM, 1, 16, MIN(100, GET_PALAM(1, 16) + 8)  ; 背德感增加
+	ENDIF
+	
+ELSEIF LOCAL < 70
+	; 发现隐藏摄像头
+	PRINTL 【你在教室角落发现了隐藏摄像头...】
+	PRINTFORML %CALLNAME:(1)%：这、这是摄像头...
+	PRINTL 有人在偷拍教室里的情况！
+	PRINTL 
+	PRINTL 【你赶紧离开，但可能已经被拍到了...】
+	
+	; 增加羞耻心下降
+	CALL SET_PALAM, 1, 14, MAX(0, GET_PALAM(1, 14) - 10)
+	CALL SET_PALAM, 1, 33, GET_PALAM(1, 33) + 10  ; 露出经验增加
+	
+ELSE
+	; 什么都没发现
+	PRINTL 【什么都没发现...】
+	PRINTL 教室看起来很普通。
+ENDIF
+
+; 可能触发事件
+IF RAND:100 < 30
+	PRINTL 
+	PRINTL 【突然有人进来了...】
+	GOSUB CLASSROOM_INTRUDER_EVENT
+ENDIF
+
+WAIT
+RETURN
+
+@TEACHER_CLASSROOM_EVENT
+; 老师教室事件
+PRINTL 老师：%CALLNAME:(1)%同学，有什么事吗？
+PRINTFORML %CALLNAME:(1)%：没、没什么...走错了...
+PRINTL 老师：等一下，关于你的纹身问题...
+PRINTL 老师：学校规定学生不能有纹身，你打算怎么处理？
+PRINTFORML %CALLNAME:(1)%：我、我会想办法的...
+PRINTL 老师：一周内必须处理，否则要停学处理。
+PRINTL 老师：另外...这些纹身是怎么来的？
+PRINTL 
+PRINTL 【你无法回答...】
+WAIT
+
+; 根据堕落度决定反应
+IF GET_TOTAL_DECLINE_LEVEL() >= 50
+	PRINTFORML %CALLNAME:(1)%：是、是男朋友纹的...
+	PRINTL 老师：男朋友？哪个学校的？
+	PRINTL 你无法回答，老师更加怀疑了。
+ELSE
+	PRINTFORML %CALLNAME:(1)%：是、是被强迫的...
+	PRINTL 老师：强迫？需要报警吗？
+	PRINTFORML %CALLNAME:(1)%：不、不用了...
+	PRINTL 老师：好吧，但纹身必须处理。
+ENDIF
+
+; 增加纹身去除压力
+FLAG:106 = 1
+
+; 可能触发特殊事件
+IF FLAG:103 >= 3  ; 媚黑纹身多
+	PRINTL 
+	PRINTL 老师：（看着你的媚黑纹身）这些纹身...你是自愿的吗？
+	PRINTFORML %CALLNAME:(1)%：（低头不语）
+	PRINTL 老师：唉...你好自为之吧。
+ENDIF
+
+WAIT
+RETURN
+
+@LIBRARY_EVENT
+; 图书馆事件
+PRINTL 
+PRINTL 【在图书馆里...】
+WAIT
+
+LOCAL = RAND:100
+
+IF LOCAL < 40
+	; 借书事件
+	GOSUB LIBRARY_BOOK_EVENT
+ELSEIF LOCAL < 70
+	; 遇到图书管理员
+	GOSUB LIBRARIAN_EVENT
+ELSE
+	; 发现禁书
+	GOSUB FORBIDDEN_BOOK_EVENT
+ENDIF
+
+RETURN
+
+@LIBRARY_BOOK_EVENT
+; 图书馆借书事件
+PRINTL 【你在书架前找书...】
+WAIT
+
+LOCAL = RAND:100
+
+IF LOCAL < 40
+	PRINTL 【你找到了一本关于退魔术的书籍...】
+	PRINTL 里面记载了一些对抗魔物的方法。
+	PRINTL 【你的退魔师知识增加了...】
+	FLAG:46 += 1  ; 退魔师等级增加
+	
+ELSEIF LOCAL < 70
+	PRINTL 【你找到了一本情色小说...】
+	PRINTL 内容非常露骨，让你脸红心跳。
+	PRINTL 【你的欲望增加了...】
+	CALL SET_PALAM, 1, 12, MIN(100, GET_PALAM(1, 12) + 5)  ; 欲望增加
+	
+	IF GET_TOTAL_DECLINE_LEVEL() >= 30
+		PRINTL 【你偷偷把书藏起来，准备带回去看...】
+		CALL SET_PALAM, 1, 20, MIN(100, GET_PALAM(1, 20) + 3)  ; 淫乱度增加
+	ENDIF
+	
+ELSE
+	PRINTL 【你找到了关于学院历史的书籍...】
+	PRINTL 里面提到了学院的一些秘密。
+	PRINTL 【你了解到学院的一些内幕...】
+	FLAG:73 += 5  ; 学院探索度增加
+ENDIF
+
+; 可能被管理员发现
+IF LOCAL < 20
+	PRINTL 
+	PRINTL 【图书管理员发现了你...】
+	GOSUB LIBRARIAN_CATCH_EVENT
+ENDIF
+
+WAIT
+RETURN
+
+@DORM_EVENT
+; 宿舍事件
+PRINTL 
+PRINTL 【在宿舍里...】
+WAIT
+
+; 根据堕落度决定事件
+LOCAL = GET_TOTAL_DECLINE_LEVEL()
+
+IF LOCAL >= 60
+	GOSUB DORM_ADVANCED_EVENT
+ELSEIF LOCAL >= 30
+	GOSUB DORM_NORMAL_EVENT
+ELSE
+	GOSUB DORM_BASIC_EVENT
+ENDIF
+
+RETURN
+
+@DORM_BASIC_EVENT
+; 基础宿舍事件
+PRINTL 【你的室友正在聊天...】
+WAIT
+
+PRINTL 室友A：最近晚上老是听到奇怪的声音...
+PRINTL 室友B：是啊，好像是从留学生宿舍那边传来的...
+PRINTL 室友C：听说留学生经常开派对...
+PRINTFORML %CALLNAME:(1)%：（想起黑人留学生）...
+PRINTL 室友A：%CALLNAME:(1)%，你认识留学生吗？
+PRINTFORML %CALLNAME:(1)%：不、不认识...
+PRINTL 室友B：还是别接触比较好，听说他们很乱...
+PRINTL 
+PRINTL 【室友的议论让你感到不安...】
+CALL SET_PALAM, 1, 41, MIN(100, GET_PALAM(1, 41) + 5)  ; 不安感增加
+
+WAIT
+RETURN
+
+@DORM_NORMAL_EVENT
+; 普通宿舍事件（堕落度30+）
+PRINTL 【深夜，你听到奇怪的声音...】
+WAIT
+
+PRINT

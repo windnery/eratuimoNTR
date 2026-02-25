@@ -1,0 +1,311 @@
+; 纹身特殊事件
+@BLACK_SPECIAL_TATTOO_EVENT
+; 黑人专属特殊纹身事件（高堕落度）
+PRINTL 
+PRINTL 【%CALLNAME:(4)%带你去了一个专业的纹身店...】
+WAIT
+
+PRINTL %CALLNAME:(4)%：Today, we make you truly black...
+PRINTL 他把你带进一个看起来很高档的纹身店。
+PRINTL 纹身师是一个高大的黑人，全身都是纹身。
+PRINTFORML %CALLNAME:(1)%：这、这里是什么地方...
+PRINTL %CALLNAME:(4)%：The best tattoo shop in town, only for black queens.
+PRINTL 
+PRINTL 【纹身师检查你身上的纹身...】
+WAIT
+
+PRINTL 纹身师：Hmm... some basic marks, but not enough.
+PRINTL 纹身师：We need to make her a real BBC queen.
+PRINTL %CALLNAME:(4)%：That's what I'm thinking. Make her perfect.
+PRINTFORML %CALLNAME:(1)%：不、不要...已经很多了...
+PRINTL 纹身师：Don't worry, baby, you'll love it...
+PRINTL 
+PRINTL 【他们开始设计新的纹身...】
+WAIT
+
+; 根据堕落度决定纹身数量
+LOCAL = GET_TOTAL_DECLINE_LEVEL()
+
+IF LOCAL >= 80
+	GOSUB EXTREME_BLACK_TATTOO
+ELSEIF LOCAL >= 60
+	GOSUB HEAVY_BLACK_TATTOO
+ELSEIF LOCAL >= 40
+	GOSUB MODERATE_BLACK_TATTOO
+ELSE
+	GOSUB BASIC_BLACK_TATTOO
+ENDIF
+
+RETURN
+
+@EXTREME_BLACK_TATTOO
+; 极端媚黑纹身
+PRINTL 【他们决定给你纹上极端的媚黑标记...】
+WAIT
+
+PRINTL 纹身师：We'll make her a walking advertisement for black cock.
+PRINTL %CALLNAME:(4)%：Perfect. She'll be my masterpiece.
+PRINTL 
+PRINTL 【纹身开始了，这次是大面积的专业纹身...】
+WAIT
+
+; 背部大面积纹身
+CALL ADD_TATTOO, 4, 140  ; 背部大面积淫纹
+PRINTL 【首先在你的整个背部纹上了大面积的淫纹...】
+PRINTL 纹身师：This will cover her entire back, so everyone can see.
+
+; 胸前黑桃皇后
+CALL ADD_TATTOO, 13, 233  ; 乳房间黑桃标记
+PRINTL 【然后在你的胸前纹上了黑桃皇后图案...】
+PRINTL 纹身师：Queen of Spades, right between her tits.
+
+; 小腹BBC专属
+CALL ADD_TATTOO, 6, 161  ; 小腹黑人专属标记
+PRINTL 【在小腹纹上了"黑人专属"的标记...】
+PRINTL 纹身师：So everyone knows who owns her pussy.
+
+; 臀部黑人数数
+CALL ADD_TATTOO, 7, 184  ; 臀部轮奸纪念
+PRINTL 【在臀部纹上了轮奸纪念日的日期...】
+PRINTL %CALLNAME:(4)%：The day she became truly black.
+
+; 大腿内侧名字列表
+CALL ADD_TATTOO, 8, 184  ; 大腿内侧黑人名字列表
+PRINTL 【在大腿内侧纹上了所有上过她的黑人的名字...】
+PRINTL 纹身师：So she remembers every black cock that's been inside her.
+
+; 强制穿孔全套
+PRINTL 
+PRINTL 【纹身后，他们还给你穿上了全套的媚黑穿孔...】
+CALL ADD_PIERCING, 0, 9  ; 左乳头黑人专属
+CALL ADD_PIERCING, 1, 9  ; 右乳头黑人专属
+CALL ADD_PIERCING, 2, 9  ; 阴蒂黑人专属
+CALL ADD_PIERCING, 6, 8  ; 舌头BBC环
+CALL ADD_PIERCING, 14, 8  ; 肛门BBC环
+
+PRINTL 【你的全身都被纹上了极端的媚黑标记...】
+PRINTL 这些纹身和穿孔标志着你是黑人的终极财产。
+
+; 心理效果
+CALL SET_PALAM, 1, 18, 100  ; 服从度满值
+CALL SET_PALAM, 1, 19, 100  ; 依赖度满值
+CALL SET_PALAM, 1, 20, 100  ; 淫乱度满值
+CALL SET_PALAM, 1, 16, 100  ; 背德感满值
+
+FLAG:103 += 5  ; 大幅增加媚黑纹身计数
+FLAG:79 = 100  ; 黑人NTR进度满值
+
+PRINTL 
+PRINTL 【看着镜中全身黑色纹身的自己，你感到一种彻底的归属感...】
+PRINTL 你已经不再是过去的自己，而是黑人的专属财产。
+
+WAIT
+RETURN
+
+@PHOTO_HARASSMENT_EVENT
+; 拍照骚扰事件
+PRINTL 
+PRINTL 【有人拿出手机对着你的纹身拍照...】
+WAIT
+
+PRINTL 拍照男：别动，让我拍清楚点...
+PRINTFORML %CALLNAME:(1)%：不、不要拍...求你了...
+PRINTL 拍照男：这么漂亮的纹身，不拍下来太可惜了。
+PRINTL 他连续按下快门，闪光灯在你身上闪烁。
+PRINTFORML %CALLNAME:(1)%：（用手遮挡）不要...
+PRINTL 
+PRINTL 【根据纹身类型有不同的反应】
+IF FLAG:103 >= 3  ; 媚黑纹身多
+	PRINTL 拍照男：哦？还是媚黑纹身啊...
+	PRINTL 拍照男：这种照片一定能卖个好价钱。
+	PRINTL 他更加兴奋地拍照。
+	
+	; 增加被勒索的概率
+	IF RAND:100 < 30
+		GOSUB BLACKMAIL_PHOTO_EVENT
+	ENDIF
+	
+ELSEIF FLAG:104 >= 2  ; 奴隶纹身多
+	PRINTL 拍照男：奴隶纹身啊...是哪个主人的？
+	PRINTL 拍照男：这种照片可以用来勒索呢...
+	PRINTL 他露出了不怀好意的笑容。
+	
+	; 增加被控制事件
+	IF RAND:100 < 40
+		GOSUB CONTROL_PHOTO_EVENT
+	ENDIF
+	
+ELSE
+	PRINTL 拍照男：纹身挺多的嘛，是不是很淫乱啊？
+	PRINTL 拍照男：让我拍下来慢慢欣赏...
+	PRINTL 他拍了几张后满意地离开了。
+ENDIF
+
+; 羞耻心下降
+CALL SET_PALAM, 1, 14, MAX(0, GET_PALAM(1, 14) - 10)  ; 羞耻心下降
+CALL SET_PALAM, 1, 36, GET_PALAM(1, 36) + 8  ; 羞辱经验增加
+
+; 可能被传到网上
+IF RAND:100 < 20
+	PRINTL 
+	PRINTL 【几天后，你发现自己的照片被传到了网上...】
+	GOSUB ONLINE_PHOTO_EVENT
+ENDIF
+
+WAIT
+RETURN
+
+@TATTOO_INFECTION_EVENT
+; 纹身感染事件
+PRINTL 
+PRINTL 【你感觉纹身部位有些不对劲...】
+WAIT
+
+PRINTL 纹身部位红肿发热，还流出了脓液。
+PRINTFORML %CALLNAME:(1)%：好痛...好像感染了...
+PRINTL 你意识到纹身可能感染了。
+PRINTL 
+PRINTL 【选择：】
+PRINTL [1] 去医院
+PRINTL [2] 自己处理
+PRINTL [3] 不管它
+
+$INFECTION_CHOICE
+INPUT
+
+SELECTCASE RESULT
+	CASE 1
+		PRINTL 【你去了医院...】
+		PRINTL 医生：这是纹身感染，需要抗生素治疗。
+		PRINTL 医生：另外...这些纹身是强制纹的吧？
+		PRINTFORML %CALLNAME:(1)%：（低头）嗯...
+		PRINTL 医生：需要报警吗？
+		PRINTL 
+		PRINTL 【选择：】
+		PRINTL [1] 报警
+		PRINTL [2] 不报警
+		
+		$POLICE_CHOICE
+		INPUT
+		
+		IF RESULT == 1
+			GOSUB POLICE_REPORT_EVENT
+		ELSE
+			PRINTFORML %CALLNAME:(1)%：不、不用了...
+			PRINTL 医生：好吧，但你要小心。
+			PRINTL 医生开了抗生素，感染慢慢好转了。
+		ENDIF
+		
+	CASE 2
+		PRINTL 【你自己处理感染...】
+		PRINTL 你买了消毒药水和纱布，但处理不当。
+		PRINTL 感染没有完全好转，留下了疤痕。
+		PRINTL 【纹身部位留下了难看的疤痕...】
+		
+		; 疤痕效果
+		CALL SET_PALAM, 1, 80, MAX(0, GET_PALAM(1, 80) - 5)  ; 皮肤光泽下降
+		
+	CASE 3
+		PRINTL 【你没有处理感染...】
+		PRINTL 感染越来越严重，你开始发烧。
+		PRINTL 【你病倒了，不得不在床上休息几天...】
+		FLAG:43 += 2  ; 多休息两天
+		
+		; 严重感染后果
+		CALL SET_PALAM, 1, 0, 30  ; 体力大幅下降
+		CALL SET_PALAM, 1, 2, 20  ; 精力大幅下降
+		
+		; 可能留下永久痕迹
+		IF RAND:100 < 50
+			PRINTL 
+			PRINTL 【感染导致纹身变形，留下了难看的疤痕...】
+			CALL SET_PALAM, 1, 81, MAX(0, GET_PALAM(1, 81) - 8)  ; 皮肤弹性下降
+		ENDIF
+ENDSELECT
+
+WAIT
+RETURN
+
+@PIERCING_INFECTION_EVENT
+; 穿孔感染事件
+PRINTL 
+PRINTL 【你感觉穿孔部位有些不对劲...】
+WAIT
+
+; 随机一个穿孔部位感染
+LOCAL:0 = -1
+LOCAL:1 = 0
+FOR LOCAL:2, 0, 14
+	IF GET_PIERCING(1, LOCAL:2) != 0
+		LOCAL:1 += 1
+		IF RAND:LOCAL:1 == 0
+			LOCAL:0 = LOCAL:2
+		ENDIF
+	ENDIF
+NEXT
+
+IF LOCAL:0 != -1
+	PRINTL 【{GET_PIERCING_LOCATION_NAME(LOCAL:0)}的穿孔感染了...】
+	PRINTL 穿孔部位红肿流脓，金属环卡在肿胀的组织里。
+	PRINTFORML %CALLNAME:(1)%：好痛...取不下来了...
+	PRINTL 
+	PRINTL 【选择：】
+	PRINTL [1] 强行取下
+	PRINTL [2] 带环治疗
+	PRINTL [3] 不管它
+	
+	$PIERCING_INFECTION_CHOICE
+	INPUT
+	
+	SELECTCASE RESULT
+		CASE 1
+			PRINTL 【你强行取下了穿孔环...】
+			PRINTL 但感染的组织被撕裂，血流不止。
+			PRINTFORML %CALLNAME:(1)%：啊！好痛！
+			PRINTL 伤口需要缝合，留下了难看的疤痕。
+			PRINTL 【穿孔部位的皮肤被严重损坏...】
+			
+			; 取下穿孔，但留下疤痕
+			CALL SET_PIERCING, 1, LOCAL:0, 0
+			CALL SET_PALAM, 1, GET_PALAM_LOCATION(LOCAL:0), MAX(0, GET_PALAM(1, GET_PALAM_LOCATION(LOCAL:0)) - 10)  ; 相应部位敏感度下降
+			
+		CASE 2
+			PRINTL 【你带着穿孔环治疗...】
+			PRINTL 感染慢慢好转，但穿孔环永远留在你身上。
+			PRINTL 【这个穿孔再也取不下来了...】
+			
+			; 穿孔变成永久
+			PRINTL 【这个穿孔标志着你的永久归属...】
+			
+		CASE 3
+			PRINTL 【你没有处理感染...】
+			PRINTL 感染导致组织坏死，穿孔环脱落。
+			PRINTL 但留下了一个丑陋的洞。
+			PRINTL 【穿孔部位留下了一个无法愈合的洞...】
+			
+			; 严重毁容
+			CALL SET_PALAM, 1, GET_PALAM_LOCATION(LOCAL:0), MAX(0, GET_PALAM(1, GET_PALAM_LOCATION(LOCAL:0)) - 15)  ; 相应部位功能下降
+			CALL SET_PIERCING, 1, LOCAL:0, 0
+	ENDSELECT
+ENDIF
+
+WAIT
+RETURN
+
+@GET_PALAM_LOCATION, ARG:1
+; 获取对应部位的Palam编号
+#FUNCTION
+SELECTCASE ARG:1
+	CASE 0, 1  ; 乳头
+		RETURNF 38  ; 乳头敏感度
+	CASE 2  ; 阴蒂
+		RETURNF 49  ; 阴蒂敏感度
+	CASE 3  ; 阴唇
+		RETURNF 50  ; 阴唇敏感度
+	CASE 6  ; 舌头
+		RETURNF 28  ; 口交经验
+	CASE 14  ; 肛门
+		RETURNF 60  ; 肛门敏感度
+	CASEELSE
+		RETURNF 82  ; 皮肤敏感度
+ENDSELECT

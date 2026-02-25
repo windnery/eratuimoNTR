@@ -1,0 +1,583 @@
+; 纹身和穿孔系统
+@INIT_TATTOO_SYSTEM
+; 初始化纹身和穿孔系统
+IF FLAG:101 == 0
+	; 纹身部位初始化
+	FOR LOCAL:0, 0, 20
+		CALL SET_TATTOO, 1, LOCAL:0, 0  ; 所有部位初始无纹身
+	NEXT
+	
+	; 穿孔部位初始化
+	FOR LOCAL:0, 0, 14
+		CALL SET_PIERCING, 1, LOCAL:0, 0  ; 所有部位初始无穿孔
+	NEXT
+	
+	; 纹身相关标记
+	FLAG:102 = 0  ; 总纹身数量
+	FLAG:103 = 0  ; 媚黑纹身数量
+	FLAG:104 = 0  ; 奴隶纹身数量
+	FLAG:105 = 0  ; 强制纹身事件计数
+	
+	FLAG:101 = 1
+ENDIF
+RETURN
+
+@ADD_TATTOO, ARG:1, ARG:2
+; 添加纹身
+; ARG:1 = 纹身部位
+; ARG:2 = 纹身图案ID
+LOCAL = GET_TATTOO(1, ARG:1)
+IF LOCAL == 0  ; 该部位还没有纹身
+	CALL SET_TATTOO, 1, ARG:1, ARG:2
+	FLAG:102 += 1  ; 总纹身数量增加
+	
+	; 检查纹身类型
+IF ARG:2 >= 100 && ARG:2 <= 109  ; 手背媚黑类
+	ELSEIF ARG:2 >= 110 && ARG:2 <= 119  ; 手腕奴隶类
+	ELSEIF ARG:2 >= 120 && ARG:2 <= 129  ; 手臂媚黑类
+	ELSEIF ARG:2 >= 130 && ARG:2 <= 134  ; 肩膀媚黑类
+	ELSEIF ARG:2 >= 140 && ARG:2 <= 144  ; 背部媚黑类
+	ELSEIF ARG:2 >= 150 && ARG:2 <= 153  ; 腰部媚黑类
+	ELSEIF ARG:2 >= 160 && ARG:2 <= 164  ; 小腹媚黑类
+	ELSEIF ARG:2 >= 170 && ARG:2 <= 174  ; 臀部媚黑类
+		FLAG:103 += 1
+	ELSEIF ARG:2 >= 180  &&   &&   ARG:2 <= 184  ; 大腿内侧媚黑类
+		FLAG:103 += 1
+	ELSEIF ARG:2 >= 210  &&   &&   ARG:2 <= 214  ; 乳房媚黑类
+		FLAG:103 += 1
+	ELSEIF ARG:2 >= 220  &&   &&   ARG:2 <= 224  ; 乳头媚黑类
+		FLAG:103 += 1
+	ELSEIF ARG:2 >= 230  &&   &&   ARG:2 <= 233  ; 乳房间媚黑类
+		FLAG:103 += 1
+	ELSEIF ARG:2 >= 240  &&   &&   ARG:2 <= 244  ; 阴部媚黑类
+		FLAG:103 += 1
+	ELSEIF ARG:2 >= 250  &&   &&   ARG:2 <= 253  ; 大腿根部媚黑类
+		FLAG:103 += 1
+	ELSEIF ARG:2 >= 260  &&   &&   ARG:2 <= 263  ; 后颈奴隶类
+		FLAG:104 += 1
+	ELSEIF ARG:2 >= 270  &&   &&   ARG:2 <= 272  ; 耳后媚黑类
+		FLAG:103 += 1
+	ELSEIF ARG:2 >= 280  &&   &&   ARG:2 <= 283  ; 舌头媚黑类
+		FLAG:103 += 1
+	ELSEIF ARG:2 >= 290  &&   &&   ARG:2 <= 293  ; 阴蒂媚黑类
+		FLAG:103 += 1
+	ELSEIF ARG:2 >= 300  &&   &&   ARG:2 <= 303  ; 肛门媚黑类
+		FLAG:103 += 1
+	ENDIF
+	
+	FLAG:105 += 1  ; 强制纹身事件计数
+ENDIF
+RETURN
+
+@ADD_PIERCING, ARG:1, ARG:2
+; 添加穿孔
+; ARG:1 = 穿孔部位
+; ARG:2 = 穿孔类型ID
+LOCAL = GET_PIERCING(1, ARG:1)
+IF LOCAL == 0  ; 该部位还没有穿孔
+	CALL SET_PIERCING, 1, ARG:1, ARG:2
+	
+	; 穿孔效果
+	SELECTCASE ARG:1
+		CASE 0, 1  ; 乳头环
+			CALL SET_PALAM, 1, 38, MIN(100, GET_PALAM(1, 38) + 10)  ; 乳头敏感度增加
+			PRINTL 【乳头被穿孔后变得更加敏感了...】
+		CASE 2  ; 阴蒂环
+			CALL SET_PALAM, 1, 49, MIN(100, GET_PALAM(1, 49) + 15)  ; 阴蒂敏感度增加
+			PRINTL 【阴蒂被穿孔后变得更加敏感了...】
+		CASE 3  ; 阴唇环
+			CALL SET_PALAM, 1, 50, MIN(100, GET_PALAM(1, 50) + 8)  ; 阴唇敏感度增加
+			PRINTL 【阴唇被穿孔后变得更加敏感了...】
+		CASE 6  ; 舌环
+			CALL SET_PALAM, 1, 28, GET_PALAM(1, 28) + 5  ; 口交经验增加
+			PRINTL 【舌环让你的口交技巧提升了...】
+		CASE 14  ; 肛门环
+			CALL SET_PALAM, 1, 60, MIN(100, GET_PALAM(1, 60) + 12)  ; 肛门敏感度增加
+			PRINTL 【肛门被穿孔后变得更加敏感了...】
+	ENDSELECT
+	
+	; 媚黑穿孔效果
+	IF ARG:2 >= 7  &&   &&   ARG:2 <= 9  ; 黑桃/BBC/黑人专属穿孔
+		CALL SET_PALAM, 1, 18, MIN(100, GET_PALAM(1, 18) + 5)  ; 服从度增加
+		CALL SET_PALAM, 1, 19, MIN(100, GET_PALAM(1, 19) + 5)  ; 依赖度增加
+		PRINTL 【这种穿孔标志着你的归属...】
+	ENDIF
+ENDIF
+RETURN
+
+@GET_TATTOO_NAME, ARG:1, ARG:2
+; 获取纹身名称
+#FUNCTION
+SELECTCASE ARG:2
+	; 手背纹身
+	CASE 100
+		RETURNF "正字标记"
+	CASE 101
+		RETURNF "奴隶编号"
+	CASE 102
+		RETURNF "黑人专属"
+	CASE 103
+		RETURNF "淫纹"
+	CASE 104
+		RETURNF "媚黑标记"
+	CASE 105
+		RETURNF "BBC纹身"
+	CASE 106
+		RETURNF "QOS纹身"
+	CASE 107
+		RETURNF "黑桃标记"
+		
+	; 手腕纹身
+	CASE 110
+		RETURNF "手铐纹身"
+	CASE 111
+		RETURNF "锁链纹身"
+	CASE 112
+		RETURNF "主人名字缩写"
+	CASE 113
+		RETURNF "黑人名字缩写"
+		
+	; 手臂纹身
+	CASE 120
+		RETURNF "藤蔓纹身"
+	CASE 121
+		RETURNF "蛇纹身"
+	CASE 122
+		RETURNF "淫纹图案"
+	CASE 123
+		RETURNF "黑色精子纹身"
+	CASE 124
+		RETURNF "BBC崇拜纹身"
+		
+	; 肩膀纹身
+	CASE 130
+		RETURNF "蝴蝶纹身"
+	CASE 131
+		RETURNF "玫瑰纹身"
+	CASE 132
+		RETURNF "奴隶纹身"
+	CASE 133
+		RETURNF "媚黑标语"
+	CASE 134
+		RETURNF "Black Only"
+		
+	; 背部纹身
+	CASE 140
+		RETURNF "大面积淫纹"
+	CASE 141
+		RETURNF "黑人名字全称"
+	CASE 142
+		RETURNF "BBC Queen"
+	CASE 143
+		RETURNF "黑桃皇后"
+	CASE 144
+		RETURNF "轮奸纪念"
+		
+	; 腰部纹身
+	CASE 150
+		RETURNF "低腰淫纹"
+	CASE 151
+		RETURNF "Black Owned"
+	CASE 152
+		RETURNF "黑人精子纹"
+	CASE 153
+		RETURNF "正字计数"
+		
+	; 小腹纹身
+	CASE 160
+		RETURNF "子宫位置淫纹"
+	CASE 161
+		RETURNF "黑人专属标记"
+	CASE 162
+		RETURNF "BBC Only"
+	CASE 163
+		RETURNF "怀孕标记"
+	CASE 164
+		RETURNF "精液池纹身"
+		
+	; 臀部纹身
+	CASE 170
+		RETURNF "臀瓣淫纹"
+	CASE 171
+		RETURNF "黑桃图案"
+	CASE 172
+		RETURNF "正字计数"
+	CASE 173
+		RETURNF "黑人手掌印"
+	CASE 174
+		RETURNF "轮奸纪念日"
+		
+	; 大腿内侧纹身
+	CASE 180
+		RETURNF "正字计数"
+	CASE 181
+		RETURNF "黑人数量标记"
+	CASE 182
+		RETURNF "BBC Count"
+	CASE 183
+		RETURNF "精液滴纹身"
+	CASE 184
+		RETURNF "黑人名字列表"
+		
+	; 乳房纹身
+	CASE 210
+		RETURNF "乳晕周围纹身"
+	CASE 211
+		RETURNF "黑色精子环绕"
+	CASE 212
+		RETURNF "BBC纹身"
+	CASE 213
+		RETURNF "乳沟淫纹"
+	CASE 214
+		RETURNF "乳头专属标记"
+		
+	; 乳头纹身
+	CASE 220
+		RETURNF "乳头一圈纹身"
+	CASE 221
+		RETURNF "黑色精子纹"
+	CASE 222
+		RETURNF "BBC纹身"
+	CASE 223
+		RETURNF "媚黑标记"
+	CASE 224
+		RETURNF "乳头编号"
+		
+	CASEELSE
+		RETURNF "未知纹身"
+ENDSELECT
+
+@GET_PIERCING_NAME, ARG:1, ARG:2
+; 获取穿孔名称
+#FUNCTION
+SELECTCASE ARG:2
+	; 乳环
+	CASE 1
+		RETURNF "普通乳环"
+	CASE 2
+		RETURNF "银质乳环"
+	CASE 3
+		RETURNF "金质乳环"
+	CASE 4
+		RETURNF "钻石乳环"
+	CASE 5
+		RETURNF "铃铛乳环"
+	CASE 6
+		RETURNF "锁链乳环"
+	CASE 7
+		RETURNF "黑桃乳环"
+	CASE 8
+		RETURNF "BBC乳环"
+	CASE 9
+		RETURNF "黑人专属乳环"
+	CASE 10
+		RETURNF "奴隶乳环"
+		
+	; 阴蒂环
+	CASE 1 + 100
+		RETURNF "普通阴蒂环"
+	CASE 2 + 100
+		RETURNF "银质阴蒂环"
+	CASE 3 + 100
+		RETURNF "金质阴蒂环"
+	CASE 4 + 100
+		RETURNF "钻石阴蒂环"
+	CASE 5 + 100
+		RETURNF "铃铛阴蒂环"
+	CASE 6 + 100
+		RETURNF "锁链阴蒂环"
+	CASE 7 + 100
+		RETURNF "黑桃阴蒂环"
+	CASE 8 + 100
+		RETURNF "BBC阴蒂环"
+	CASE 9 + 100
+		RETURNF "黑人专属阴蒂环"
+	CASE 10 + 100
+		RETURNF "奴隶阴蒂环"
+		
+	CASEELSE
+		RETURNF "未知穿孔"
+ENDSELECT
+
+@GET_TATTOO_LOCATION_NAME, ARG:1
+; 获取纹身部位名称
+#FUNCTION
+SELECTCASE ARG:1
+	CASE 0
+		RETURNF "手背"
+	CASE 1
+		RETURNF "手腕"
+	CASE 2
+		RETURNF "手臂"
+	CASE 3
+		RETURNF "肩膀"
+	CASE 4
+		RETURNF "背部"
+	CASE 5
+		RETURNF "腰部"
+	CASE 6
+		RETURNF "小腹"
+	CASE 7
+		RETURNF "臀部"
+	CASE 8
+		RETURNF "大腿内侧"
+	CASE 9
+		RETURNF "膝盖后方"
+	CASE 10
+		RETURNF "脚踝"
+	CASE 11
+		RETURNF "乳房"
+	CASE 12
+		RETURNF "乳头"
+	CASE 13
+		RETURNF "乳房间"
+	CASE 14
+		RETURNF "阴部周围"
+	CASE 15
+		RETURNF "大腿根部"
+	CASE 16
+		RETURNF "后颈"
+	CASE 17
+		RETURNF "耳后"
+	CASE 18
+		RETURNF "舌头"
+	CASE 19
+		RETURNF "阴蒂"
+	CASE 20
+		RETURNF "肛门周围"
+	CASEELSE
+		RETURNF "未知部位"
+ENDSELECT
+
+@GET_PIERCING_LOCATION_NAME, ARG:1
+; 获取穿孔部位名称
+#FUNCTION
+SELECTCASE ARG:1
+	CASE 0
+		RETURNF "左乳头"
+	CASE 1
+		RETURNF "右乳头"
+	CASE 2
+		RETURNF "阴蒂"
+	CASE 3
+		RETURNF "阴唇"
+	CASE 4
+		RETURNF "肚脐"
+	CASE 5
+		RETURNF "鼻子"
+	CASE 6
+		RETURNF "舌头"
+	CASE 7
+		RETURNF "耳朵"
+	CASE 8
+		RETURNF "眉毛"
+	CASE 9
+		RETURNF "脸颊"
+	CASE 10
+		RETURNF "锁骨"
+	CASE 11
+		RETURNF "手腕"
+	CASE 12
+		RETURNF "脚踝"
+	CASE 13
+		RETURNF "阴部"
+	CASE 14
+		RETURNF "肛门"
+	CASEELSE
+		RETURNF "未知部位"
+ENDSELECT
+
+@VIEW_TATTOO_STATUS
+; 查看纹身状态
+CLEARLINE 1
+PRINTL 【纹身状态】
+PRINTL 
+
+PRINTFORML 总纹身数量：{FLAG:102}
+PRINTFORML 媚黑纹身数量：{FLAG:103}
+PRINTFORML 奴隶纹身数量：{FLAG:104}
+PRINTFORML 强制纹身事件：{FLAG:105}
+PRINTL 
+
+PRINTL 【详细纹身列表：】
+LOCAL:0 = 0  ; 计数
+FOR LOCAL:1, 0, 20
+	LOCAL:2 = GET_TATTOO(1, LOCAL:1)
+	IF LOCAL:2 != 0
+		PRINTFORML {GET_TATTOO_LOCATION_NAME(LOCAL:1)}：{GET_TATTOO_NAME(LOCAL:1, LOCAL:2)}
+		LOCAL:0 += 1
+	ENDIF
+NEXT
+
+IF LOCAL:0 == 0
+	PRINTL 暂无纹身
+ENDIF
+
+PRINTL 
+PRINTL 【穿孔状态：】
+LOCAL:0 = 0
+FOR LOCAL:1, 0, 14
+	LOCAL:2 = GET_PIERCING(1, LOCAL:1)
+	IF LOCAL:2 != 0
+		PRINTFORML {GET_PIERCING_LOCATION_NAME(LOCAL:1)}：{GET_PIERCING_NAME(LOCAL:1, LOCAL:2)}
+		LOCAL:0 += 1
+	ENDIF
+NEXT
+
+IF LOCAL:0 == 0
+	PRINTL 暂无穿孔
+ENDIF
+
+PRINTL 
+PRINTL 【纹身效果：】
+IF FLAG:103 >= 5
+	PRINTL 你身上大量的媚黑纹身标志着你是黑人的专属财产
+	PRINTL 这些纹身无法去除，将永远留在你身上
+ELSEIF FLAG:103 >= 3
+	PRINTL 明显的媚黑纹身让他人知道你的特殊身份
+	PRINTL 这些纹身会吸引更多黑人男性的注意
+ELSEIF FLAG:103 >= 1
+	PRINTL 媚黑纹身标志着你的堕落倾向
+	PRINTL 这种纹身会让你在黑人中更受欢迎
+ENDIF
+
+IF FLAG:104 >= 3
+	PRINTL 奴隶纹身标志着你是他人的财产
+	PRINTL 这些纹身让你难以逃脱被控制的命运
+ENDIF
+
+IF FLAG:102 >= 10
+	PRINTL 全身大量的纹身让你看起来像个淫乱的妓女
+	PRINTL 正常人看到你会感到厌恶，但变态会感到兴奋
+ENDIF
+
+WAIT
+RETURN
+
+@CALCULATE_TATTOO_EFFECTS
+; 计算纹身效果
+; 纹身增加性感度和淫乱度
+LOCAL = FLAG:102 * 3  ; 每个纹身+3性感度
+FLAG:100 += LOCAL  ; 增加到事件性感度加成
+
+; 纹身增加淫乱度
+CALL SET_PALAM, 1, 20, MIN(100, GET_PALAM(1, 20) + FLAG:102 * 2)
+
+; 媚黑纹身增加服从度和依赖度
+IF FLAG:103 >= 1
+	CALL SET_PALAM, 1, 18, MIN(100, GET_PALAM(1, 18) + FLAG:103 * 3)
+	CALL SET_PALAM, 1, 19, MIN(100, GET_PALAM(1, 19) + FLAG:103 * 2)
+ENDIF
+
+; 奴隶纹身增加服从度
+IF FLAG:104 >= 1
+	CALL SET_PALAM, 1, 18, MIN(100, GET_PALAM(1, 18) + FLAG:104 * 4)
+ENDIF
+
+RETURN
+
+@GET_TATTOO_VISIBILITY_EFFECT
+; 获取纹身可见度效果
+#FUNCTION
+LOCAL = 0
+
+; 检查可见部位的纹身
+; 手背、手腕、手臂、肩膀等明显部位
+FOR LOCAL:1, 0, 4
+	IF GET_TATTOO(1, LOCAL:1) != 0
+		LOCAL += 10  ; 每个可见纹身+10性感度
+	ENDIF
+NEXT
+
+; 乳房纹身在裸露时可见
+IF GET_CHEST_EXPOSURE_LEVEL() >= 1
+	IF GET_TATTOO(1, 11) != 0 OR GET_TATTOO(1, 12) != 0 OR GET_TATTOO(1, 13) != 0
+		LOCAL += 15  ; 乳房纹身在裸露时效果更强
+	ENDIF
+ENDIF
+
+; 小腹纹身在露脐时可见
+IF GET_EQUIP(1) == 1307 OR GET_EQUIP(1) == 0  ; 露脐上衣或没穿上衣
+	IF GET_TATTOO(1, 6) != 0
+		LOCAL += 12
+	ENDIF
+ENDIF
+
+; 大腿纹身在穿短裙时可见
+IF GET_EQUIP(2) == 902 OR GET_EQUIP(2) == 903  ; 短裙或迷你裙
+	IF GET_TATTOO(1, 8) != 0 OR GET_TATTOO(1, 15) != 0
+		LOCAL += 10
+	ENDIF
+ENDIF
+
+RETURNF LOCAL
+
+@APPLY_TATTOO_TO_EVENTS
+; 应用纹身到事件系统
+; 纹身会增加某些事件的概率和严重程度
+
+; 媚黑纹身增加黑人事件概率
+IF FLAG:103 >= 3
+	FLAG:79 += FLAG:103 * 2  ; 黑人NTR进度增加
+ENDIF
+
+; 奴隶纹身增加被控制事件概率
+IF FLAG:104 >= 2
+	; 增加被勒索、被控制的概率
+	IF RAND:100 < FLAG:104 * 10
+		PRINTL 【你身上的奴隶纹身让他人知道你是容易控制的...】
+		GOSUB TRIGGER_SLAVE_EVENT
+	ENDIF
+ENDIF
+
+; 大量纹身增加被鄙视但也被渴望的概率
+IF FLAG:102 >= 8
+	LOCAL = RAND:100
+	IF LOCAL < 30
+		PRINTL 【有人看到你的纹身后露出厌恶的表情...】
+		CALL SET_PALAM, 1, 37, MIN(100, GET_PALAM(1, 37) + 5)  ; 罪恶感增加
+	ELSEIF LOCAL < 60
+		PRINTL 【有人看到你的纹身后露出兴奋的表情...】
+		GOSUB TRIGGER_PERVERT_EVENT
+	ENDIF
+ENDIF
+
+RETURN
+
+@TRIGGER_SLAVE_EVENT
+; 触发奴隶事件
+PRINTL 
+PRINTL 【有人看到了你身上的奴隶纹身...】
+WAIT
+
+PRINTL 男人：哦？有奴隶纹身啊...是哪个主人的？
+PRINTFORML %CALLNAME:(1)%：不、不是的...
+PRINTL 男人：别骗我了，这种纹身我认识。
+PRINTL 他走近你，眼神充满占有欲。
+PRINTL 男人：既然你有主人了，那再加一个也没关系吧？
+PRINTL 
+PRINTL 【他开始对你动手动脚...】
+WAIT
+
+GOSUB RANDOM_HARASSMENT_EVENT
+RETURN
+
+@TRIGGER_PERVERT_EVENT
+; 触发变态事件
+PRINTL 
+PRINTL 【一个看起来很变态的男人接近你...】
+WAIT
+
+PRINTL 变态男：小姐，你身上的纹身真漂亮...
+PRINTL 他舔了舔嘴唇，眼睛在你身上扫视。
+PRINTFORML %CALLNAME:(1)%：请、请不要靠近...
+PRINTL 变态男：别害羞嘛，我就喜欢纹身多的女人...
+PRINTL 他拿出手机开始拍照。
+PRINTFORML %CALLNAME:(1)%：不要拍照！
+PRINTL 变态男：这么漂亮的纹身，不拍下来太可惜了...
+PRINTL 
+PRINTL 【他一边拍照一边靠近...】
+WAIT
+
+GOSUB PHOTO_HARASSMENT_EVENT
+RETURN

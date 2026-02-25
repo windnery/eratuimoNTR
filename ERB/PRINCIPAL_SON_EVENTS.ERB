@@ -1,0 +1,429 @@
+; 校长儿子线NTR事件
+@MEET_PRINCIPAL_SON
+; 遇见校长儿子张子豪
+PRINTFORML 【你遇到了校长儿子%CALLNAME:(5)%】
+PRINTL 
+
+; 根据NTR进度触发不同事件
+IF FLAG:80 < 10
+	GOSUB PRINCIPAL_SON_FIRST_MEETING
+ELSEIF FLAG:80 < 30
+	GOSUB PRINCIPAL_SON_THREATENING
+ELSEIF FLAG:80 < 60
+	GOSUB PRINCIPAL_SON_ABUSE_OF_POWER
+ELSE
+	GOSUB PRINCIPAL_SON_CORRUPTION
+ENDIF
+
+WAIT
+RETURN
+
+@PRINCIPAL_SON_FIRST_MEETING
+; 初次相遇
+PRINTL %CALLNAME:(5)%：喂，新来的？长得不错嘛。
+PRINTL 他带着一群跟班，一副纨绔子弟的样子。
+PRINTFORML %CALLNAME:(1)%：你、你是谁...
+PRINTL 跟班A：这位是我们张校长的公子，张子豪少爷！
+PRINTL 跟班B：识相的就乖乖听话，不然有你好受的！
+PRINTL 
+PRINTL 【你知道惹不起这种人...】
+WAIT
+
+PRINTL %CALLNAME:(5)%：别紧张，我就是想交个朋友。
+PRINTL 他走近你，伸手想要摸你的脸。
+PRINTFORML %CALLNAME:(1)%：请、请不要这样...
+PRINTL %CALLNAME:(5)%：怎么？不给面子？
+PRINTL 他的脸色沉了下来。
+PRINTL 
+PRINTL 【选择：】
+PRINTL [1] 礼貌拒绝
+PRINTL [2] 找借口离开
+PRINTL [3] 勉强应付
+
+$PRINCIPAL_FIRST_CHOICE
+INPUT
+
+SELECTCASE RESULT
+	CASE 1
+		PRINTFORML %CALLNAME:(1)%：对不起，我还要去上课...
+		PRINTL %CALLNAME:(5)%：上课？我帮你请假就是了。
+		PRINTL 他跟班们笑了起来。
+		PRINTL %CALLNAME:(5)%：我爸爸是校长，一句话的事。
+		FLAG:80 += 3
+	CASE 2
+		PRINTFORML %CALLNAME:(1)%：对不起，我真的有事...
+		PRINTL %CALLNAME:(5)%：有事？什么事比我还重要？
+		PRINTL 他拦住你的去路。
+		PRINTL %CALLNAME:(5)%：今天不陪我聊聊，就别想走。
+		FLAG:80 += 5
+		CALL APPLY_SEX_EVENT_EFFECTS, 7, 10, 1  ; 束缚效果
+	CASE 3
+		PRINTFORML %CALLNAME:(1)%：那...那就聊一会儿...
+		PRINTL %CALLNAME:(5)%：这才对嘛，识时务者为俊杰。
+		PRINTL 他满意地笑了，手搭在你肩膀上。
+		PRINTL %CALLNAME:(5)%：以后跟着我，保证你在学院里横着走。
+		FLAG:80 += 7
+		CALL APPLY_SEX_EVENT_EFFECTS, 6, 5, 1  ; 露出效果
+ENDSELECT
+
+PRINTL 
+PRINTL 【校长儿子的权势让你感到不安...】
+WAIT
+RETURN
+
+@PRINCIPAL_SON_THREATENING
+; 校长儿子威胁事件
+PRINTL %CALLNAME:(5)%：%CALLNAME:(1)%，来一下办公室。
+PRINTL 他的语气不容拒绝。
+PRINTFORML %CALLNAME:(1)%：办、办公室？有什么事吗...
+PRINTL %CALLNAME:(5)%：关于你的学籍问题，需要和你谈谈。
+PRINTL 他拿出了文件，看起来像是真的。
+PRINTL 
+PRINTL 【你知道这是借口，但不得不去...】
+WAIT
+
+PRINTL 【在校长的办公室里...】
+PRINTL %CALLNAME:(5)%：把门关上。
+PRINTFORML %CALLNAME:(1)%：为、为什么要关门...
+PRINTL %CALLNAME:(5)%：不想让别人听到我们的谈话。
+PRINTL 他坐在校长的椅子上，翘起二郎腿。
+PRINTL %CALLNAME:(5)%：你的档案有点问题，知道吗？
+PRINTFORML %CALLNAME:(1)%：什么问题？我都是按照规定...
+PRINTL %CALLNAME:(5)%：规定？我爸爸就是规定。
+PRINTL 他站起来，走到你面前。
+PRINTL 
+PRINTL 【选择：】
+PRINTL [1] 询问具体问题
+PRINTL [2] 请求帮助
+PRINTL [3] 质疑真实性（需要勇气>50）
+
+$PRINCIPAL_THREAT_CHOICE
+INPUT
+
+SELECTCASE RESULT
+	CASE 1
+		PRINTFORML %CALLNAME:(1)%：请、请问是什么问题...
+		PRINTL %CALLNAME:(5)%：你的转学手续不完整，可能会被退学。
+		PRINTL 他故意夸大其词。
+		PRINTL %CALLNAME:(5)%：不过...如果你听话，我可以帮你解决。
+		FLAG:80 += 8
+		CALL APPLY_SEX_EVENT_EFFECTS, 7, 15, 2
+	CASE 2
+		PRINTFORML %CALLNAME:(1)%：请、请您一定要帮帮我...
+		PRINTL %CALLNAME:(5)%：帮你？可以啊，但你要怎么报答我？
+		PRINTL 他的手抚上你的脸颊。
+		PRINTL %CALLNAME:(5)%：这么漂亮的脸蛋，不用来报答我太可惜了。
+		FLAG:80 += 12
+		CALL APPLY_SEX_EVENT_EFFECTS, 7, 20, 2
+		CALL APPLY_SEX_EVENT_EFFECTS, 6, 10, 1
+	CASE 3
+		IF GET_PALAM(1, 57) >= 50  ; 勇气值
+			PRINTFORML %CALLNAME:(1)%：我不信！我要找校长问清楚！
+			PRINTL %CALLNAME:(5)%：啧...还挺倔...
+			PRINTL 他没想到你会反抗。
+			PRINTL %CALLNAME:(5)%：行，算你狠，滚吧。
+			FLAG:80 += 4
+			CALL SET_PALAM, 1, 57, GET_PALAM(1, 57) + 5  ; 勇气增加
+		ELSE
+			PRINTL 【你没有足够的勇气...】
+			GOTO PRINCIPAL_THREAT_CHOICE
+		ENDIF
+ENDSELECT
+
+PRINTL 
+PRINTL 【校长儿子用权力威胁你就范...】
+WAIT
+RETURN
+
+@PRINCIPAL_SON_ABUSE_OF_POWER
+; 校长儿子权力滥用事件
+PRINTL %CALLNAME:(5)%：%CALLNAME:(1)%，你的期末成绩出来了。
+PRINTL 他拿着成绩单，脸上带着得意的笑容。
+PRINTFORML %CALLNAME:(1)%：成、成绩？不是还没考试吗...
+PRINTL %CALLNAME:(5)%：我说出了就出了，有问题吗？
+PRINTL 他打开成绩单，上面写着"不及格"。
+PRINTFORML %CALLNAME:(1)%：怎么会...我一直很努力...
+PRINTL %CALLNAME:(5)%：努力有什么用？我说你不及格就是不及格。
+PRINTL 
+PRINTL 【他利用权力操纵你的成绩...】
+WAIT
+
+PRINTL %CALLNAME:(5)%：不过...如果你肯听话，我可以帮你改成绩。
+PRINTFORML %CALLNAME:(1)%：要、要我怎么听话...
+PRINTL %CALLNAME:(5)%：很简单，做我的女朋友。
+PRINTL 他说得理直气壮。
+PRINTL %CALLNAME:(5)%：或者...至少满足我的要求。
+PRINTL 
+PRINTL 【选择：】
+PRINTL [1] 严词拒绝
+PRINTL [2] 讨价还价
+PRINTL [3] 屈服（需要堕落度>30）
+
+$PRINCIPAL_POWER_CHOICE
+INPUT
+
+SELECTCASE RESULT
+	CASE 1
+		PRINTFORML %CALLNAME:(1)%：我不会屈服的！我要举报你！
+		PRINTL %CALLNAME:(5)%：举报？向谁举报？向我爸爸举报我吗？
+		PRINTL 他大笑起来。
+		PRINTL %CALLNAME:(5)%：天真，太天真了。
+		FLAG:80 += 6
+	CASE 2
+		PRINTFORML %CALLNAME:(1)%：能不能...换个条件...
+		PRINTL %CALLNAME:(5)%：换条件？可以啊，陪我一个星期。
+		PRINTL 他伸出食指。
+		PRINTL %CALLNAME:(5)%：一个星期，随叫随到，怎么样？
+		FLAG:80 += 15
+		CALL APPLY_SEX_EVENT_EFFECTS, 7, 25, 3
+	CASE 3
+		IF GET_TOTAL_DECLINE_LEVEL() >= 30
+			GOSUB PRINCIPAL_SON_SEXUAL_HARASSMENT
+		ELSE
+			PRINTL 【你的堕落度还不够...】
+			GOTO PRINCIPAL_POWER_CHOICE
+		ENDIF
+ENDSELECT
+
+PRINTL 
+PRINTL 【校长儿子的权力游戏越来越过分了...】
+WAIT
+RETURN
+
+@PRINCIPAL_SON_SEXUAL_HARASSMENT
+; 校长儿子性骚扰事件
+PRINTL 【你屈服于%CALLNAME:(5)%的威胁...】
+WAIT
+
+PRINTL %CALLNAME:(5)%：Good girl... 我就喜欢你这样识时务的。
+PRINTL 他把你拉到身边，手开始不安分。
+PRINTFORML %CALLNAME:(1)%：请、请轻一点...
+PRINTL %CALLNAME:(5)%：放心，我会好好疼你的...
+PRINTL 他开始脱你的衣服。
+PRINTL %CALLNAME:(5)%：让我看看，值不值得我帮你改成绩...
+PRINTL 
+PRINTL 【在校长办公室里...】
+WAIT
+
+PRINTL %CALLNAME:(5)%：身材不错嘛...
+PRINTL 他抚摸着你的胸部，手指玩弄着乳头。
+PRINTFORML %CALLNAME:(1)%：啊...嗯...
+PRINTL %CALLNAME:(5)%：反应不错，看来很敏感呢...
+PRINTL 
+PRINTL 【他坐在校长的椅子上...】
+WAIT
+
+PRINTL %CALLNAME:(5)%：过来，坐我腿上。
+PRINTFORML %CALLNAME:(1)%：在、在这里？不行的...
+PRINTL %CALLNAME:(5)%：有什么不行？这椅子我爸爸坐得，我就坐不得？
+PRINTL 他强行把你拉到他腿上。
+PRINTL %CALLNAME:(5)%：今天就在这椅子上干你...
+PRINTL 
+PRINTL 【你坐在他腿上，能感觉到他勃起的下体...】
+WAIT
+
+PRINTL %CALLNAME:(5)%：自己动，让我看看你的诚意。
+PRINTFORML %CALLNAME:(1)%：我、我不会...
+PRINTL %CALLNAME:(5)%：不会就学，这可是关系到你的成绩哦。
+PRINTL 他威胁性地晃了晃成绩单。
+PRINTL 
+PRINTL 【你被迫主动迎合他...】
+WAIT
+
+PRINTL 你笨拙地扭动腰部，裙子被撩起。
+PRINTL %CALLNAME:(5)%：对，就是这样...再快点...
+PRINTFORML %CALLNAME:(1)%：哈啊...嗯啊...
+PRINTL 他能感觉到你的小穴已经湿透了。
+PRINTL %CALLNAME:(5)%：看来你也很享受嘛...
+PRINTL 
+PRINTL 【他站起来，把你按在办公桌上...】
+WAIT
+
+PRINTL %CALLNAME:(5)%：还是让我来主导吧...
+PRINTL 他从后面进入你的身体，办公桌发出吱呀声。
+PRINTFORML %CALLNAME:(1)%：啊...桌子...会坏的...
+PRINTL %CALLNAME:(5)%：坏了就坏了，我家有钱...
+PRINTL 他猛烈抽插，每次都顶到最深处。
+PRINTFORML %CALLNAME:(1)%：哈啊...太深了...
+PRINTL 
+PRINTL 【高潮来临...】
+WAIT
+
+PRINTL %CALLNAME:(5)%：要射了...接好了！
+PRINTL 他在你体内射出大量精液。
+PRINTFORML %CALLNAME:(1)%：啊...里面...好烫...
+PRINTL 精液顺着你的大腿流下，滴在校长的地毯上。
+PRINTL 
+PRINTL 【事后...】
+WAIT
+
+PRINTL %CALLNAME:(5)%：表现不错，成绩我会帮你改的。
+PRINTL 他整理好衣服，扔给你一包纸巾。
+PRINTFORML %CALLNAME:(1)%：（擦着身体）谢谢...
+PRINTL %CALLNAME:(5)%：谢什么？这只是交易而已。
+PRINTL 他冷冷地说。
+PRINTL %CALLNAME:(5)%：下次需要改成绩，随时来找我。
+
+; 效果
+FLAG:80 += 25
+CALL APPLY_SEX_EVENT_EFFECTS, 2, 50, 4
+CALL APPLY_SEX_EVENT_EFFECTS, 5, 30, 2
+CALL APPLY_SEX_EVENT_EFFECTS, 6, 20, 2
+CALL APPLY_SEX_EVENT_EFFECTS, 7, 30, 3
+
+; 特别效果：权力压迫导致服从度大幅提升
+CALL SET_PALAM, 1, 18, MIN(100, GET_PALAM(1, 18) + 15)
+CALL SET_PALAM, 1, 19, MIN(100, GET_PALAM(1, 19) + 10)
+
+PRINTL 
+PRINTL 【你在校长办公室被他的儿子侵犯了...】
+PRINTL 权力的压迫让你无法反抗...
+WAIT
+RETURN
+
+@PRINCIPAL_SON_CORRUPTION
+; 校长儿子腐化事件（高堕落度）
+PRINTL %CALLNAME:(5)%：%CALLNAME:(1)%，介绍几个朋友给你认识。
+PRINTL 他带着几个看起来很有钱的中年男人。
+PRINTFORML %CALLNAME:(1)%：他、他们是谁...
+PRINTL 男人A：哦？张公子，这就是你说的那个女孩？
+PRINTL 男人B：不错不错，确实很漂亮。
+PRINTL 男人C：张公子有眼光啊。
+PRINTL 
+PRINTL 【你知道这些人不怀好意...】
+WAIT
+
+PRINTL %CALLNAME:(5)%：他们都是我爸的朋友，很有钱的。
+PRINTL 他低声对你说。
+PRINTL %CALLNAME:(5)%：陪他们玩玩，对你以后有好处。
+PRINTFORML %CALLNAME:(1)%：我、我不要...
+PRINTL %CALLNAME:(5)%：不要？别忘了你的成绩还在我手里。
+PRINTL 
+PRINTL 【选择：】
+PRINTL [1] 坚决拒绝
+PRINTL [2] 试图逃跑
+PRINTL [3] 屈服（需要堕落度>50）
+
+$PRINCIPAL_CORRUPT_CHOICE
+INPUT
+
+SELECTCASE RESULT
+	CASE 1
+		PRINTFORML %CALLNAME:(1)%：我不会做这种事的！
+		PRINTL %CALLNAME:(5)%：啧...给脸不要脸...
+		PRINTL 他脸色阴沉。
+		PRINTL %CALLNAME:(5)%：等着被退学吧。
+		FLAG:80 += 10
+	CASE 2
+		PRINTL 【你转身想要逃跑】
+		PRINTL 但那些男人拦住了你。
+		PRINTL 男人A：别急着走嘛，张公子请客，给个面子。
+		PRINTFORML %CALLNAME:(1)%：放、放开我...
+		FLAG:80 += 15
+		CALL APPLY_SEX_EVENT_EFFECTS, 7, 35, 3
+	CASE 3
+		IF GET_TOTAL_DECLINE_LEVEL() >= 50
+			GOSUB PRINCIPAL_SON_PROSTITUTION
+		ELSE
+			PRINTL 【你的堕落度还不够...】
+			GOTO PRINCIPAL_CORRUPT_CHOICE
+		ENDIF
+ENDSELECT
+
+PRINTL 
+PRINTL 【校长儿子开始把你介绍给其他男人...】
+PRINTL 事情变得越来越糟糕了...
+WAIT
+RETURN
+
+@PRINCIPAL_SON_PROSTITUTION
+; 校长儿子拉皮条事件
+PRINTL 【你屈服了...】
+WAIT
+
+PRINTL 【在高级酒店的房间里...】
+PRINTL 男人A：张公子，你的眼光确实不错。
+PRINTL 男人B：这女孩看起来很清纯啊。
+PRINTL 男人C：清纯才好玩嘛。
+PRINTL %CALLNAME:(5)%：各位老板玩得开心，我先出去了。
+PRINTL 他收下几个厚厚的信封，离开了房间。
+PRINTFORML %CALLNAME:(1)%：不、不要走...
+PRINTL 男人A：别怕，我们会好好疼你的...
+PRINTL 
+PRINTL 【三个中年男人围住了你...】
+WAIT
+
+PRINTL 男人A：我先来，我出的钱最多。
+PRINTL 他开始脱你的衣服，动作很熟练。
+PRINTFORML %CALLNAME:(1)%：请、请温柔一点...
+PRINTL 男人A：放心吧，我最懂怜香惜玉了...
+PRINTL 
+PRINTL 【第一个男人侵犯你...】
+WAIT
+
+PRINTL 男人A：真紧啊...还是处女吗？
+PRINTFORML %CALLNAME:(1)%：不、不是了...
+PRINTL 男人A：可惜，不过也没关系...
+PRINTL 他进入你的身体，开始抽插。
+PRINTFORML %CALLNAME:(1)%：啊...嗯...
+PRINTL 
+PRINTL 【第二个男人加入...】
+WAIT
+
+PRINTL 男人B：轮到我了！
+PRINTL 他选择你的嘴巴，强迫你口交。
+PRINTFORML %CALLNAME:(1)%：唔...嗯...太大了...
+PRINTL 男人B：好好舔，不然不给钱哦。
+PRINTL 
+PRINTL 【第三个男人玩弄你的胸部...】
+WAIT
+
+PRINTL 男人C：这胸部真不错，又软又弹...
+PRINTL 他用力揉捏你的胸部，手指玩弄乳头。
+PRINTFORML %CALLNAME:(1)%：啊...痛...
+PRINTL 男人C：痛？痛才爽啊！
+PRINTL 
+PRINTL 【三个男人同时玩弄你...】
+WAIT
+
+PRINTFORML %CALLNAME:(1)%：嗯啊...啊...唔...
+PRINTL 身体被三个中年男人侵犯，屈辱感涌上心头。
+PRINTL 但你的身体却产生了可耻的快感...
+PRINTL 
+PRINTL 【连续的高潮...】
+WAIT
+
+PRINTFORML %CALLNAME:(1)%：要、要去了...啊啊啊♡♥
+PRINTL 你达到了高潮，身体剧烈颤抖。
+PRINTL 男人们也在你体内射出了大量精液。
+PRINTFORML %CALLNAME:(1)%：啊...里面...都满了...♡
+PRINTL 精液从各个洞口溢出，流得满地都是。
+PRINTL 
+PRINTL 【事后...】
+WAIT
+
+PRINTL 男人A：不错，这钱花得值。
+PRINTL 男人B：下次还有这样的货色，记得叫我。
+PRINTL 男人C：张公子会做生意啊。
+PRINTL %CALLNAME:(5)%：各位老板满意就好。
+PRINTFORML %CALLNAME:(1)%：（蜷缩在床上）哈啊...哈啊...
+
+; 效果
+FLAG:80 += 40
+CALL APPLY_SEX_EVENT_EFFECTS, 4, 70, 7  ; 群交
+CALL APPLY_SEX_EVENT_EFFECTS, 5, 45, 3  ; 内射
+CALL APPLY_SEX_EVENT_EFFECTS, 2, 60, 5  ; 阴道性交
+CALL APPLY_SEX_EVENT_EFFECTS, 1, 35, 3  ; 口交
+CALL APPLY_SEX_EVENT_EFFECTS, 0, 25, 2  ; 乳交
+
+; 特别效果：卖淫导致金钱增加，但羞耻心大幅下降
+CALL SET_PALAM, 1, 37, GET_PALAM(1, 37) + 30  ; 罪恶感
+CALL SET_PALAM, 1, 14, MAX(0, GET_PALAM(1, 14) - 25)  ; 羞耻心下降
+CALL SET_PALAM, 1, 18, MIN(100, GET_PALAM(1, 18) + 20)  ; 服从度提升
+CALL SET_PALAM, 1, 20, MIN(100, GET_PALAM(1, 20) + 25)  ; 淫乱度提升
+
+PRINTL 
+PRINTL 【你被校长儿子卖给了其他男人...】
+PRINTL 已经彻底堕落成了金钱的奴隶...
+WAIT
+RETURN

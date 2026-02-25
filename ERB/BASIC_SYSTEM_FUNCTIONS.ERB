@@ -1,0 +1,49 @@
+; 基础系统函数辅助文件
+; Emuera有内置的GET_PALAM、SET_PALAM等函数，无需重新定义
+; 这里提供一些游戏特有的辅助函数
+
+; 堕落度计算
+@GET_TOTAL_DECLINE_LEVEL
+#FUNCTION
+RETURNF 0  ; 返回基础堕落度0
+
+; 位置获取函数
+@GET_LOCATION_NAME
+#FUNCTION
+RETURNF "学院入口"  ; 默认位置
+
+; 探索度获取
+@GET_DISCOVERED_NTR_TARGETS
+#FUNCTION
+RETURNF "无"  ; 默认无目标
+
+; 游戏特有辅助函数
+@GET_TOTAL_DECLINE_LEVEL
+#FUNCTION
+; 堕落度计算：淫乱度 + 屈从度 + 受虐倾向 + 背德值的平均值
+LOCAL = GET_PALAM(1, 20)  ; 淫乱度
+LOCAL += GET_PALAM(1, 21)  ; 屈从度
+LOCAL += GET_PALAM(1, 22)  ; 受虐倾向
+LOCAL += GET_PALAM(1, 39)  ; 背德值
+RETURNF MIN(100, LOCAL / 4)  ; 取平均值，不超过100
+
+@IS_FEMALE_LINE
+#FUNCTION
+; 判断是否是女性线
+IF FLAG:72 == 1
+	RETURNF 1
+ELSE
+	RETURNF 0
+ENDIF
+
+; 基础辅助函数
+@SAFE_ADD, ARG:1, ARG:2, ARG:3
+#FUNCTION
+; 安全增加数值，不超过最大值ARG:3
+LOCAL = GET_PALAM(ARG:1, ARG:2)
+LOCAL += 10  ; 默认增加10
+IF LOCAL > ARG:3
+	RETURNF ARG:3
+ELSE
+	RETURNF LOCAL
+ENDIF

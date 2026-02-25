@@ -1,0 +1,359 @@
+; 吴昊线NTR事件
+@EVENT_WUHAO_BATTLE_HARASSMENT
+; 战斗中的骚扰事件
+PRINTL 
+PRINTL 【与魔物战斗时，%CALLNAME:(3)%前辈故意靠近你...】
+WAIT
+
+PRINTL 魔物已经被击退，%CALLNAME:(3)%突然从后面抱住你。
+PRINTFORML %CALLNAME:(1)%：前辈！战斗还没结束...
+PRINTL %CALLNAME:(3)%：别紧张，我只是保护你而已...
+PRINTL 他的手紧紧环住你的腰，身体紧贴着你。
+PRINTL 
+PRINTL 【你能感觉到他的下体顶在你的臀部...】
+WAIT
+
+PRINTL %CALLNAME:(3)%：你看，魔物又来了...
+PRINTL 他指着远处的魔物，但手没有放开你。
+PRINTL 反而借机用下体在你臀部摩擦。
+PRINTFORML %CALLNAME:(1)%：啊...前辈...请不要...
+PRINTL %CALLNAME:(3)%：这是在战斗，你要集中注意力...
+PRINTL 他说着正经的话，却做着下流的事。
+PRINTL 
+PRINTL 【魔物扑了过来，%CALLNAME:(3)%才不情愿地放开你】
+PRINTFORML %CALLNAME:(1)%：（喘着气）前辈...这样太危险了...
+PRINTL %CALLNAME:(3)%：放心，有我在你不会受伤的...
+PRINTL 他舔了舔嘴唇，眼神充满占有欲。
+
+; 效果
+FLAG:75 += 5
+CALL INCREASE_DECLINE_TALENT, 10, 1  ; 亲密
+CALL INCREASE_DECLINE_TALENT, 11, 1  ; 顺从
+FLAG:39 += 3
+
+PRINTL 
+PRINTL 【你意识到%CALLNAME:(3)%前辈比魔物更危险...】
+WAIT
+RETURN
+
+@EVENT_WUHAO_NIGHT_VISIT
+; 吴昊夜晚来访事件
+PRINTL 
+PRINTL 【深夜，有人敲响了你宿舍的门...】
+WAIT
+
+PRINTL 你打开门，发现是%CALLNAME:(3)%前辈。
+PRINTFORML %CALLNAME:(1)%：前辈...这么晚了有什么事吗？
+PRINTL %CALLNAME:(3)%：关于任务的事情，我需要跟你商量一下。
+PRINTL 他不由分说地走进你的房间，关上了门。
+PRINTL 
+PRINTL 【宿舍里只有你们两个人...】
+WAIT
+
+PRINTL %CALLNAME:(3)%：其实没什么重要的事...
+PRINTL 他坐在你的床上，拍了拍旁边的位置。
+PRINTL %CALLNAME:(3)%：过来坐下，我们聊聊。
+PRINTFORML %CALLNAME:(1)%：前、前辈...这样不太好吧...
+PRINTL %CALLNAME:(3)%：怕什么，我们不是搭档吗？
+PRINTL 他站起来，走向你。
+PRINTL 
+PRINTL 【你一步步后退，直到背靠墙壁...】
+WAIT
+
+PRINTL %CALLNAME:(3)%：别这么紧张嘛...
+PRINTL 他一只手撑在你头边的墙上，形成壁咚的姿势。
+PRINTL 另一只手轻轻抚摸你的脸颊。
+PRINTFORML %CALLNAME:(1)%：前辈...请、请不要这样...
+PRINTL %CALLNAME:(3)%：你知道吗？你脸红的样子特别可爱...
+PRINTL 他的脸越来越近，呼吸喷在你的脸上。
+PRINTL 
+PRINTL 【选择：】
+PRINTL [1] 大声呼救
+PRINTL [2] 用力推开他
+PRINTL [3] 膝盖顶击要害
+PRINTL [4] 假装配合，寻找机会
+
+$NIGHT_VISIT_CHOICE
+INPUT
+
+SELECTCASE RESULT
+	CASE 1
+		PRINTL 【你大声呼救！】
+		PRINTL %CALLNAME:(1)%：救命啊！
+		PRINTL %CALLNAME:(3)%：啧...算你狠...
+		PRINTL 他听到隔壁房间有动静，赶紧离开了。
+		PRINTFORML %CALLNAME:(1)%：（瘫坐在地上）哈啊...哈啊...
+		FLAG:75 += 2
+		FLAG:38 -= 8
+	CASE 2
+		PRINTL 【你用力推开他！】
+		PRINTL 但%CALLNAME:(3)%的力气比你大，反而抓住了你的手腕。
+		PRINTL %CALLNAME:(3)%：这么不乖，需要惩罚一下...
+		PRINTL 他强行吻住了你的嘴唇。
+		PRINTFORML %CALLNAME:(1)%：唔...嗯...！
+		PRINTL 你挣扎着，但渐渐失去了力气...
+		FLAG:75 += 7
+		CALL INCREASE_DECLINE_TALENT, 11, 2  ; 顺从
+	CASE 3
+		PRINTL 【你膝盖用力顶向他的裆部！】
+		PRINTL %CALLNAME:(3)%：呜啊！
+		PRINTL 他痛苦地捂着下身跪倒在地。
+		PRINTFORML %CALLNAME:(1)%：（趁机开门逃跑）对不起前辈！
+		PRINTL 你飞快地逃出了房间。
+		FLAG:75 += 3
+		FLAG:38 -= 10
+	CASE 4
+		PRINTL 【你假装配合...】
+		PRINTFORML %CALLNAME:(1)%：前辈...那个...我想先去洗个澡...
+		PRINTL %CALLNAME:(3)%：哦？想一起洗吗？
+		PRINTFORML %CALLNAME:(1)%：不、不是...我是说...
+		PRINTL %CALLNAME:(3)%：开玩笑的，你去吧。
+		PRINTL 他暂时放开了你，你趁机逃进了浴室并锁上门。
+		PRINTL %CALLNAME:(3)%：切...今天就算了...
+		PRINTL 他等了一会儿，见你不出来就离开了。
+		FLAG:75 += 4
+ENDSELECT
+
+PRINTL 
+PRINTL 【这次经历让你更加警惕夜晚的来访者...】
+WAIT
+RETURN
+
+@EVENT_WUHAO_DRUG_EVENT
+; 吴昊下药事件（堕落度30%以上触发）
+IF FLAG:75 >= 30 && AND&& AND  FLAG:85 == 0
+	PRINTL 
+	PRINTL 【%CALLNAME:(3)%前辈请你喝饮料...】
+	WAIT
+	
+	PRINTL %CALLNAME:(3)%：辛苦了，喝点饮料休息一下。
+	PRINTL 他递给你一杯看起来很正常的饮料。
+	PRINTFORML %CALLNAME:(1)%：谢、谢谢前辈...
+	PRINTL 你感觉有点渴，就喝了几口。
+	PRINTL 
+	PRINTL 【没过多久，你开始头晕...】
+	WAIT
+	
+	PRINTFORML %CALLNAME:(1)%：嗯...头好晕...前辈...饮料里...
+	PRINTL %CALLNAME:(3)%：终于生效了呢...
+	PRINTL 他扶住摇摇欲坠的你，把你带到他的房间。
+	PRINTL %CALLNAME:(3)%：放心，只是让你放松一点...
+	PRINTL 你全身无力，意识模糊...
+	PRINTL 
+	PRINTL 【药物让你的身体异常敏感...】
+	WAIT
+	
+	GOSUB WUHAO_RAPE_EVENT
+	
+	FLAG:85 = 1  ; 标记已触发
+ENDIF
+RETURN
+
+@WUHAO_RAPE_EVENT
+; 吴昊强奸事件
+PRINTL 
+PRINTL 【在药物的作用下，你的身体异常敏感...】
+WAIT
+
+PRINTL %CALLNAME:(3)%：真漂亮的身体呢...
+PRINTL 他慢慢脱下你的衣服，手指抚过你的肌肤。
+PRINTFORML %CALLNAME:(1)%：不...不要...求你了...
+PRINTL 你的哀求软弱无力，反而刺激了他的欲望。
+PRINTL %CALLNAME:(3)%：嘴上说不要，身体却很诚实呢...
+PRINTL 他能感觉到你身体的反应。
+PRINTL 
+PRINTL 【你的衣服被一件件脱下...】
+WAIT
+
+PRINTL %CALLNAME:(3)%：让我好好看看你...
+PRINTL 他欣赏着你赤裸的身体，手指玩弄着你的胸部。
+PRINTFORML %CALLNAME:(1)%：啊...嗯...
+PRINTL 药物让你无法抵抗，反而增强了快感。
+PRINTL 乳头在他的玩弄下挺立起来。
+PRINTL 
+PRINTL 【他的手向下滑去...】
+WAIT
+
+PRINTL %CALLNAME:(3)%：已经湿了呢...
+PRINTL 他的手指探入你的小穴，感受着内部的湿润。
+PRINTFORML %CALLNAME:(1)%：哈啊...不要...进去...
+PRINTL %CALLNAME:(3)%：这么紧，是第一次吗？
+PRINTL 他抽出沾满爱液的手指，放在你嘴边。
+PRINTL %CALLNAME:(3)%：尝尝你自己的味道...
+PRINTFORML %CALLNAME:(1)%：唔...嗯...
+PRINTL 你被迫舔舐着自己的体液。
+PRINTL 
+PRINTL 【他脱下了裤子...】
+WAIT
+
+PRINTL %CALLNAME:(3)%：让我好好疼爱你...
+PRINTL 他粗大的性器抵在你的小穴入口。
+PRINTFORML %CALLNAME:(1)%：不...太大了...进不去的...
+PRINTL %CALLNAME:(3)%：别担心，我会温柔的...
+PRINTL 他慢慢推进，撕裂般的疼痛让你哭了出来。
+PRINTFORML %CALLNAME:(1)%：痛...好痛...
+PRINTL %CALLNAME:(3)%：忍一下，马上就好了...
+PRINTL 他完全进入了你的身体，开始缓慢抽插。
+PRINTL 
+PRINTL 【疼痛逐渐转为快感...】
+WAIT
+
+PRINTFORML %CALLNAME:(1)%：啊...嗯啊...♡
+PRINTL 药物让你异常敏感，快感如潮水般涌来。
+PRINTL %CALLNAME:(3)%：看吧，你的身体很喜欢呢...
+PRINTL 他加快速度，每次都顶到最深处。
+PRINTFORML %CALLNAME:(1)%：哈啊...太深了...要坏了...
+PRINTL 你的身体在他身下颤抖，迎合着他的动作。
+PRINTL 
+PRINTL 【高潮来临...】
+WAIT
+
+PRINTFORML %CALLNAME:(1)%：要、要去了...啊啊啊♡♥
+PRINTL 强烈的快感让你弓起身体，达到了高潮。
+PRINTL %CALLNAME:(3)%：我也要射了...接好！
+PRINTL 他在你体内猛烈抽插几下后，一股热流注满了你的小穴。
+PRINTFORML %CALLNAME:(1)%：啊...里面...好烫...♡
+PRINTL 精液充满子宫的感觉让你再次颤抖。
+PRINTL 
+PRINTL 【事后...】
+WAIT
+
+PRINTL %CALLNAME:(3)%：从今天起，你就是我的女人了。
+PRINTL 他抚摸着你的头发，在你额头上印下一吻。
+PRINTFORML %CALLNAME:(1)%：（无力地喘息）为什么...要这样...
+PRINTL %CALLNAME:(3)%：因为我喜欢你啊，这么简单...
+PRINTL 他整理好衣服，离开了房间。
+PRINTL 
+PRINTL 【你瘫在床上，精液从双腿间流出...】
+PRINTL 身体还残留着刚才的快感余韵...
+
+; 效果
+FLAG:75 += 25
+CALL INCREASE_DECLINE_TALENT, 10, 3  ; 亲密
+CALL INCREASE_DECLINE_TALENT, 11, 4  ; 顺从
+CALL INCREASE_DECLINE_TALENT, 12, 3  ; 欲望
+CALL INCREASE_DECLINE_TALENT, 35, 5  ; 膣射中毒
+CALL INCREASE_DECLINE_TALENT, 54, 2  ; 膣技
+FLAG:39 += 15
+FLAG:38 -= 20
+
+PRINTL 
+PRINTL 【你的身体已经被%CALLNAME:(3)%前辈玷污了...】
+PRINTL 但内心深处，某种东西正在改变...
+WAIT
+RETURN
+
+@EVENT_WUHAO_GROUP_SEX
+; 吴昊带领的群交事件（堕落度60%以上触发）
+IF FLAG:75 >= 60 && AND&& AND  FLAG:86 == 0
+	PRINTL 
+	PRINTL 【%CALLNAME:(3)%前辈说要带你去见几个"朋友"...】
+	WAIT
+	
+	PRINTL 你被带到一间隐蔽的房间，里面有几个陌生的男生。
+	PRINTFORML %CALLNAME:(1)%：前辈...这些人是谁...
+	PRINTL %CALLNAME:(3)%：都是我的朋友，想认识你一下。
+	PRINTL 你感觉气氛不对，想要离开。
+	PRINTL %CALLNAME:(3)%：别急着走嘛，大家一起玩...
+	PRINTL 他搂住你的肩膀，不让你离开。
+	PRINTL 
+	PRINTL 【其他男生围了上来...】
+	WAIT
+	
+	PRINTL 男生A：吴哥，这妞真不错啊！
+	PRINTL 男生B：身材真好，玩起来一定很爽！
+	PRINTFORML %CALLNAME:(1)%：不要...放开我...
+	PRINTL %CALLNAME:(3)%：别害羞，你会喜欢的...
+	PRINTL 他开始脱你的衣服，其他人也来帮忙。
+	PRINTL 
+	PRINTL 【你的衣服被撕扯下来...】
+	WAIT
+	
+	PRINTL %CALLNAME:(3)%：先从我开始吧...
+	PRINTL 他把你按在墙上，从后面进入你的身体。
+	PRINTFORML %CALLNAME:(1)%：啊...前辈...不要...
+	PRINTL 其他男生在旁边看着，发出猥琐的笑声。
+	PRINTL 
+	PRINTL 【第一个男生结束后，第二个接上...】
+	WAIT
+	
+	GOSUB GROUP_SEX_DETAILED
+	
+	FLAG:86 = 1
+ENDIF
+RETURN
+
+@GROUP_SEX_DETAILED
+; 详细的群交描写
+PRINTL 
+PRINTL 【你被几个男生轮流侵犯...】
+WAIT
+
+PRINTL 男生A把你推倒在床上，分开你的双腿。
+PRINTL 男生A：让我尝尝看！
+PRINTL 他粗鲁地进入你的小穴，猛烈抽插。
+PRINTFORML %CALLNAME:(1)%：哈啊...太粗了...慢一点...
+PRINTL 但男生A根本没有理会你的哀求。
+PRINTL 男生A：真紧啊...吴哥调教得不错！
+PRINTL 
+PRINTL 【第一个男生射在你体内后，第二个马上接上...】
+WAIT
+
+PRINTL 男生B：轮到我了！
+PRINTL 他把你翻过来，从后面进入。
+PRINTFORML %CALLNAME:(1)%：嗯啊...后面...不要...
+PRINTL 男生B：别装了，你明明很享受！
+PRINTL 他用力拍打你的臀部，发出清脆的声音。
+PRINTL 
+PRINTL 【第三个男生选择你的嘴巴...】
+WAIT
+
+PRINTL 男生C：嘴巴借我用一下！
+PRINTL 他把性器塞进你的嘴里，强迫你口交。
+PRINTFORML %CALLNAME:(1)%：唔...嗯...太大了...
+PRINTL 男生C：好好舔，不然不给你呼吸！
+PRINTL 你被迫含住粗大的肉棒，舌头被压得发麻。
+PRINTL 
+PRINTL 【三个人同时侵犯你...】
+WAIT
+
+PRINTFORML %CALLNAME:(1)%：啊...嗯啊...唔...
+PRINTL 小穴、后穴、嘴巴同时被侵犯，快感如潮水般涌来。
+PRINTL 身体被填满的感觉让你几乎要晕过去。
+PRINTL %CALLNAME:(3)%：看吧，你的身体很诚实呢...
+PRINTL 他在旁边欣赏着你的淫乱姿态。
+PRINTL 
+PRINTL 【连续的高潮让你意识模糊...】
+WAIT
+
+PRINTFORML %CALLNAME:(1)%：要、要去了...好多...啊啊啊♡♥
+PRINTL 你达到了强烈的高潮，身体剧烈痉挛。
+PRINTL 男生们也在你体内射出了大量精液。
+PRINTFORML %CALLNAME:(1)%：啊...里面...都满了...♡
+PRINTL 小穴、后穴、嘴巴都被射满，精液从各个洞口流出。
+PRINTL 
+PRINTL 【事后，你瘫在满是精液的床上...】
+PRINTL 身体还在微微颤抖，残留着刚才的快感。
+
+; 效果
+FLAG:75 += 30
+CALL INCREASE_DECLINE_TALENT, 11, 5  ; 顺从
+CALL INCREASE_DECLINE_TALENT, 12, 4  ; 欲望
+CALL INCREASE_DECLINE_TALENT, 14, 3  ; 侍奉精神
+CALL INCREASE_DECLINE_TALENT, 31, 5  ; 精液中毒
+CALL INCREASE_DECLINE_TALENT, 32, 4  ; 精饮中毒
+CALL INCREASE_DECLINE_TALENT, 35, 4  ; 膣射中毒
+CALL INCREASE_DECLINE_TALENT, 36, 3  ; 肛射中毒
+CALL INCREASE_DECLINE_TALENT, 51, 3  ; 舌技
+CALL INCREASE_DECLINE_TALENT, 54, 3  ; 膣技
+CALL INCREASE_DECLINE_TALENT, 55, 2  ; 菊花技
+FLAG:39 += 25
+FLAG:38 -= 30
+
+PRINTL 
+PRINTL 【你已经彻底堕落了...】
+PRINTL 身体记住了被多人侵犯的快感...
+WAIT
+RETURN
+
+; ... 更多吴昊线事件
